@@ -9,20 +9,22 @@ script to bring in a polyfill if the end-user's browser does not yet have the pl
 ## Rationale 
 
 [Tick](https://github.com/juxt/tick) is a full-featured cross-platform date-time library,
-and is great for end users who will benefit from that functionality. For Clojurescript users
+and is great for end users who will benefit from that functionality. For Clojurescript 
+application developers using Tick,
 it comes at a cost of [significant build size](https://github.com/juxt/tick/blob/master/docs/cljs.adoc#optional-timezone--locale-data-for-reducing-build-size).
 For many potential users the 'cost' of that build size will be negligible, because their 
-builds will easily load fast enough for their end-users. 
+builds will easily load fast enough for their end-users and the end-users memory usage will
+also not impact their experience in any noticeable way. 
 
 On the other hand, Javascript's existing platform Date object has [well documented, "won't fix" issues](https://www.youtube.com/watch?v=aVuor-VAWTI),
 and since a Date instance represents the start of a millisecond on the timeline, it is a poor
-choice when using it to represent entities such as a calendar date, like 2020-02-02 for example. 
+choice when being used to represent entities such as a calendar date, like 2020-02-02 for example. 
 Fortunately,
 work is underway to build a [new platform Date-time library for Javascript](https://github.com/tc39/proposal-temporal)
 which (perhaps unsurprisingly) has a lot of overlap with Java's java.time library.
 
 For Clojurescript application users who need the smallest possible build size, or for 
-libraries wishing to use cross-platform date-time capabilities, Tick's build size and installation 
+library authors wishing to use cross-platform date-time capabilities, Tick's build size and installation 
 requirements make it not ideal at present. It
 may be possible to implement Tick on the Temporal API, but it would be a huge amount of work to
 both 
@@ -56,11 +58,6 @@ developers who need to include some date-time capability.
 ;; move date forward 3 days
 (t/>> a-date (t/parse-period "P3D"))
 
-
-
-
-
-;
 
 ```
 
