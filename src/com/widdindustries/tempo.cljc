@@ -1,9 +1,13 @@
 (ns com.widdindustries.tempo
-  #?(:clj
+  #?(:cljs (:require [com.widdindustries.tempo.cljs-protocols :as cljs-protocols])
+     :clj
      (:import
        [java.util Date]
        [java.time Clock ZoneId ZoneOffset Instant Duration Period DayOfWeek Month ZonedDateTime LocalTime LocalDateTime LocalDate Year YearMonth ZoneId OffsetDateTime OffsetTime]
        [java.time.temporal Temporal TemporalAmount])))
+
+(defn extend-all-cljs-protocols []
+  #?(:cljs (cljs-protocols/extend-all)))
 
 (defn now-date
   ([] #?(:clj (LocalDate/now)
