@@ -1,5 +1,5 @@
 {:paths ["src"]
- :aliases {:dev {:extra-paths ["dev" "test"]
+ :aliases {:dev {:extra-paths ["dev" "test" "web-target"]
                  :extra-deps {ring/ring-core                      {:mvn/version "1.8.1"}
                               ;both bizarre and ironic that clj-time is required... by ring?
                               ;clj-time/clj-time {:mvn/version "0.14.3"}

@@ -11,8 +11,7 @@
 
   (extend-protocol IComparable
     js/Temporal.PlainDate
-    (-compare [x y] (let [d (.-sign ^js/Temporal.Duration (.until ^js x y))]
-                      ;todo - is this right?
+    (-compare [x y] (let [d (.-sign (.negated (.until ^js x y)))]
                       d))))
 
 (defn duration []
@@ -30,6 +29,18 @@
 
   )
 
+(defn timezone []
+  (extend-protocol IEquiv
+    js/Temporal.TimeZone
+    (-equiv [o other] (= (.-id ^js/TemporalThing o) (.-id ^js/TemporalThing other))))
+
+  (extend-protocol IHash
+    js/Temporal.TimeZone
+    (-hash [o] (hash (.-id ^js/TemporalThing o))))
+
+  )
+
 (defn extend-all []
   (plain-date)
-  (duration))
+  (duration)
+  (timezone))

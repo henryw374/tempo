@@ -1,23 +1,3 @@
-### Work in progress todo list
-
-add temporal as submodule and use to dev/test via node
-   git@github.com:tc39/proposal-temporal.git
-   ("node --experimental-modules --no-warnings --icu-data-dir node_modules/full-icu -r ./lib/init.js")
-
-api todo :
-
-* extract fields - from temporal and temporalamount
-* with - change field of temporal
-* until - diff between 2 temporal
-* +/- for temporalamount
-* max/min
-* bounds-of-type. min date, max possible date?
-* truncate
-* preds
-* >=,<= etc operators
-* constructors with fields or maps?
-* clock constructors... system, fixed, offset
-
 # Tempo
 
 cross-platform Clojure time library
@@ -32,7 +12,7 @@ core Clojure(Script) time library
 ## Rationale 
 
 [Tick](https://github.com/juxt/tick) (which I help maintain) is great for application developers who want a 
-a cross-platform date-time library based on the java.time API. Tick provides much useful functionality
+cross-platform date-time library based on the java.time API. Tick provides much useful functionality
 on top of java.time, but users know they can always drop to [cljc.java-time](https://github.com/henryw374/cljc.java-time),
 to access the java.time API directly when needed.
  
@@ -64,8 +44,32 @@ so should suit both Clojure(Script) application builders who need a small cljs b
 developers who need to include some date-time capability. 
 
 This means for example that custom formatting and parsing are not in this library, since there is no common
-functionality for that between java.time and js/Temporal.   
+functionality for that between java.time and js/Temporal.
+
+### Dev 
+
+* start figwheel from compilation.clj and visit http://localhost:9503 to run tests 
   
+### Work in progress todo list
+
+add temporal as submodule and use to dev/test via node
+   git@github.com:tc39/proposal-temporal.git
+   ("node --experimental-modules --no-warnings --icu-data-dir node_modules/full-icu -r ./lib/init.js")
+
+api todo :
+
+* extract fields - from temporal and temporalamount
+* with - change field of temporal
+* until - diff between 2 temporal
+* +/- for temporalamount
+* max/min
+* bounds-of-type. min date, max possible date?
+* truncate
+* preds
+* >=,<= etc operators
+* constructors with fields or maps?
+* clock constructors... system, fixed, offset
+
 ## About
 
 * Zero dependency => platform APIs only
