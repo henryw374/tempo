@@ -11,8 +11,6 @@
   #?(:cljs
      (cljs-protocols/extend-all)))
 
-(defn clock?            [v] #?(:clj (instance? Clock v)
-                               :cljs (satisfies? clock/Clock v)))
 (defn period?           [v] #?(:clj (instance? Period v)
                                :cljs (instance? js/Temporal.Duration v)))
 (defn duration?         [v] #?(:clj (instance? Duration v)
@@ -103,7 +101,6 @@
 
 ;; construction of clocks
 (defn clock-fixed [instant zone]
-  ;todo - cljs
   #?(:clj (Clock/fixed ^Instant instant ^ZoneId (zone-parse zone))
      :cljs (clock/fixed-clock instant zone)))
 

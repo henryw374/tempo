@@ -42,9 +42,8 @@
     (is (not= (hash earliest) (hash (t/date-now))))))
 
 (deftest preds
-  (is (t/clock? (t/clock-system-default-zone)))
   (is (t/date? (t/date-now)))
-  (is (not (t/clock? (t/date-now)))))
+  (is (not (t/period? (t/date-now)))))
 
 (deftest parsing-test
   (is (t/zone-id? (t/zone-parse "Europe/London"))))
