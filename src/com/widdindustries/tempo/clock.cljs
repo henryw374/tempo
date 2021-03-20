@@ -19,3 +19,32 @@
       :zonedDateTimeISO (fn []
                           (tm/->zdt-iso instant zone))}
   )
+
+
+(defn instant 
+  ([] (js/Temporal.now.instant))
+  ([^js clock] (.instant clock)))
+(defn plain-datetime 
+  ([^js calendar] (js/Temporal.now.plainDateTime calendar))
+  ([^js clock ^js calendar] (.plainDateTime clock calendar)))
+(defn plain-datetime-iso 
+  ([] (js/Temporal.now.plainDateTimeISO))
+  ([^js clock] (.plainDateTimeISO clock)))
+(defn plain-date 
+  ([^js calendar] (js/Temporal.now.plainDate calendar))
+  ([^js clock ^js calendar] (.plainDate clock calendar)))
+(defn plain-date-iso 
+  ([] (js/Temporal.now.plainDateISO))
+  ([^js clock] (.plainDateISO clock)))
+(defn plain-time-iso 
+  ([] (js/Temporal.now.plainTimeISO))
+  ([^js clock] (.plainTimeISO clock)))
+(defn time-zone 
+  ([] (js/Temporal.now.timeZone))
+  ([^js clock] (.timeZone clock)))
+(defn zoned-date-time 
+  ([^js calendar] (js/Temporal.now.zonedDateTime calendar))
+  ([^js clock ^js calendar] (.zonedDateTime clock calendar)))
+(defn zoned-date-time-iso 
+  ([] (js/Temporal.now.zonedDateTimeISO))
+  ([^js clock] (.zonedDateTimeISO clock)))

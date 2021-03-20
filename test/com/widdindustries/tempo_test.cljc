@@ -3,9 +3,6 @@
             [com.widdindustries.tempo :as t]))
 
  (t/extend-all-cljs-protocols)
-#_(deftest equality-test
-  ;optional - make clojure.core fns =,sort,compare etc work for js/Temporal objects
-  )
 
 (deftest parsing-duration
   (is (t/duration? (t/duration-parse "PT1S"))))
@@ -13,7 +10,7 @@
 (deftest equals-hash-compare-duration
   (let [make-middle #(t/duration-parse "PT1S")
         middle (make-middle)
-        smallest (t/duration-negated (t/duration-parse "PT1S"))
+        smallest (t/duration->negated (t/duration-parse "PT1S"))
         largest (t/duration-parse "PT2S")]
     (is (not= middle smallest))
     (is (= middle (make-middle)))

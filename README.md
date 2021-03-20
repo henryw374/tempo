@@ -56,19 +56,7 @@ add temporal as submodule and use to dev/test via node
    git@github.com:tc39/proposal-temporal.git
    ("node --experimental-modules --no-warnings --icu-data-dir node_modules/full-icu -r ./lib/init.js")
 
-api todo :
-
-* extract fields - from temporal and temporalamount
-* with - change field of temporal
-* until - diff between 2 temporal
-* +/- for temporalamount
-* max/min
-* bounds-of-type. min date, max possible date?
-* truncate
-* preds
-* >=,<= etc operators
-* constructors with fields or maps?
-* clock constructors... system, fixed, offset
+api todo - see todos in tempo.cljc
 
 ## About
 
@@ -79,20 +67,111 @@ api todo :
 
 ## Usage 
 
+### Setup
+
+get from clojars etc
+
 ```clojure
 (ns my.cljc.namespace
  (:require [com.widdindustries.tempo :as t]))
 
 ;optional - make clojure.core fns =,sort,compare etc work for js/Temporal objects
 (t/extend-all-cljs-protocols)
+```
 
-(def a-date (t/now-date))
+### Construction and access
 
-;; move date forward 3 days
-(t/>> a-date (t/parse-period "P3D"))
+#### Clocks
 
+;system, fixed, offset
+
+#### Temporal-amounts
+```clojure
+
+;todo - what does this return?
+(t/period->days (t/period-parse "P3Y5M3D"))
 
 ```
+
+#### Temporals
+
+```clojure
+;tempo construction and access is based on mnemonics
+
+; the first word in the function is the entity name of the subject of the operation
+
+; for example, if I want to construct a date or access its parts the function will start t/date-,
+; similarly for a zone-date-time, it will be t/zoned-date-time-*
+(t/date-now)
+(t/date-parse "2020-02-02") ;iso strings only
+(t/date-from {:year 2020 :month 2 :day 2})
+; the -from functions accept a map of components which is sufficient to build the entity
+(t/datetime-from {:date (t/date-parse "2020-02-02") :time (t/time-now)})
+; or equivalently
+(t/datetime-from {:year 2020 :month 2 :day 2 :time (t/time-now)})
+; with -from, you can use smaller or larger components. 
+; larger ones take precedence. below, the :year is ignored, because the :date took precedence (being larger) 
+(t/datetime-from {:year 2021 :date (t/date-parse "2020-02-02") :time (t/time-now)})
+
+; to get parts of an entity, start with the subject as before and add ->
+(t/date->yearmonth (t/date-now))
+(t/date->month (t/date-now))
+(t/zdt->nanos (t/zdt-now))
+(-> (t/instant-now) (t/instant->epochmillis))
+
+; part-getting could be polymorphic - as it is in tick. could add as higher layer late. at cost of DCE
+
+```
+
+### Manipulation
+
+#### Temporal-amounts
+
+```clojure
+
+(t/+ )
+
+```
+
+#### Temporals
+
+```clojure
+
+;; move date forward 3 days
+(t/>> (t/date-now) (t/period-parse "P3D"))
+
+(-> (t/date-now) (t/with {:year 2021 :month 7}))
+(-> (t/date-now) (t/with-year 3030))
+
+; todo - is this possible??
+(-> (t/date-now) (t/truncate-to-month))
+(-> (t/instant-now) (t/truncate-to-month))
+
+```
+
+### Comparison
+
+#### Temporal
+```clojure
+
+;only entities of the same type can be compared
+
+(t/>= a b)
+
+
+(t/max a b c)
+
+(t/until a b)
+
+```
+
+### Predicates
+
+```clojure
+
+(t/date? x)
+```
+
 
 ## TBD 
 
