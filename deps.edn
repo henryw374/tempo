@@ -1,5 +1,7 @@
-{:paths ["src"]
- :aliases {:dev {:extra-paths ["dev" "test" "web-target"]
+{:paths ["src" "gen-out"]
+ :aliases {:release     {:extra-deps {applied-science/deps-library {:mvn/version "RELEASE"}}
+                         :main-opts  ["-m" "applied-science.deps-library"]}
+           :dev {:extra-paths ["dev" "test" "web-target"]
                  :extra-deps {ring/ring-core                      {:mvn/version "1.8.1"}
                               ;both bizarre and ironic that clj-time is required... by ring?
                               ;clj-time/clj-time {:mvn/version "0.14.3"}

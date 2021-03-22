@@ -64,6 +64,7 @@ api todo - see todos in tempo.cljc
 * Use java.time on jvm and Temporal on js runtime
 * platform friendly - full DCE for cljs, reflection free on jvm
 * small feature set - aim for 80% of everyday use cases.
+* totally ignore non-ISO8601 calendars.
 
 ## Usage 
 
@@ -79,7 +80,7 @@ get from clojars etc
 (t/extend-all-cljs-protocols)
 ```
 
-### Construction and access
+### Construction and access/get
 
 #### Clocks
 
@@ -119,7 +120,8 @@ get from clojars etc
 (t/zdt->nanos (t/zdt-now))
 (-> (t/instant-now) (t/instant->epochmillis))
 
-; part-getting could be polymorphic - as it is in tick. could add as higher layer late. at cost of DCE
+; part-getting could be polymorphic - as it is in tick. could add as higher layer late. 
+; java would have to be reflective/polymorphic
 
 ```
 
@@ -161,7 +163,8 @@ get from clojars etc
 
 (t/max a b c)
 
-(t/until a b)
+; you have to specify unit
+(t/until a b :minutes)
 
 ```
 

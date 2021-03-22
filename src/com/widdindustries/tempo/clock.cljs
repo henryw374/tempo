@@ -24,13 +24,13 @@
 (defn instant 
   ([] (js/Temporal.now.instant))
   ([^js clock] (.instant clock)))
-(defn plain-datetime 
+#_(defn plain-datetime 
   ([^js calendar] (js/Temporal.now.plainDateTime calendar))
   ([^js clock ^js calendar] (.plainDateTime clock calendar)))
 (defn plain-datetime-iso 
   ([] (js/Temporal.now.plainDateTimeISO))
   ([^js clock] (.plainDateTimeISO clock)))
-(defn plain-date 
+#_(defn plain-date 
   ([^js calendar] (js/Temporal.now.plainDate calendar))
   ([^js clock ^js calendar] (.plainDate clock calendar)))
 (defn plain-date-iso 
@@ -42,7 +42,7 @@
 (defn time-zone 
   ([] (js/Temporal.now.timeZone))
   ([^js clock] (.timeZone clock)))
-(defn zoned-date-time 
+#_(defn zoned-date-time 
   ([^js calendar] (js/Temporal.now.zonedDateTime calendar))
   ([^js clock ^js calendar] (.zonedDateTime clock calendar)))
 (defn zoned-date-time-iso 
