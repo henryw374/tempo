@@ -15,7 +15,8 @@ script to bring in a polyfill if the end-user's browser does not yet have the pl
 
 * Zero dependency => platform APIs only
 * Use java.time on jvm and Temporal on js runtime
-* platform+performance friendly - max DCE-ability for cljs, reflection-free on jvm. Likely means little/no polymorphism. 
+* platform+performance friendly - max DCE-ability for cljs, reflection-free on jvm. Likely means little/no polymorphism.
+* API based on mnemonics => lots of (generated) functions. 
 * small feature set - aim for 80% of everyday date/time use cases.
 * totally ignore non-ISO8601 calendars. 
 
@@ -34,7 +35,7 @@ or memory usage will be an issue given anticipated network and device capabiliti
 
 At the other end of the date-time spectrum, Javascript's existing platform Date object has [well documented, "won't fix" issues](https://www.youtube.com/watch?v=aVuor-VAWTI),
 which you see as either outright bugs or just a bizarre API.
-Also, since there is only one platforma Date entity, an instance of which represents the start of a millisecond on the global timeline, there 
+Also, since there is only one platform Date entity, an instance of which represents the start of a millisecond on the global timeline, there 
 are many use cases it does not serve well, such as representing a calendar date, like 2020-02-02 for example. 
 
 Fortunately,
@@ -90,18 +91,6 @@ end-state.
 
 ;system, fixed, offset
 
-#### Temporal-amounts
-```clojure
-
-(t/period->days (t/period-parse "P3Y5M3D")) ; > 3
-
-; todo - don't think this makes sense for periods? bc what length year, length month etc
-(t/period->as-days (t/period-parse "P3Y5M3D"))
-
-(t/duration->as-minutes (t/duration-parse "PT3H")) ; > 180
-
-```
-
 #### Temporals
 
 ```clojure
@@ -129,6 +118,19 @@ end-state.
 (-> (t/instant-now) (t/instant->epochmillis))
 
 ```
+
+#### Temporal-amounts
+```clojure
+
+(t/period->days (t/period-parse "P3Y5M3D")) ; > 3
+
+(t/duration->as-minutes (t/duration-parse "PT3H")) ; > 180
+
+; following won't exist bc what length year? month?
+;(t/period->as-days (t/period-parse "P3Y5M3D"))
+
+```
+
 
 ### Manipulation
 
