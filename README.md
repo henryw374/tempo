@@ -8,7 +8,7 @@ zero-dependency, cross-platform Clojure time library
 can still suggest changes. When it has
 stabilized, application developers targeting the browser will need to include their own
 script to bring in a polyfill if the end-user's browser does not yet have the platform API required.
-* Not much of the API exists at the moment - see `Usage` below for ideas/plans. FYI The API is planned to mostly consist generated code.
+* Not that much of the `Tempo` API exists at the moment - see `Usage` below for all ideas & plans. FYI The API is planned to mostly consist generated code.
 * Feedback welcome!
 
 ## About
