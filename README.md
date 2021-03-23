@@ -17,7 +17,7 @@ script to bring in a polyfill if the end-user's browser does not yet have the pl
 * API based on mnemonics => lots of generated functions. 
 * small feature set - aim for 80% of everyday date/time use cases.
 * totally ignore non-ISO8601 calendars. 
-* data-literals - same ones as [time-literals](https://github.com/henryw374/time-literals)
+* data-literals - same ones as [time-literals](https://github.com/henryw374/time-literals) (iow just a new version of that library)
 
 ## Rationale 
 
