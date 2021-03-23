@@ -13,9 +13,8 @@ script to bring in a polyfill if the end-user's browser does not yet have the pl
 ## About
 
 * Zero dependency => platform APIs only - see [comparison of java.time vs temporal](https://widdindustries.com/ecma-temporal-vs-java-time/)
-* Use java.time on jvm and Temporal on js runtime
 * platform+performance friendly - max DCE-ability for cljs, reflection-free on jvm. Likely means little/no polymorphism.
-* API based on mnemonics => lots of (generated) functions. 
+* API based on mnemonics => lots of generated functions. 
 * small feature set - aim for 80% of everyday date/time use cases.
 * totally ignore non-ISO8601 calendars. 
 * data-literals - same ones as [time-literals](https://github.com/henryw374/time-literals)
@@ -83,6 +82,8 @@ end-state.
 
 ;optional - make clojure.core fns =,sort,compare etc work for js/Temporal objects
 (t/extend-all-cljs-protocols)
+; or just extend it to entities you are using
+(t/extend-cljs-protocols-to-instant)
 ```
 
 ### Construction and access/get
