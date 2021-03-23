@@ -109,27 +109,3 @@
 (defn clock-system-default-zone []
   #?(:clj (Clock/systemDefaultZone)
      :cljs js/Temporal.now))
-
-;entities
-;* extract fields - from temporal and temporalamount
-; instant->epoch-millis
-; zdt->hours
-; date->years
-
-;* constructors with fields or maps? ->datetime(date, time)
-;->datetime({date, time, hours}) - use biggest bits first
-
-;* truncate
-
-;* with - change field of temporal
-; date-with-day
-;date-with-year
-
-;* until - diff between 2 temporal
-;* +/- for temporalamount
-;* max/min
-;* bounds-of-type. min date, max possible date?
-;* preds
-;* >=,<= etc operators
-
-;* clock constructors... system, fixed, offset
