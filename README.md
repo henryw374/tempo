@@ -196,6 +196,7 @@ api todo - see todos in tempo.cljc
 ## TBD 
 
 * observed behaviour will be that of the host api
-  * maybe not necessarily exactly the same on both platforms???
-  * maybe need to use PeriodDuration on jvm??
+  * maybe not necessarily exactly the same on both platforms? but afaik defaults for ambiguity resolution
+  are the same on both atm
+ 
     
