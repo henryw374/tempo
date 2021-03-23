@@ -5,8 +5,7 @@ zero-dependency, cross-platform Clojure time library
 *Status* - pre-alpha. 
 
 * The underlying [Javascript platform time API](https://github.com/tc39/proposal-temporal) has semi-stabilized at ecma `stage 3` - meaning implementors
-can still suggest changes. When it has
-stabilized, application developers targeting the browser will need to include their own
+can still suggest changes. When it has reached `stage 4`, application developers targeting the browser will need to include their own
 script to bring in a polyfill if the end-user's browser does not yet have the platform API required.
 * Not that much of the `Tempo` API exists at the moment - see `Usage` below for all ideas & plans. FYI The API is planned to mostly consist generated code.
 * Feedback welcome!
