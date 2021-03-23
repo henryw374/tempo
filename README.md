@@ -71,9 +71,10 @@ end-state.
 
 ## Usage
 
-;todo - show graph of entities
-; distinguish temporal-amounts and temporals
-;todo - explain no OffsetDateTime, Month, Year, DayOfWeek 
+; todo - show graph of entities
+; todo - explain why no OffsetDateTime, OffsetTime, Month, Year or DayOfWeek entities
+; todo - distinguish between temporal-amounts and temporals
+; todo - explain Period/Duration discrepancy between java.time and Temporal 
 
 ### Setup
 
@@ -81,9 +82,9 @@ end-state.
 (ns my.cljc.namespace
  (:require [com.widdindustries.tempo :as t]))
 
-;optional - make clojure.core fns =,sort,compare etc work for js/Temporal objects
+;optional - make clojure.core fns =,sort,compare etc work for all js/Temporal entities
 (t/extend-all-cljs-protocols)
-; or just extend it to entities you are using
+; or just extend them to entities you are using
 (t/extend-cljs-protocols-to-instant)
 ```
 
@@ -91,18 +92,20 @@ end-state.
 
 #### Clocks
 
-;system, fixed, offset
+;todo - system, fixed, offset
 
 #### Temporals
 
 ```clojure
-;tempo construction and access is based on mnemonics
+
+; Tempo construction and access is based on mnemonics
 
 ; the first word in the function is the entity name of the subject of the operation
 
 ; for example, if I want to construct a date or access its parts the function will start t/date-,
 ; similarly for a zone-date-time, it will be t/zdt-*
 (t/date-now)
+(t/date-now clock)
 (t/date-parse "2020-02-02") ;iso strings only
 (t/date-from {:year 2020 :month 2 :day 2})
 ; the -from functions accept a map of components which is sufficient to build the entity
@@ -113,7 +116,7 @@ end-state.
 ; larger ones take precedence. below, the :year is ignored, because the :date took precedence (being larger) 
 (t/datetime-from {:year 2021 :date (t/date-parse "2020-02-02") :time (t/time-now)})
 
-; to get parts of an entity, start with the subject as before and add ->
+; to get parts of an entity, start with the subject and add ->
 (t/date->yearmonth (t/date-now))
 (t/date->month (t/date-now))
 (t/zdt->nanos (t/zdt-now))
@@ -128,19 +131,21 @@ end-state.
 
 (t/duration->as-minutes (t/duration-parse "PT3H")) ; > 180
 
-; following won't exist bc what length year? month?
+; following won't exist bc years and months are variable length
 ;(t/period->as-days (t/period-parse "P3Y5M3D"))
 
 ```
 
 
-### Manipulation
+### Manipulation 
+
+aka construction a new entity from one of the same type
 
 #### Temporal-amounts
 
 ```clojure
 
-(t/+ )
+(t/+ (t/duration-parse "PT3H") (t/duration-parse "PT3S"))
 
 ```
 
