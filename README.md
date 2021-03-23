@@ -56,7 +56,7 @@ so should suit both Clojure(Script) application builders who need a small cljs b
 developers who need to include some date-time capability. 
 
 This means for example that custom formatting and parsing are not in this library, since there is no common
-functionality for that between java.time and js/Temporal.
+functionality for that between java.time and js/Temporal. (But might be [in the future](https://github.com/js-temporal/proposal-temporal-v2/issues/2))
 
 It is expected that in future, a version of Tick could be built on top of `tempo` - probably as a separate Tick-lite
 dependency.
