@@ -7,7 +7,8 @@ zero-dependency, cross-platform Clojure time library
 * The underlying [Javascript platform time API](https://github.com/tc39/proposal-temporal) has semi-stabilized at ecma `stage 3` - meaning implementors
 can still suggest changes. When it has reached `stage 4`, application developers targeting the browser will need to include their own
 script to bring in a polyfill if the end-user's browser does not yet have the platform API required.
-* Not that much of the `Tempo` API exists at the moment - see `Usage` below for all ideas & plans. FYI The API is planned to mostly consist generated code.
+* Not that much of the `Tempo` API exists at the moment - see `Usage` below for all ideas & plans. 
+FYI The API is planned to mostly consist of generated code.
 * Feedback welcome!
 
 ## About
@@ -17,7 +18,7 @@ script to bring in a polyfill if the end-user's browser does not yet have the pl
 * API based on mnemonics => lots of generated functions. 
 * small feature set - aim for 80% of everyday date/time use cases.
 * totally ignore non-ISO8601 calendars. 
-* data-literals - same ones as [time-literals](https://github.com/henryw374/time-literals) (iow just a new version of that library)
+* data-literals - same ones as [time-literals](https://github.com/henryw374/time-literals) (IOW just a new artifact from that project)
 
 ## Rationale 
 
@@ -59,7 +60,7 @@ This means for example that custom formatting and parsing are not in this librar
 functionality for that between java.time and js/Temporal. (But might be [in the future](https://github.com/js-temporal/proposal-temporal-v2/issues/2))
 
 It is expected that in future, a version of Tick could be built on top of `tempo` - probably as a separate Tick-lite
-dependency.
+artifact.
 
 ### Having said all that... 
 
