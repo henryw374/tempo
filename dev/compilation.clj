@@ -50,7 +50,7 @@
 
      :config  {:auto-testing        true
                :open-url            false
-               :watch-dirs          ["src" "test" ]
+               :watch-dirs          ["src" "test" "gen-out"]
                ;:css-dirs            ["css"]
                :ring-server-options {:port 9503}
                }}))

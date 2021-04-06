@@ -11,7 +11,10 @@
    'time
    'month-day
    'year-month
-   'time-zone])
+   ])
+
+(def non-temporal-types 
+  ['time-zone])
 
 ;leaf entities are all numbers
 ; (zdt-from {args}) args either...
