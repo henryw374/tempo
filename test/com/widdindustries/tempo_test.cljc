@@ -5,7 +5,7 @@
  (t/extend-all-cljs-protocols)
 
 (deftest parsing-duration
-  (is (t/duration? (t/duration-parse "PT1S"))))
+  (is (t/duration? (t/duration-parse "PT1S")))) 
 
 (deftest equals-hash-compare-duration
   (let [make-middle #(t/duration-parse "PT1S")

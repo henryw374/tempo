@@ -1,4 +1,5 @@
-(ns com.widdindustries.tempo.js-temporal-entities)
+(ns com.widdindustries.tempo.js-temporal-entities
+  (:refer-clojure :exclude [time]))
 
 (def instant js/Temporal.Instant)
 (def zdt js/Temporal.ZonedDateTime)
