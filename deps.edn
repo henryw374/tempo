@@ -4,5 +4,6 @@
            :dev     {:extra-paths ["dev" "test" "web-target"]
                      :extra-deps  {;ring/ring-core                      {:mvn/version "1.8.1"}
                                    backtick/backtick         {:mvn/version "0.3.4"}
+                                   camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.2"}
                                    org.clojure/clojurescript {:mvn/version "1.10.844"}
                                    }}}}

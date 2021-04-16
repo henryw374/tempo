@@ -53,40 +53,39 @@
 ; timezone + date-time
 
 (def graph
-  {:instant {:parts
-             {:epochmillis {}
-              :epochnanos  {}}}
-   :zdt     {:branches
-             [{:parts {:instant
-                       {}}}
-              {:parts {:timezone
-                       {}
-                       :datetime
+  {'instant {:parts
+             {'epochmillis {}
+              'epochnanos  {}}}
+   'zdt     {:branches
+             [{:parts {'instant {}}}
+              {:parts {'timezone {}
+                       'datetime
                         {:parts
-                             {:date
+                             {'date
                                     {:branches
                                                [{:parts
-                                                 ^{:needed-to-go-up {:day {}}
+                                                 ^{:needed-to-go-up {'day-of-month {}}
                                                    :java            {:no-getter true}}
-                                                 {:yearmonth {:parts {:year  {}
-                                                                      :month {}}}}}
+                                                 {'yearmonth {'parts {'year  {}
+                                                                      'month {}}}}}
                                                 {:parts
-                                                 ^{:needed-to-go-up {:year {}}
-                                                   :java  {:no-getter true}}
-                                                 {:monthday {:parts {:month {}
-                                                                     :day   {}}}}}
+                                                 ^{:needed-to-go-up {'year {}}
+                                                   :java  {'no-getter true}}
+                                                 {'monthday {:parts {'month {}
+                                                                     'day-of-month   {}}}}}
                                                 {:parts
-                                                 {:year  {}
-                                                  :month {}
-                                                  :day   {}}}
+                                                 {'year  {}
+                                                  ^{:java {:accessor 'getMonthValue}}
+                                                  'month {}
+                                                  'day-of-month   {}}}
                                                 {:parts
                                                  ^{:get-only true}
-                                                 {:day-of-week {}}}]
+                                                 {'day-of-week {}}}]
                                       }
-                              :time {:parts {:hour   {}
-                                             :minute {}
-                                             :second {}
-                                             :nano   {}}}}}}}]}})
+                              'time {:parts {'hour   {}
+                                             'minute {}
+                                             'second {}
+                                             'nano   {}}}}}}}]}})
 
 (def with-paths (paths graph))
 
