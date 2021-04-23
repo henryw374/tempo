@@ -67,14 +67,11 @@
               (str ".to" (.getSimpleName target-class))
               (str ".get" (upper-first (csk/->camelCaseString (name target)))))) foo)))))
 
-(defn ns-decl []
-  (backtick/template
-    (ns com.widdindustries.tempo
-      ""
-
-      ;(:require [com.widdindustries.tempo.js-temporal-entities :as entities])
-      ))
-  )
+(defn accessor-forms [feature]
+  (->> full-paths
+       (map (fn [path]
+              (java-accessor path)
+              ))))
 
 
 (comment
@@ -86,17 +83,7 @@
   (->> (apply concat full-paths) set)
   
 
-  (gen/gen (str "./gen-out/" (->
-                               (name 'com.widdindustries.tempo)
-                               (string/replace "." "/")
-                               (string/replace "-" "_")
-                               )
-             ".clj")
-    (concat [(ns-decl)]
-      (->> full-paths
-           (map (fn [path]
-                  (java-accessor path)
-                  )))))
+  
   ; problems
   ; getMonthValue
   ; ->month-day

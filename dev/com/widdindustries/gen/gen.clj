@@ -11,3 +11,14 @@
         (clojure.pprint/pprint e)
         (println)
         ))))
+
+(defn read-cond-forms [f feature]
+  (with-open [r (java.io.PushbackReader. (clojure.java.io/reader f))]
+    (binding [*read-eval* false]
+      (->>
+        (repeatedly #(read
+                       {:read-cond :allow
+                        :features  #{feature}
+                        :eof       ::EOF} r))
+        (take-while #(not= ::EOF %))
+        vec))))

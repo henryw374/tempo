@@ -1,7 +1,7 @@
 (ns com.widdindustries.gen.graph
   (:require [clojure.walk]
             [sc.api])
-  (:import (java.time ZonedDateTime)))
+  (:import (java.time ZonedDateTime MonthDay DayOfWeek YearMonth)))
 
 
 (defn parts->paths [parent-key parts]
@@ -60,32 +60,41 @@
              [{:parts {'instant {}}}
               {:parts {'timezone {}
                        'datetime
-                        {:parts
-                             {'date
-                                    {:branches
-                                               [{:parts
-                                                 ^{:needed-to-go-up {'day-of-month {}}
-                                                   :java            {:no-getter true}}
-                                                 {'yearmonth {'parts {'year  {}
-                                                                      'month {}}}}}
-                                                {:parts
-                                                 ^{:needed-to-go-up {'year {}}
-                                                   :java  {'no-getter true}}
-                                                 {'monthday {:parts {'month {}
-                                                                     'day-of-month   {}}}}}
-                                                {:parts
-                                                 {'year  {}
-                                                  ^{:java {:accessor 'getMonthValue}}
-                                                  'month {}
-                                                  'day-of-month   {}}}
-                                                {:parts
-                                                 ^{:get-only true}
-                                                 {'day-of-week {}}}]
-                                      }
-                              'time {:parts {'hour   {}
-                                             'minute {}
-                                             'second {}
-                                             'nano   {}}}}}}}]}})
+                                 {:parts
+                                  {'date
+                                         {:branches
+                                          [{:parts
+                                            ^{:needed-to-go-up {'day-of-month {}}
+                                              :java            {:no-getter true
+                                                                :fn-args   ['year 'month]
+                                                                :fn        (fn [year month]
+                                                                             (YearMonth/of ^int year ^int month))}}
+                                            {'yearmonth {'parts {'year  {}
+                                                                 ^{:java {:accessor 'getMonthValue}}
+                                                                 'month {}}}}}
+                                           {:parts
+                                            ^{:needed-to-go-up {'year {}}
+                                              :java            {:no-getter true
+                                                                :fn-args   ['month 'day-of-month]
+                                                                :fn        (fn [month day]
+                                                                             (MonthDay/of ^int month ^int day))}}
+                                            {'monthday {:parts {^{:java {:accessor 'getMonthValue}}
+                                                                'month        {}
+                                                                'day-of-month {}}}}}
+                                           {:parts
+                                            {'year         {}
+                                             ^{:java {:accessor 'getMonthValue}}
+                                             'month        {}
+                                             'day-of-month {}}}
+                                           {:parts
+                                            ^{:get-only true
+                                              :java     {:accessor {:wrap (fn [^DayOfWeek dow] (.getValue dow))}}}
+                                            {'day-of-week {}}}]
+                                          }
+                                   'time {:parts {'hour   {}
+                                                  'minute {}
+                                                  'second {}
+                                                  'nano   {}}}}}}}]}})
 
 (def with-paths (paths graph))
 
