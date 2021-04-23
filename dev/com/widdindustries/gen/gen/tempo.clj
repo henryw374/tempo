@@ -18,7 +18,10 @@
   (let [deps (str "./gen-out/" target "/deps.edn")]
     (io/make-parents deps)
     (spit deps
-      {:paths ["src"]}))
+      (merge
+        (when (= :cljc feature)
+          {:deps {'cljc.java-time {:mvn/version "0.1.16"}}})
+        {:paths ["src"]})))
   (gen/gen (str "./gen-out/" target "/src/"
              (->
                (name 'com.widdindustries.tempo)
@@ -35,5 +38,6 @@
 (comment
 
   (gen-tempo "no-deps" :cljay)
+  (gen-tempo "cljc.java-time-dep" :cljc)
 
   )

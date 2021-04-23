@@ -72,9 +72,22 @@ end-state.
 ## Usage
 
 ; todo - show graph of entities
-; todo - explain why no OffsetDateTime, OffsetTime, Month, Year or DayOfWeek entities
-; todo - distinguish between temporal-amounts and temporals
-; todo - explain Period/Duration discrepancy between java.time and Temporal 
+; leaf entities are all ints
+; explain why no OffsetDateTime, OffsetTime, Month, Year or DayOfWeek entities
+; distinguish between temporal-amounts and temporals
+; explain Period/Duration discrepancy between java.time and Temporal
+
+### Depend 
+
+There is no tempo maven artifact atm.
+
+Depend on tempo via deps.edn:
+
+```clojure
+{:deps {com.widdindustries/tempo {:git/url "https://github.com/henryw374/tempo.git"
+                                  :sha "abc"
+                                  :deps/root "gen-out/no-deps"}}}
+```
 
 ### Setup
 
@@ -212,5 +225,9 @@ api todo - see todos in tempo.cljc
 * observed behaviour will be that of the host api
   * maybe not necessarily exactly the same on both platforms? but afaik defaults for ambiguity resolution
   are the same on both atm
+    
+microseconds - reified in temporal, not in java.time
+duration/period
+
  
     

@@ -16,9 +16,12 @@
   (with-open [r (java.io.PushbackReader. (clojure.java.io/reader f))]
     (binding [*read-eval* false]
       (->>
-        (repeatedly #(read
-                       {:read-cond :allow
-                        :features  #{feature}
-                        :eof       ::EOF} r))
+        (repeatedly #(try (read
+                        {:read-cond :allow
+                         :features  #{feature}
+                         :eof       ::EOF} r)
+                          (catch Error e 
+                            (println f)
+                            (throw (ex-info (str f) {} e)))))
         (take-while #(not= ::EOF %))
         vec))))

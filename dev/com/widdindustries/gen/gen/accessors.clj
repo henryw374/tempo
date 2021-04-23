@@ -38,7 +38,7 @@
         (recur remaining
           (set/union access-paths (->sub-paths next-path)))))
     (remove #(= 1 (count %)))
-    (sort-by (juxt first second))))
+    (sort-by (juxt (comp first :tempo) (comp second :tempo)))))
 
 (def kw->class 
   {
@@ -52,25 +52,70 @@
    'yearmonth YearMonth
    })
 
+(def kw->cljc-ns
+  {
+   'date      'cljc.java-time.local-date
+   'timezone  'cljc.java-time.zone-id
+   'zdt       'cljc.java-time.zoned-date-time
+   'instant   'cljc.java-time.instant
+   'time      'cljc.java-time.local-time
+   'monthday  'cljc.java-time.month-day
+   'datetime  'cljc.java-time.local-date-time
+   'yearmonth 'cljc.java-time.year-month
+   })
+
 (defn upper-first [s]
   (str (string/upper-case
          (subs s 0 1)) (subs s 1 (count s))))
 
-(defn java-accessor [path]
-  (let [subject (first path)
+(defn special-accessor [target]
+  (cond (:accessor target) (str "." (:accessor target))
+        :else nil))
+
+(defn cljc-accessor [feature path]
+  (let [subject (:tempo (first path))
         target  (last path)
-        fn-name (symbol (str (name subject) "->" (name target)))]
-    (backtick/template
-      (defn ~fn-name [~(with-meta 'foo {:tag (get kw->class subject)})]
-        (~(symbol
-            (if-let [target-class (get kw->class target)]
-              (str ".to" (.getSimpleName target-class))
-              (str ".get" (upper-first (csk/->camelCaseString (name target)))))) foo)))))
+        target-name (:tempo target)
+        fn-name (symbol (str (name subject) "->" (name target-name)))]
+    (when-not (:ignore-accessor target)
+      (backtick/template
+        (defn ~fn-name [~(with-meta 'foo {:tag (get kw->class subject)})]
+          (~(symbol
+              (if-let [x (special-accessor (get target :cljay))]
+                x
+                (if-let [target-class (get kw->class target-name)]
+                  (str (get kw->cljc-ns subject) "/to-" (csk/->kebab-case (.getSimpleName target-class)))
+                  (str (get kw->cljc-ns subject) "/get-" (csk/->kebab-case (name target-name))))))
+            foo))))))
+
+(defn java-accessor [feature path]
+  (let [subject (:tempo (first path))
+        target (last path)
+        target-name (:tempo target)
+        ;         _  (sc.api/spy)
+        ;(sc.api/defsc [1 -1]) 
+        ;_ (comment (eval `(sc.api/defsc ~(sc.api/last-ep-id))))
+        fn-name (symbol (str (name subject) "->" (name target-name)))
+        ]
+    (when-not (:ignore-accessor  target)
+      (backtick/template
+        (defn ~fn-name [~(with-meta 'foo {:tag (get kw->class subject)})]
+          (~(symbol
+              (if-let [x (special-accessor (get target feature))]
+                x
+                (if-let [target-class (get kw->class target-name)]
+                  (str ".to" (.getSimpleName target-class))
+                  (str ".get" (upper-first (csk/->camelCaseString (name target-name))))))) foo))))))
 
 (defn accessor-forms [feature]
+  ; problems
+  ;ignore-accessor
+  
   (->> full-paths
-       (map (fn [path]
-              (java-accessor path)
+       (keep (fn [path]
+              (case feature
+                :cljay (java-accessor feature path)
+                :cljc (cljc-accessor feature path))
               ))))
 
 
@@ -81,13 +126,5 @@
   (defn zdt->date [^java.time.ZonedDateTime foo] (.toLocalDate foo))
   (zdt->date (ZonedDateTime/now))
   (->> (apply concat full-paths) set)
-  
-
-  
-  ; problems
-  ; getMonthValue
-  ; ->month-day
-  ; day-of-week getValue()
-  
   
   )

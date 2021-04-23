@@ -52,49 +52,75 @@
 ; instant
 ; timezone + date-time
 
+(def epochmilli
+  {:tempo 'epochmilli
+   :cljay {:accessor 'toEpochMilli}})
+
+(def epochnano
+  {:cljay {:accessor 'toEpochNano}
+   :tempo 'epochnano})
+
+(def timezone
+  {:cljay {:accessor 'getZone}
+   :tempo 'timezone})
+
+(def yearmonth
+  {:needed-to-go-up {'day-of-month {}}
+   :tempo           'yearmonth
+   :ignore-accessor true
+   :cljay           {:no-getter true
+                     :fn-args   ['year 'month]
+                     :fn        (fn [year month]
+                                  (YearMonth/of ^int year ^int month))}})
+
+(def month
+  {:tempo 'month
+   :cljay {:accessor 'getMonthValue}})
+
+(def monthday
+  {:tempo           'monthday
+   :ignore-accessor true
+   :needed-to-go-up {'year {}}
+   :cljay           {:no-getter true
+                     :fn-args   ['month 'day-of-month]
+                     :fn        (fn [month day]
+                                  (MonthDay/of ^int month ^int day))}})
+
+(def day-of-week
+  {:tempo    'day-of-week
+   :get-only true
+   :ignore-accessor true
+   :cljay    {:ignore true 
+              :accessor {:wrap '(fn [^DayOfWeek dow] (.getValue dow))}}})
+
 (def graph
-  {'instant {:parts
-             {'epochmillis {}
-              'epochnanos  {}}}
-   'zdt     {:branches
-             [{:parts {'instant {}}}
-              {:parts {'timezone {}
-                       'datetime
-                                 {:parts
-                                  {'date
-                                         {:branches
-                                          [{:parts
-                                            ^{:needed-to-go-up {'day-of-month {}}
-                                              :java            {:no-getter true
-                                                                :fn-args   ['year 'month]
-                                                                :fn        (fn [year month]
-                                                                             (YearMonth/of ^int year ^int month))}}
-                                            {'yearmonth {'parts {'year  {}
-                                                                 ^{:java {:accessor 'getMonthValue}}
-                                                                 'month {}}}}}
-                                           {:parts
-                                            ^{:needed-to-go-up {'year {}}
-                                              :java            {:no-getter true
-                                                                :fn-args   ['month 'day-of-month]
-                                                                :fn        (fn [month day]
-                                                                             (MonthDay/of ^int month ^int day))}}
-                                            {'monthday {:parts {^{:java {:accessor 'getMonthValue}}
-                                                                'month        {}
-                                                                'day-of-month {}}}}}
-                                           {:parts
-                                            {'year         {}
-                                             ^{:java {:accessor 'getMonthValue}}
-                                             'month        {}
-                                             'day-of-month {}}}
-                                           {:parts
-                                            ^{:get-only true
-                                              :java     {:accessor {:wrap (fn [^DayOfWeek dow] (.getValue dow))}}}
-                                            {'day-of-week {}}}]
-                                          }
-                                   'time {:parts {'hour   {}
-                                                  'minute {}
-                                                  'second {}
-                                                  'nano   {}}}}}}}]}})
+  {{:tempo 'instant} {:parts
+                      {epochmilli {}
+                       epochnano  {}}}
+   {:tempo 'zdt}     {:branches
+                      [{:parts {{:tempo 'instant} {}}}
+                       {:parts {timezone {}
+                                {:tempo 'datetime}
+                                         {:parts
+                                          {{:tempo 'date}
+                                                          {:branches
+                                                           [{:parts
+                                                             {yearmonth {:parts {{:tempo 'year} {}
+                                                                                 month          {}}}}}
+                                                            {:parts
+                                                             {monthday {:parts {month                  {}
+                                                                                {:tempo 'day-of-month} {}}}}}
+                                                            {:parts
+                                                             {{:tempo 'year}         {}
+                                                              month                  {}
+                                                              {:tempo 'day-of-month} {}}}
+                                                            {:parts
+                                                             {day-of-week {}}}]
+                                                           }
+                                           {:tempo 'time} {:parts {{:tempo 'hour}   {}
+                                                                   {:tempo 'minute} {}
+                                                                   {:tempo 'second} {}
+                                                                   {:tempo 'nano}   {}}}}}}}]}})
 
 (def with-paths (paths graph))
 
