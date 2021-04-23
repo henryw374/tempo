@@ -57,11 +57,14 @@
    :cljay {:accessor 'toEpochMilli}})
 
 (def epochnano
-  {:cljay {:accessor 'toEpochNano}
+  {:ignore-accessor true ; not in java
    :tempo 'epochnano})
 
 (def timezone
-  {:cljay {:accessor 'getZone}
+  {:cljay {:parse 'of
+           :accessor 'getZone}
+   :cljc {:parse 'of
+          :accessor 'getZone}
    :tempo 'timezone})
 
 (def yearmonth

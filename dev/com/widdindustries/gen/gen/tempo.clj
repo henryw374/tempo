@@ -30,7 +30,9 @@
                )
              (get feature->ext feature))
     (concat (ns-decl feature)
+      ['(set! *warn-on-reflection* true)]
       (accessors/accessor-forms feature)
+      (accessors/parse-forms feature)
       (constructors/constructor-fns feature)
       )))
 

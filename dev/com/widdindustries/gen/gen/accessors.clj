@@ -81,12 +81,28 @@
       (backtick/template
         (defn ~fn-name [~(with-meta 'foo {:tag (get kw->class subject)})]
           (~(symbol
-              (if-let [x (special-accessor (get target :cljay))]
+              (if-let [x (special-accessor (or (get target :cljc) (get target :cljay)))]
                 x
                 (if-let [target-class (get kw->class target-name)]
                   (str (get kw->cljc-ns subject) "/to-" (csk/->kebab-case (.getSimpleName target-class)))
                   (str (get kw->cljc-ns subject) "/get-" (csk/->kebab-case (name target-name))))))
             foo))))))
+
+(defn parse-fn [feature subject]
+  (when (get kw->class (:tempo subject))
+    (let [fn-name (str (:tempo subject) "-parse")
+          parser (case feature 
+                   :cljay (str (get kw->class (:tempo subject)) "/" (or (-> subject feature :parse) "parse"))
+                   :cljc (str (get kw->cljc-ns (:tempo subject)) "/" (or (-> subject feature :parse) "parse")))]
+      (backtick/template
+        (defn ~(symbol fn-name) [~(with-meta 'foo {:tag String})]
+          (~(symbol parser) foo))))))
+
+(defn parse-forms [feature]
+  (->> (apply concat full-paths)
+       distinct
+       (keep (fn [thing]
+               (parse-fn feature thing)))))
 
 (defn java-accessor [feature path]
   (let [subject (:tempo (first path))
