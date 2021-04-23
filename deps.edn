@@ -1,9 +1,9 @@
-{:paths   ["src" "gen-out"]
+; this is not the deps to depend on. find those under 'gen-out'
+{:paths   ["src" "dev" "test" "web-target"]
+ :deps  {;ring/ring-core                      {:mvn/version "1.8.1"}
+           backtick/backtick                   {:mvn/version "0.3.4"}
+           camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.2"}
+           org.clojure/clojurescript           {:mvn/version "1.10.844"}
+           }
  :aliases {:release {:extra-deps {applied-science/deps-library {:mvn/version "RELEASE"}}
-                     :main-opts  ["-m" "applied-science.deps-library"]}
-           :dev     {:extra-paths ["dev" "test" "web-target"]
-                     :extra-deps  {;ring/ring-core                      {:mvn/version "1.8.1"}
-                                   backtick/backtick         {:mvn/version "0.3.4"}
-                                   camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.2"}
-                                   org.clojure/clojurescript {:mvn/version "1.10.844"}
-                                   }}}}
+                     :main-opts  ["-m" "applied-science.deps-library"]}}}

@@ -191,6 +191,12 @@ aka construction a new entity from one of the same type
 
 ## Dev 
 
+to create library, run:
+
+ run com.widdindustries.gen.gen.tempo/gen-tempo
+
+
+
 * start figwheel from compilation.clj and visit http://localhost:9503 to run tests 
   
 ## Work in progress todo list
