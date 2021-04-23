@@ -33,6 +33,7 @@
       ['(set! *warn-on-reflection* true)]
       (accessors/accessor-forms feature)
       (accessors/parse-forms feature)
+      (accessors/now-forms feature)
       (constructors/constructor-fns feature)
       )))
 

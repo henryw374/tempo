@@ -1,0 +1,1 @@
+{:deps {cljc.java-time #:mvn{:version "0.1.16"}}, :paths ["src"]}

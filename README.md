@@ -89,6 +89,15 @@ Depend on tempo via deps.edn:
                                   :deps/root "gen-out/no-deps"}}}
 ```
 
+Because js/Temporal only has a non-prod polyfill at the moment, a version of tempo using
+cljc.java-time has been generated for clojurescript users who want a prod-ready api to use:
+
+```clojure
+{:deps {com.widdindustries/tempo {:git/url "https://github.com/henryw374/tempo.git"
+                                  :sha "abc"
+                                  :deps/root "gen-out/cljc.java-time-dep"}}}
+```
+
 ### Setup
 
 ```clojure

@@ -61,7 +61,8 @@
    :tempo 'epochnano})
 
 (def timezone
-  {:cljay {:parse 'of
+  {:no-now true
+   :cljay {:parse 'of
            :accessor 'getZone}
    :cljc {:parse 'of
           :accessor 'getZone}

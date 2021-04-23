@@ -88,22 +88,6 @@
                   (str (get kw->cljc-ns subject) "/get-" (csk/->kebab-case (name target-name))))))
             foo))))))
 
-(defn parse-fn [feature subject]
-  (when (get kw->class (:tempo subject))
-    (let [fn-name (str (:tempo subject) "-parse")
-          parser (case feature 
-                   :cljay (str (get kw->class (:tempo subject)) "/" (or (-> subject feature :parse) "parse"))
-                   :cljc (str (get kw->cljc-ns (:tempo subject)) "/" (or (-> subject feature :parse) "parse")))]
-      (backtick/template
-        (defn ~(symbol fn-name) [~(with-meta 'foo {:tag String})]
-          (~(symbol parser) foo))))))
-
-(defn parse-forms [feature]
-  (->> (apply concat full-paths)
-       distinct
-       (keep (fn [thing]
-               (parse-fn feature thing)))))
-
 (defn java-accessor [feature path]
   (let [subject (:tempo (first path))
         target (last path)
@@ -133,6 +117,40 @@
                 :cljay (java-accessor feature path)
                 :cljc (cljc-accessor feature path))
               ))))
+
+(defn parse-fn [feature subject]
+  (when (get kw->class (:tempo subject))
+    (let [fn-name (str (:tempo subject) "-parse")
+          parser (case feature
+                   :cljay (str (get kw->class (:tempo subject)) "/" (or (-> subject feature :parse) "parse"))
+                   :cljc (str (get kw->cljc-ns (:tempo subject)) "/" (or (-> subject feature :parse) "parse")))]
+      (backtick/template
+        (defn ~(symbol fn-name) [~(with-meta 'foo {:tag String})]
+          (~(symbol parser) foo))))))
+
+(defn parse-forms [feature]
+  (->> (apply concat full-paths)
+       distinct
+       (keep (fn [thing]
+               (parse-fn feature thing)))))
+
+(defn now-fn [feature subject]
+  (when (and (not (:no-now subject)) (get kw->class (:tempo subject)))
+    (let [fn-name (str (:tempo subject) "-now")
+          nower (case feature
+                   :cljay (str (get kw->class (:tempo subject)) "/" (or (-> subject feature :parse) "now"))
+                   :cljc (str (get kw->cljc-ns (:tempo subject)) "/" (or (-> subject feature :parse) "now")))]
+      (backtick/template
+        (defn ~(symbol fn-name)
+          ([] (~(symbol nower)))
+          ([~(with-meta 'clock {:tag java.time.Clock})]
+           (~(symbol nower) clock)))))))
+
+(defn now-forms [feature]
+  (->> (apply concat full-paths)
+       distinct
+       (keep (fn [thing]
+               (now-fn feature thing)))))
 
 
 (comment
