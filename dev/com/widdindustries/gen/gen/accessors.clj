@@ -132,7 +132,18 @@
   (->> (apply concat full-paths)
        distinct
        (keep (fn [thing]
-               (parse-fn feature thing)))))
+               (parse-fn feature thing))))
+
+
+;  (defn duration-parse [s]
+;    #?(:clj (Duration/parse s)
+;       :cljs (methods/from entities/duration s)))
+;
+;  (defn period-parse [s]
+;    #?(:clj (Period/parse s)
+;       :cljs (duration-parse s)))
+;
+  )
 
 (defn now-fn [feature subject]
   (when (and (not (:no-now subject)) (get kw->class (:tempo subject)))
@@ -140,6 +151,14 @@
           nower (case feature
                    :cljay (str (get kw->class (:tempo subject)) "/" (or (-> subject feature :parse) "now"))
                    :cljc (str (get kw->cljc-ns (:tempo subject)) "/" (or (-> subject feature :parse) "now")))]
+      ;; construction from clocks
+;      (defn date-now
+;        ([] #?(:clj (LocalDate/now)
+;               :cljs (clock/plain-date-iso)))
+;        ([clock]
+;         #?(:clj (LocalDate/now ^Clock clock)
+;            :cljs (clock/plain-date-iso clock))))
+;
       (backtick/template
         (defn ~(symbol fn-name)
           ([] (~(symbol nower)))

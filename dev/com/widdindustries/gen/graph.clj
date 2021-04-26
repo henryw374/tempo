@@ -101,10 +101,16 @@
   {{:tempo 'instant} {:parts
                       {epochmilli {}
                        epochnano  {}}}
-   {:tempo 'zdt}     {:branches
+   {:tempo 'zdt
+    ;todo - https://tc39.es/proposal-temporal/docs/zoneddatetime.html#startOfDay
+    ;hours-in-day
+    ;in-leap-year
+    }     {:branches
                       [{:parts {{:tempo 'instant} {}}}
                        {:parts {timezone {}
-                                {:tempo 'datetime}
+                                {:tempo 'datetime
+                                 ;todo - in leap year? daysinyear?
+                                 }
                                          {:parts
                                           {{:tempo 'date}
                                                           {:branches

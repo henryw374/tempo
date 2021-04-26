@@ -1,5 +1,5 @@
 ; this is not the deps to depend on. find those under 'gen-out'
-{:paths   ["src" "dev" "test" "web-target"]
+{:paths   ["dev" "test" "web-target"]
  :deps  {;ring/ring-core                      {:mvn/version "1.8.1"}
            backtick/backtick                   {:mvn/version "0.3.4"}
            camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.2"}

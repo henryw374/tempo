@@ -12,15 +12,15 @@
         (println)
         ))))
 
-(defn read-cond-forms [f feature]
+(defn read-cond-forms [f features]
   (with-open [r (java.io.PushbackReader. (clojure.java.io/reader f))]
     (binding [*read-eval* false]
       (->>
         (repeatedly #(try (read
-                        {:read-cond :allow
-                         :features  #{feature}
-                         :eof       ::EOF} r)
-                          (catch Error e 
+                            {:read-cond :allow
+                             :features  features
+                             :eof       ::EOF} r)
+                          (catch Error e
                             (println f)
                             (throw (ex-info (str f) {} e)))))
         (take-while #(not= ::EOF %))

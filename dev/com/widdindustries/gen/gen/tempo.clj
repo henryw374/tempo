@@ -3,23 +3,29 @@
             [com.widdindustries.gen.gen.constructors :as constructors]
             [com.widdindustries.gen.gen :as gen]
             [clojure.string :as string]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [clojure.set :as set]))
 
-(defn ns-decl [feature]
+(defn ns-decl [features]
   (rest (gen/read-cond-forms "dev/com/widdindustries/gen/gen_in/tempo.cljc"
-          feature)))
+          features)))
 
-(def feature->ext
-  {:cljay ".clj"
-   :cljs  ".cljs"
-   :cljc  ".cljc"})
+(defn feature->ext [features]
+  (condp set/subset? features
+    #{:cljay} ".clj"
+    #{:cljs} ".cljs"
+    #{:cljcc} ".clj"
+    #{:cljcs} ".cljs"
+    ))
 
-(defn gen-tempo [target feature]
+;(feature->ext #{:cljcs :cljc})
+
+(defn gen-tempo [target features main-feature]
   (let [deps (str "./gen-out/" target "/deps.edn")]
     (io/make-parents deps)
     (spit deps
       (merge
-        (when (= :cljc feature)
+        (when (contains? features :cljc)
           {:deps {'cljc.java-time {:mvn/version "0.1.16"}}})
         {:paths ["src"]})))
   (gen/gen (str "./gen-out/" target "/src/"
@@ -28,19 +34,20 @@
                (string/replace "." "/")
                (string/replace "-" "_")
                )
-             (get feature->ext feature))
-    (concat (ns-decl feature)
+             (feature->ext features))
+    (concat (ns-decl features)
       ['(set! *warn-on-reflection* true)]
-      (accessors/accessor-forms feature)
-      (accessors/parse-forms feature)
-      (accessors/now-forms feature)
-      (constructors/constructor-fns feature)
+      (accessors/accessor-forms main-feature)
+      (accessors/parse-forms main-feature)
+      (accessors/now-forms main-feature)
+      (constructors/constructor-fns features)
       )))
 
 
 (comment
 
-  (gen-tempo "no-deps" :cljay)
-  (gen-tempo "cljc.java-time-dep" :cljc)
+  (gen-tempo "no-deps" #{:cljay} :cljay)
+  (gen-tempo "cljc.java-time-dep" #{:cljc :cljcc} :cljc)
+  (gen-tempo "cljc.java-time-dep" #{:cljc :cljcs} :cljc)
 
   )
