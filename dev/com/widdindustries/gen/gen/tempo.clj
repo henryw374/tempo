@@ -36,10 +36,13 @@
                )
              (feature->ext features))
     (concat (ns-decl features)
-      ['(set! *warn-on-reflection* true)]
+      ['(comment "accessors")]
       (accessors/accessor-forms main-feature)
+      ['(comment "parsers")]
       (accessors/parse-forms main-feature)
+      ['(comment "nowers")]
       (accessors/now-forms main-feature)
+      ['(comment "constructors")]
       (constructors/constructor-fns features)
       )))
 

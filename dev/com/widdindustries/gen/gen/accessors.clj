@@ -3,6 +3,7 @@
             [com.widdindustries.gen.gen :as gen]
             [clojure.walk]
             [backtick]
+            [medley.core :as m]
             [clojure.set :as set]
             [camel-snake-kebab.core :as csk]
             [clojure.string :as string])
@@ -37,7 +38,9 @@
         access-paths
         (recur remaining
           (set/union access-paths (->sub-paths next-path)))))
+    
     (remove #(= 1 (count %)))
+    (m/distinct-by (fn [path] [(-> path first :tempo) (-> path last :tempo)]))
     (sort-by (juxt (comp first :tempo) (comp second :tempo)))))
 
 (def kw->class 

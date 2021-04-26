@@ -33,6 +33,8 @@
   ;(:require [com.widdindustries.tempo.js-temporal-entities :as entities])
   )
 
+#?(:cljay (set! *warn-on-reflection* true))
+
 (defn extend-all-cljs-protocols []
   #?(:cljs
      (cljs-protocols/extend-all)))
@@ -83,6 +85,8 @@
 (defn duration-negative? [d]
   #?(:clj (.isNegative ^Duration d)
      :cljs (neg? (.-sign ^js d))))
+
+
 
 
 ;; construction of clocks

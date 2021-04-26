@@ -1,6 +1,7 @@
 (ns
  com.widdindustries.tempo
  ""
+ (:refer-clojure :exclude [min max > < >= <= >> <<])
  (:require
   [cljc.java-time.local-date]
   [cljc.java-time.local-date-time]
@@ -67,7 +68,7 @@
  [temporal temporal-amount]
  (.minus ^Temporal temporal ^TemporalAmount temporal-amount))
 
-(defn zone-system-default [] (ZoneId/systemDefault))
+(defn zone-system-default [] (cljc.java-time.zone-id/system-default))
 
 (defn duration->negated [d] (.negated ^Duration d))
 
@@ -76,11 +77,92 @@
 (defn
  clock-fixed
  [instant zone]
- (Clock/fixed ^Instant instant ^ZoneId zone))
+ (cljc.java-time.clock/fixed instant zone))
 
-(defn clock-system-default-zone [] (Clock/systemDefaultZone))
+(defn
+ clock-system-default-zone
+ []
+ (cljc.java-time.clock/system-default-zone))
 
-(set! *warn-on-reflection* true)
+(defn greater [x y] (if (neg? (compare x y)) y x))
+
+(defn
+ max
+ "Find the latest of the given arguments. Callers should ensure that no\n  argument is nil."
+ [arg & args]
+ (assert (every? some? (cons arg args)))
+ (reduce
+  (fn* [p1__10364# p2__10365#] (greater p1__10364# p2__10365#))
+  arg
+  args))
+
+(defn lesser [x y] (if (neg? (compare x y)) x y))
+
+(defn
+ min
+ "Find the earliest of the given arguments. Callers should ensure that no\n  argument is nil."
+ [arg & args]
+ (assert (every? some? (cons arg args)))
+ (reduce
+  (fn* [p1__10366# p2__10367#] (lesser p1__10366# p2__10367#))
+  arg
+  args))
+
+(defn
+ <
+ ([_x] true)
+ ([x y] (neg? (compare x y)))
+ ([x y & more]
+  (if
+   (< x y)
+   (if
+    (next more)
+    (recur y (first more) (next more))
+    (< y (first more)))
+   false)))
+
+(defn
+ <=
+ ([_x] true)
+ ([x y] (not (pos? (compare x y))))
+ ([x y & more]
+  (if
+   (<= x y)
+   (if
+    (next more)
+    (recur y (first more) (next more))
+    (<= y (first more)))
+   false)))
+
+(defn
+ >
+ ([_x] true)
+ ([x y] (pos? (compare x y)))
+ ([x y & more]
+  (if
+   (> x y)
+   (if
+    (next more)
+    (recur y (first more) (next more))
+    (> y (first more)))
+   false)))
+
+(defn
+ >=
+ ([_x] true)
+ ([x y] (not (neg? (compare x y))))
+ ([x y & more]
+  (if
+   (>= x y)
+   (if
+    (next more)
+    (recur y (first more) (next more))
+    (>= y (first more)))
+   false)))
+
+(comment "accessors")
+
+(defn yearmonth->month [^java.time.YearMonth foo] (.getMonthValue foo))
 
 (defn
  datetime->second
@@ -88,14 +170,14 @@
  (cljc.java-time.local-date-time/get-second foo))
 
 (defn
- datetime->year
- [^java.time.LocalDateTime foo]
- (cljc.java-time.local-date-time/get-year foo))
-
-(defn
  zdt->date
  [^java.time.ZonedDateTime foo]
  (cljc.java-time.zoned-date-time/to-local-date foo))
+
+(defn
+ monthday->day-of-month
+ [^java.time.MonthDay foo]
+ (cljc.java-time.month-day/get-day-of-month foo))
 
 (defn
  datetime->year
@@ -108,19 +190,11 @@
  (.getMonthValue foo))
 
 (defn
- zdt->year
- [^java.time.ZonedDateTime foo]
- (cljc.java-time.zoned-date-time/get-year foo))
+ date->year
+ [^java.time.LocalDate foo]
+ (cljc.java-time.local-date/get-year foo))
 
-(defn
- yearmonth->year
- [^java.time.YearMonth foo]
- (cljc.java-time.year-month/get-year foo))
-
-(defn
- datetime->hour
- [^java.time.LocalDateTime foo]
- (cljc.java-time.local-date-time/get-hour foo))
+(defn monthday->month [^java.time.MonthDay foo] (.getMonthValue foo))
 
 (defn date->month [^java.time.LocalDate foo] (.getMonthValue foo))
 
@@ -130,9 +204,9 @@
  (cljc.java-time.zoned-date-time/get-year foo))
 
 (defn
- zdt->day-of-month
- [^java.time.ZonedDateTime foo]
- (cljc.java-time.zoned-date-time/get-day-of-month foo))
+ datetime->hour
+ [^java.time.LocalDateTime foo]
+ (cljc.java-time.local-date-time/get-hour foo))
 
 (defn
  zdt->hour
@@ -150,18 +224,18 @@
  (cljc.java-time.zoned-date-time/get-nano foo))
 
 (defn
- datetime->month
- [^java.time.LocalDateTime foo]
- (.getMonthValue foo))
+ yearmonth->year
+ [^java.time.YearMonth foo]
+ (cljc.java-time.year-month/get-year foo))
 
 (defn zdt->timezone [^java.time.ZonedDateTime foo] (.getZone foo))
-
-(defn zdt->month [^java.time.ZonedDateTime foo] (.getMonthValue foo))
 
 (defn
  zdt->minute
  [^java.time.ZonedDateTime foo]
  (cljc.java-time.zoned-date-time/get-minute foo))
+
+(defn zdt->month [^java.time.ZonedDateTime foo] (.getMonthValue foo))
 
 (defn
  datetime->date
@@ -173,28 +247,17 @@
  [^java.time.LocalDate foo]
  (cljc.java-time.local-date/get-day-of-month foo))
 
-(defn zdt->month [^java.time.ZonedDateTime foo] (.getMonthValue foo))
-
-(defn yearmonth->month [^java.time.YearMonth foo] (.getMonthValue foo))
-
-(defn date->month [^java.time.LocalDate foo] (.getMonthValue foo))
+(defn
+ zdt->second
+ [^java.time.ZonedDateTime foo]
+ (cljc.java-time.zoned-date-time/get-second foo))
 
 (defn
  datetime->day-of-month
  [^java.time.LocalDateTime foo]
  (cljc.java-time.local-date-time/get-day-of-month foo))
 
-(defn
- zdt->second
- [^java.time.ZonedDateTime foo]
- (cljc.java-time.zoned-date-time/get-second foo))
-
 (defn instant->epochmilli [^java.time.Instant foo] (.toEpochMilli foo))
-
-(defn
- date->day-of-month
- [^java.time.LocalDate foo]
- (cljc.java-time.local-date/get-day-of-month foo))
 
 (defn
  time->second
@@ -202,43 +265,19 @@
  (cljc.java-time.local-time/get-second foo))
 
 (defn
- datetime->day-of-month
- [^java.time.LocalDateTime foo]
- (cljc.java-time.local-date-time/get-day-of-month foo))
-
-(defn
- date->year
- [^java.time.LocalDate foo]
- (cljc.java-time.local-date/get-year foo))
-
-(defn
- date->year
- [^java.time.LocalDate foo]
- (cljc.java-time.local-date/get-year foo))
-
-(defn
  zdt->datetime
  [^java.time.ZonedDateTime foo]
  (cljc.java-time.zoned-date-time/to-local-date-time foo))
-
-(defn
- datetime->month
- [^java.time.LocalDateTime foo]
- (.getMonthValue foo))
-
-(defn
- zdt->time
- [^java.time.ZonedDateTime foo]
- (cljc.java-time.zoned-date-time/to-local-time foo))
-
-(defn monthday->month [^java.time.MonthDay foo] (.getMonthValue foo))
 
 (defn
  zdt->day-of-month
  [^java.time.ZonedDateTime foo]
  (cljc.java-time.zoned-date-time/get-day-of-month foo))
 
-(defn zdt->month [^java.time.ZonedDateTime foo] (.getMonthValue foo))
+(defn
+ zdt->time
+ [^java.time.ZonedDateTime foo]
+ (cljc.java-time.zoned-date-time/to-local-time foo))
 
 (defn
  datetime->minute
@@ -266,26 +305,16 @@
  (cljc.java-time.local-date-time/get-nano foo))
 
 (defn
- monthday->day-of-month
- [^java.time.MonthDay foo]
- (cljc.java-time.month-day/get-day-of-month foo))
-
-(defn date->month [^java.time.LocalDate foo] (.getMonthValue foo))
-
-(defn
  datetime->time
  [^java.time.LocalDateTime foo]
  (cljc.java-time.local-date-time/to-local-time foo))
 
-(defn
- date-parse
- [^java.lang.String foo]
- (cljc.java-time.local-date/parse foo))
+(comment "parsers")
 
 (defn
- monthday-parse
+ yearmonth-parse
  [^java.lang.String foo]
- (cljc.java-time.month-day/parse foo))
+ (cljc.java-time.year-month/parse foo))
 
 (defn
  datetime-parse
@@ -298,14 +327,19 @@
  (cljc.java-time.local-time/parse foo))
 
 (defn
- yearmonth-parse
- [^java.lang.String foo]
- (cljc.java-time.year-month/parse foo))
-
-(defn
  zdt-parse
  [^java.lang.String foo]
  (cljc.java-time.zoned-date-time/parse foo))
+
+(defn
+ date-parse
+ [^java.lang.String foo]
+ (cljc.java-time.local-date/parse foo))
+
+(defn
+ monthday-parse
+ [^java.lang.String foo]
+ (cljc.java-time.month-day/parse foo))
 
 (defn
  instant-parse
@@ -317,15 +351,12 @@
  [^java.lang.String foo]
  (cljc.java-time.zone-id/of foo))
 
-(defn
- date-now
- ([] (cljc.java-time.local-date/now))
- ([^java.time.Clock clock] (cljc.java-time.local-date/now clock)))
+(comment "nowers")
 
 (defn
- monthday-now
- ([] (cljc.java-time.month-day/now))
- ([^java.time.Clock clock] (cljc.java-time.month-day/now clock)))
+ yearmonth-now
+ ([] (cljc.java-time.year-month/now))
+ ([^java.time.Clock clock] (cljc.java-time.year-month/now clock)))
 
 (defn
  datetime-now
@@ -338,19 +369,26 @@
  ([^java.time.Clock clock] (cljc.java-time.local-time/now clock)))
 
 (defn
- yearmonth-now
- ([] (cljc.java-time.year-month/now))
- ([^java.time.Clock clock] (cljc.java-time.year-month/now clock)))
-
-(defn
  zdt-now
  ([] (cljc.java-time.zoned-date-time/now))
  ([^java.time.Clock clock] (cljc.java-time.zoned-date-time/now clock)))
 
 (defn
+ date-now
+ ([] (cljc.java-time.local-date/now))
+ ([^java.time.Clock clock] (cljc.java-time.local-date/now clock)))
+
+(defn
+ monthday-now
+ ([] (cljc.java-time.month-day/now))
+ ([^java.time.Clock clock] (cljc.java-time.month-day/now clock)))
+
+(defn
  instant-now
  ([] (cljc.java-time.instant/now))
  ([^java.time.Clock clock] (cljc.java-time.instant/now clock)))
+
+(comment "constructors")
 
 (defn
  time-from
