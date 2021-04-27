@@ -106,7 +106,11 @@
     ;hours-in-day
     ;in-leap-year
     }     {:branches
-                      [{:parts {{:tempo 'instant} {}}}
+                      [#_{:parts {
+                                {:tempo 'start-of-day} {}
+                                {:tempo 'hours-in-day} {}
+                                }}
+                       {:parts {{:tempo 'instant} {}}}
                        {:parts {timezone {}
                                 {:tempo 'datetime
                                  ;todo - in leap year? daysinyear?
