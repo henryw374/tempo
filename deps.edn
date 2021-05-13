@@ -1,11 +1,14 @@
 ; this is not the deps to depend on. find those under 'gen-out'
-{:paths   ["dev" "test" "web-target"]
+{:paths   ["dev" "web-target"]
  :deps  {;ring/ring-core                      {:mvn/version "1.8.1"}
            backtick/backtick                   {:mvn/version "0.3.4"}
            camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.2"}
            org.clojure/clojurescript           {:mvn/version "1.10.844"}
           medley/medley {:mvn/version "1.3.0"}
            cljc-deps {:local/root "./gen-out/cljc.java-time-dep"}
+         com.bhauman/figwheel-main {:mvn/version "0.2.13"}
            }
  :aliases {:release {:extra-deps {applied-science/deps-library {:mvn/version "RELEASE"}}
-                     :main-opts  ["-m" "applied-science.deps-library"]}}}
+                     :main-opts  ["-m" "applied-science.deps-library"]}
+           :output-no-deps {:extra-paths ["test"]
+                            :extra-deps {tempo-no-deps {:local/root "gen-out/no-deps"}}}}}
