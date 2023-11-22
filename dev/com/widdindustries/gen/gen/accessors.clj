@@ -45,14 +45,14 @@
 
 (def kw->class 
   {
-   'date      LocalDate
-   'timezone  ZoneId
-   'zdt       ZonedDateTime
-   'instant   Instant
-   'time      LocalTime
-   'monthday  MonthDay
-   'datetime  LocalDateTime
-   'yearmonth YearMonth
+   'date      'LocalDate
+   'timezone  'ZoneId
+   'zdt       'ZonedDateTime
+   'instant   'Instant
+   'time      'LocalTime
+   'monthday  'MonthDay
+   'datetime  'LocalDateTime
+   'yearmonth 'YearMonth
    })
 
 (def kw->cljc-ns
@@ -130,7 +130,7 @@
               (if-let [x (special-accessor (get target feature))]
                 x
                 (if-let [target-class (get kw->class target-name)]
-                  (str ".to" (.getSimpleName target-class))
+                  (str ".to" (str target-class))
                   (str ".get" (upper-first (csk/->camelCaseString (name target-name))))))) foo))))))
 
 (defn accessor-forms [feature]
@@ -160,21 +160,14 @@
           (~(symbol parser) foo)))
       )))
 
+(comment
+  (parse-fn :cljay (ffirst full-paths)))
+
 (defn parse-forms [feature]
   (->> (apply concat full-paths)
        distinct
        (keep (fn [thing]
                (parse-fn feature thing))))
-
-
-;  (defn duration-parse [s]
-;    #?(:clj (Duration/parse s)
-;       :cljs (methods/from entities/duration s)))
-;
-;  (defn period-parse [s]
-;    #?(:clj (Period/parse s)
-;       :cljs (duration-parse s)))
-;
   )
 
 (defn now-fn [feature subject]
@@ -184,15 +177,6 @@
                    :cljay (str (get kw->class (:tempo subject)) "/" (or (-> subject feature :parse) "now"))
                    :cljs (str "clock/"(:tempo subject) )
                    :cljc (str (get kw->cljc-ns (:tempo subject)) "/" (or (-> subject feature :parse) "now")))]
-      ;; construction from clocks
-;      (defn date-now
-;        ([] #?(:clj (LocalDate/now)
-;               :cljs (clock/plain-date-iso)))
-;        ([clock]
-;         #?(:clj (LocalDate/now ^Clock clock)
-;            :cljs (clock/plain-date-iso clock))))
-;
-      
       (backtick/template
         (defn ~(symbol fn-name)
           ([] (~(symbol nower)))

@@ -4,7 +4,9 @@
   ""
   (:refer-clojure :exclude [min max > < >= <= >> <<])
   #?(:cljay
-     (:import (java.time LocalDateTime ZonedDateTime))
+     (:import
+       [java.time Clock MonthDay ZoneId ZoneOffset Instant Duration Period DayOfWeek Month ZonedDateTime LocalTime LocalDateTime LocalDate Year YearMonth ZoneId OffsetDateTime OffsetTime]
+       [java.time.temporal Temporal TemporalAmount])
      :cljc (:require     
              [cljc.java-time.local-date]
              [cljc.java-time.local-date-time]

@@ -1,8 +1,6 @@
 (ns com.widdindustries.gen.graph
-  (:require [clojure.walk]
-            [sc.api])
+  (:require [clojure.walk])
   (:import (java.time ZonedDateTime MonthDay DayOfWeek YearMonth)))
-
 
 (defn parts->paths [parent-key parts]
   (->> parts

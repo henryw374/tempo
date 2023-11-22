@@ -1,17 +1,18 @@
 (ns com.widdindustries.tempo-test
   (:require [clojure.test :refer [deftest is testing]]
-            [com.widdindustries.tempo :as t]))
+            [com.widdindustries.tempo :as t]
+            [com.widdindustries.tempo.duration-alpha :as d]))
 
  (t/extend-all-cljs-protocols)
 
-#_(deftest parsing-duration
-  (is (t/duration? (t/duration-parse "PT1S")))) 
+(deftest parsing-duration
+  (is (t/duration? (d/duration-parse "PT1S")))) 
 
-#_(deftest equals-hash-compare-duration
-  (let [make-middle #(t/duration-parse "PT1S")
+(deftest equals-hash-compare-duration
+  (let [make-middle #(d/duration-parse "PT1S")
         middle (make-middle)
-        smallest (t/duration->negated (t/duration-parse "PT1S"))
-        largest (t/duration-parse "PT2S")]
+        smallest (d/duration->negated (d/duration-parse "PT1S"))
+        largest (d/duration-parse "PT2S")]
     (is (not= middle smallest))
     (is (= middle (make-middle)))
     (is (= (sort [largest smallest middle]) [smallest middle largest]))
@@ -25,12 +26,12 @@
   (is (= "2020-02-02"
         (str (t/date-now
                (t/clock-fixed (t/instant-parse "2020-02-02T09:19:42.128946Z")
-                 "UTC"))))))
+                 (t/timezone-parse "UTC")))))))
 
-#_(deftest equals-hash-compare-date
+(deftest equals-hash-compare-date
   (let [middle (t/date-now)
-        earliest (t/<< middle (t/period-parse "P1D"))
-        latest (t/>> middle (t/period-parse "P1D"))]
+        earliest (t/<< middle (d/period-parse "P1D"))
+        latest (t/>> middle (d/period-parse "P1D"))]
     (is (not= middle earliest))
     (is (= middle (t/date-now)))
     ;(compare earliest middle)
@@ -42,17 +43,17 @@
   (is (t/date? (t/date-now)))
   (is (not (t/period? (t/date-now)))))
 
-#_(deftest parsing-test
-  (is (t/zone-id? (t/zone-parse "Europe/London"))))
+(deftest parsing-test
+  (is (t/timezone? (t/timezone-parse "Europe/London"))))
 
-#_(deftest equals-hash
-  (is (= (t/zone-parse "Europe/London") (t/zone-parse "Europe/London")))
-  (is (not= (t/zone-parse "Europe/London") (t/zone-parse "Europe/Paris")))
-  (is (= 1 (get {(t/zone-parse "Europe/London") 1} (t/zone-parse "Europe/London")))))
+(deftest equals-hash
+  (is (= (t/timezone-parse "Europe/London") (t/timezone-parse "Europe/London")))
+  (is (not= (t/timezone-parse "Europe/London") (t/timezone-parse "Europe/Paris")))
+  (is (= 1 (get {(t/timezone-parse "Europe/London") 1} (t/timezone-parse "Europe/London")))))
 
-#_(deftest shift
+(deftest shift
   (let [a-date (t/date-now)
-        period (t/period-parse "P3D")
+        period (d/period-parse "P3D")
         plus3 (t/>> a-date period)]
     (is (= a-date (t/<< plus3 period)))))
 
