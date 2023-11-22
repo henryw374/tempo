@@ -67,6 +67,18 @@
    'yearmonth 'cljc.java-time.year-month
    })
 
+(def kw->temporal-class 
+  {
+   'date      'PlainDate
+   'timezone  'TimeZone
+   'zdt       'ZonedDateTime
+   'instant   'Instant
+   'time      'PlainTime
+   'monthday  'PlainMonthDay
+   'datetime  'PlainDateTime
+   'yearmonth 'PlainYearMonth
+   })
+
 (defn upper-first [s]
   (str (string/upper-case
          (subs s 0 1)) (subs s 1 (count s))))
@@ -90,6 +102,17 @@
                   (str (get kw->cljc-ns subject) "/to-" (csk/->kebab-case (.getSimpleName target-class)))
                   (str (get kw->cljc-ns subject) "/get-" (csk/->kebab-case (name target-name))))))
             foo))))))
+
+(defn temporal-accessor [feature path]
+  (let [subject (:tempo (first path))
+        target (last path)
+        target-name (:tempo target)
+        fn-name (symbol (str (name subject) "->" (name target-name)))]
+    ;(when-not (:ignore-accessor target))
+    (backtick/template
+      (defn ~fn-name [~(with-meta 'foo {:tag (get kw->class subject)})]
+        )))
+  )
 
 (defn java-accessor [feature path]
   (let [subject (:tempo (first path))
@@ -118,7 +141,9 @@
        (keep (fn [path]
               (case feature
                 :cljay (java-accessor feature path)
-                :cljc (cljc-accessor feature path))
+                :cljc (cljc-accessor feature path)
+                ;todo
+                :cljs (temporal-accessor feature path))
               ))))
 
 (defn parse-fn [feature subject]
@@ -126,10 +151,14 @@
     (let [fn-name (str (:tempo subject) "-parse")
           parser (case feature
                    :cljay (str (get kw->class (:tempo subject)) "/" (or (-> subject feature :parse) "parse"))
-                   :cljc (str (get kw->cljc-ns (:tempo subject)) "/" (or (-> subject feature :parse) "parse")))]
+                   :cljc (str (get kw->cljc-ns (:tempo subject)) "/" (or (-> subject feature :parse) "parse"))
+                   :cljs (str "js/Temporal." (get kw->temporal-class (:tempo subject)) ".from")
+                   )]
+      
       (backtick/template
         (defn ~(symbol fn-name) [~(with-meta 'foo {:tag String})]
-          (~(symbol parser) foo))))))
+          (~(symbol parser) foo)))
+      )))
 
 (defn parse-forms [feature]
   (->> (apply concat full-paths)
@@ -153,6 +182,7 @@
     (let [fn-name (str (:tempo subject) "-now")
           nower (case feature
                    :cljay (str (get kw->class (:tempo subject)) "/" (or (-> subject feature :parse) "now"))
+                   :cljs (str "clock/"(:tempo subject) )
                    :cljc (str (get kw->cljc-ns (:tempo subject)) "/" (or (-> subject feature :parse) "now")))]
       ;; construction from clocks
 ;      (defn date-now
@@ -162,11 +192,13 @@
 ;         #?(:clj (LocalDate/now ^Clock clock)
 ;            :cljs (clock/plain-date-iso clock))))
 ;
+      
       (backtick/template
         (defn ~(symbol fn-name)
           ([] (~(symbol nower)))
           ([~(with-meta 'clock {:tag java.time.Clock})]
-           (~(symbol nower) clock)))))))
+           (~(symbol nower) clock))))
+      )))
 
 (defn now-forms [feature]
   (->> (apply concat full-paths)

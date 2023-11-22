@@ -26,7 +26,7 @@
                      [com.widdindustries.tempo.js-temporal-methods :as methods]
                      [com.widdindustries.tempo.clock :as clock]))
   #?(:cljcc
-     #?(:clj (:import
+     #?(:cljay(:import
                [java.time Clock MonthDay ZoneId ZoneOffset Instant Duration Period DayOfWeek Month ZonedDateTime LocalTime LocalDateTime LocalDate Year YearMonth ZoneId OffsetDateTime OffsetTime]
                [java.time.temporal Temporal TemporalAmount]))
      )
@@ -39,35 +39,36 @@
   #?(:cljs
      (cljs-protocols/extend-all)))
 
-(defn period?           [v] #?(:clj (instance? Period v)
+(defn period?           [v] #?(:cljs (instance? entities/duration v)
+                               :cljay(instance? Period v)
+                               ))
+(defn duration?         [v] #?(:cljay(instance? Duration v)
                                :cljs (instance? entities/duration v)))
-(defn duration?         [v] #?(:clj (instance? Duration v)
-                               :cljs (instance? entities/duration v)))
-(defn instant?          [v] #?(:clj (instance? Instant v)
+(defn instant?          [v] #?(:cljay(instance? Instant v)
                                :cljs (instance? entities/instant v)))
-(defn date?             [v] #?(:clj (instance? LocalDate v)
+(defn date?             [v] #?(:cljay(instance? LocalDate v)
                                :cljs (instance? entities/date v)))
-(defn datetime?        [v] #?(:clj (instance? LocalDateTime v)
+(defn datetime?        [v] #?(:cljay(instance? LocalDateTime v)
                                :cljs (instance? entities/datetime v)))
-(defn time?             [v] #?(:clj (instance? LocalTime v)
+(defn time?             [v] #?(:cljay(instance? LocalTime v)
                                :cljs (instance? entities/time v)))
-(defn monthday?        [v] #?(:clj (instance? MonthDay v)
+(defn monthday?        [v] #?(:cljay(instance? MonthDay v)
                                :cljs (instance? entities/month-day v)))
-(defn yearmonth?       [v] #?(:clj (instance? YearMonth v)
+(defn yearmonth?       [v] #?(:cljay(instance? YearMonth v)
                                :cljs (instance? entities/year-month v)))
-(defn timezone?          [v] #?(:clj (instance? ZoneId v)
+(defn timezone?          [v] #?(:cljay(instance? ZoneId v)
                                :cljs (instance? entities/time-zone v)))
-(defn zdt?  [v] #?(:clj (instance? ZonedDateTime v)
+(defn zdt?  [v] #?(:cljay(instance? ZonedDateTime v)
                                :cljs (instance? entities/zdt v)))
 
 ;;; manipulating temporal objects
 
 (defn >> [temporal temporal-amount]
-  #?(:clj (.plus  ^Temporal temporal ^TemporalAmount temporal-amount)
+  #?(:cljay(.plus  ^Temporal temporal ^TemporalAmount temporal-amount)
      :cljs (.add ^js temporal temporal-amount)))
 
 (defn << [temporal temporal-amount]
-  #?(:clj (.minus  ^Temporal temporal ^TemporalAmount temporal-amount)
+  #?(:cljay(.minus  ^Temporal temporal ^TemporalAmount temporal-amount)
      :cljs (.subtract ^js temporal temporal-amount)))
 
 (defn zone-system-default []
@@ -77,13 +78,13 @@
 
 
 (defn duration->negated [d]
-  #?(:clj (.negated ^Duration d)
+  #?(:cljay(.negated ^Duration d)
      :cljs (.negated ^js d)))
 
 ;(def duraion-zero (duration-parse "PT0S"))
 
 (defn duration-negative? [d]
-  #?(:clj (.isNegative ^Duration d)
+  #?(:cljay(.isNegative ^Duration d)
      :cljs (neg? (.-sign ^js d))))
 
 
@@ -98,7 +99,7 @@
 (defn clock-system-default-zone []
   #?(:cljay (Clock/systemDefaultZone)
      :cljc (cljc.java-time.clock/system-default-zone)
-     :cljs js/Temporal.now))
+     :cljs js/Temporal.Now))
 
 (defn greater [x y]
   (if (neg? (compare x y)) y x))

@@ -26,7 +26,7 @@
     (spit deps
       (merge
         (when (contains? features :cljc)
-          {:deps {'cljc.java-time {:mvn/version "0.1.16"}}})
+          {:deps {'com.widdindustries/cljc.java-time {:mvn/version "0.1.18"}}})
         {:paths ["src"]})))
   (gen/gen (str "./gen-out/" target "/src/"
              (->
@@ -49,7 +49,9 @@
 
 (comment
 
+  (accessors/accessor-forms :cljs)
   (gen-tempo "no-deps" #{:cljay} :cljay)
+  (gen-tempo "no-deps" #{:cljs} :cljs)
   (gen-tempo "cljc.java-time-dep" #{:cljc :cljcc} :cljc)
   (gen-tempo "cljc.java-time-dep" #{:cljc :cljcs} :cljc)
 

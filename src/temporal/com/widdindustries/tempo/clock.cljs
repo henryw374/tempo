@@ -1,4 +1,5 @@
 (ns com.widdindustries.tempo.clock
+  (:refer-clojure :exclude [time])
   (:require [com.widdindustries.tempo.js-temporal-methods :as tm]))
 
 (defn fixed-clock [instant zone]
@@ -14,37 +15,44 @@
       :plainTimeISO     (fn []
                           (tm/instant->plain-time-iso instant zone))
       :timeZone         (fn [] (tm/tz-from zone))
-      :zonedDateTime    (fn [calendar]
-                          (tm/->zdt-calendar instant zone calendar))
+      
       :zonedDateTimeISO (fn []
                           (tm/->zdt-iso instant zone))}
   )
 
 
 (defn instant 
-  ([] (js/Temporal.now.instant))
+  ([] (js/Temporal.Now.instant))
   ([^js clock] (.instant clock)))
-#_(defn plain-datetime 
-  ([^js calendar] (js/Temporal.now.plainDateTime calendar))
-  ([^js clock ^js calendar] (.plainDateTime clock calendar)))
-(defn plain-datetime-iso 
-  ([] (js/Temporal.now.plainDateTimeISO))
+
+(defn datetime 
+  ([] (js/Temporal.Now.plainDateTimeISO))
   ([^js clock] (.plainDateTimeISO clock)))
-#_(defn plain-date 
-  ([^js calendar] (js/Temporal.now.plainDate calendar))
-  ([^js clock ^js calendar] (.plainDate clock calendar)))
-(defn plain-date-iso 
-  ([] (js/Temporal.now.plainDateISO))
+
+(defn date 
+  ([] (js/Temporal.Now.plainDateISO))
   ([^js clock] (.plainDateISO clock)))
-(defn plain-time-iso 
-  ([] (js/Temporal.now.plainTimeISO))
+
+(defn yearmonth
+  ([] (js/Temporal.PlainYearMonth.from (date)) )
+  ([^js clock] (js/Temporal.PlainYearMonth.from (date clock))))
+
+(defn monthday
+  ([] (js/Temporal.MonthDay.from (date)) )
+  ([^js clock] (js/Temporal.MonthDay.from (date clock))))
+
+(defn time 
+  ([] (js/Temporal.Now.plainTimeISO))
   ([^js clock] (.plainTimeISO clock)))
+
 (defn time-zone 
-  ([] (js/Temporal.now.timeZone))
+  ([] (js/Temporal.Now.timeZone))
   ([^js clock] (.timeZone clock)))
+
 #_(defn zoned-date-time 
-  ([^js calendar] (js/Temporal.now.zonedDateTime calendar))
+  ([^js calendar] (js/Temporal.Now.zonedDateTime calendar))
   ([^js clock ^js calendar] (.zonedDateTime clock calendar)))
-(defn zoned-date-time-iso 
-  ([] (js/Temporal.now.zonedDateTimeISO))
+
+(defn zdt 
+  ([] (js/Temporal.Now.zonedDateTimeISO))
   ([^js clock] (.zonedDateTimeISO clock)))

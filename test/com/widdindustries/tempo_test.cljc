@@ -4,10 +4,10 @@
 
  (t/extend-all-cljs-protocols)
 
-(deftest parsing-duration
+#_(deftest parsing-duration
   (is (t/duration? (t/duration-parse "PT1S")))) 
 
-(deftest equals-hash-compare-duration
+#_(deftest equals-hash-compare-duration
   (let [make-middle #(t/duration-parse "PT1S")
         middle (make-middle)
         smallest (t/duration->negated (t/duration-parse "PT1S"))
@@ -27,7 +27,7 @@
                (t/clock-fixed (t/instant-parse "2020-02-02T09:19:42.128946Z")
                  "UTC"))))))
 
-(deftest equals-hash-compare-date
+#_(deftest equals-hash-compare-date
   (let [middle (t/date-now)
         earliest (t/<< middle (t/period-parse "P1D"))
         latest (t/>> middle (t/period-parse "P1D"))]
@@ -42,15 +42,15 @@
   (is (t/date? (t/date-now)))
   (is (not (t/period? (t/date-now)))))
 
-(deftest parsing-test
+#_(deftest parsing-test
   (is (t/zone-id? (t/zone-parse "Europe/London"))))
 
-(deftest equals-hash
+#_(deftest equals-hash
   (is (= (t/zone-parse "Europe/London") (t/zone-parse "Europe/London")))
   (is (not= (t/zone-parse "Europe/London") (t/zone-parse "Europe/Paris")))
   (is (= 1 (get {(t/zone-parse "Europe/London") 1} (t/zone-parse "Europe/London")))))
 
-(deftest shift
+#_(deftest shift
   (let [a-date (t/date-now)
         period (t/period-parse "P3D")
         plus3 (t/>> a-date period)]

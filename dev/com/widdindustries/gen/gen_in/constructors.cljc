@@ -2,11 +2,11 @@
   #?(:cljay (:import (java.time LocalDateTime ZonedDateTime))))
 
 (defn time-from [thing]
-  (let [^int hour   (get thing :hour 0)
-        ^int minute (get thing :minute 0)
-        ^int second (get thing :second 0)
-        ^int nano   (get thing :nano 0)]
-    #?(:cljay (LocalTime/of hour minute second nano)
+  (let [ hour   (get thing :hour 0)
+         minute (get thing :minute 0)
+         second (get thing :second 0)
+         nano   (get thing :nano 0)]
+    #?(:cljay (LocalTime/of ^int hour ^int minute ^int second ^int nano)
        :cljs (js/Temporal.PlainTime. hour minute second 
                (-> (Math/floor (/ nano 1000)) (* 1000))
                (mod nano 1000))

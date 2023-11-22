@@ -1,2 +1,2 @@
 (ns user
-  (:require [compilation]))
+  (:require [cljs]))

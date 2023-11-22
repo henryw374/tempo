@@ -6,20 +6,9 @@
           feature)))
 
 (comment
-  (constructor-fns :cljc)
+  (constructor-fns #{:cljc})
+  (constructor-fns #{:cljay})
+  (constructor-fns #{:cljs})
   
-
-  (with-open [r (java.io.PushbackReader. (clojure.java.io/reader "dev/com/widdindustries/gen/gen_in/constructors.cljc"))]
-    (binding [*read-eval* false]
-      (->>
-        (repeatedly #(read
-                       {:read-cond :allow
-                        :features  #{:cljay}
-                        :eof       ::EOF} r))
-        (take-while #(not= ::EOF %))
-        vec)))
-
-  (read-string {:read-cond :allow :features #{:cljs}}
-    ())
 
   )

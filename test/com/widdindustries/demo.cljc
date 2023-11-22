@@ -1,8 +1,12 @@
 (ns com.widdindustries.demo
-  (:require [com.widdindustries.tempo :as t]))
+  (:require [com.widdindustries.tempo :as t]
+            [com.widdindustries.tempo.cljs-protocols :as cljs-protocols]
+            [com.widdindustries.tempo.js-temporal-entities :as entities]
+            [com.widdindustries.tempo.js-temporal-methods :as methods]
+            [com.widdindustries.tempo.clock :as clock]))
 
 (comment
-
+  
   (t/date-now)
   ;(t/date-now clock)
   (t/date-parse "2020-02-02") ;iso strings only
@@ -21,10 +25,6 @@
   (t/zdt->nano (t/zdt-now))
   ;(-> (t/instant-now) (t/instant->epochmillis))
 
-  ```
-
-      #### Temporal-amounts
-          ```clojure
 
   ;(t/period->days (t/period-parse "P3Y5M3D")) ; > 3
 
@@ -33,24 +33,9 @@
   ; following won't exist bc years and months are variable length
   ;(t/period->as-days (t/period-parse "P3Y5M3D"))
 
-  ```
-
-
-      ### Manipulation
-
-          aka construction a new entity from one of the same type
-
-  #### Temporal-amounts
-
-      ```clojure
 
   ;(t/+ (t/duration-parse "PT3H") (t/duration-parse "PT3S"))
 
-  ```
-
-      #### Temporals
-
-          ```clojure
 
   ;; move date forward 3 days
   ;(t/>> (t/date-now)  (t/period-parse "P3D"))
@@ -62,12 +47,6 @@
   ;(-> (t/date-now) (t/truncate-to-month))
   ;(-> (t/instant-now) (t/truncate-to-month))
 
-  ```
-
-      ### Comparison
-
-          #### Temporal
-              ```clojure
 
   ;only entities of the same type can be compared
 
@@ -79,14 +58,6 @@
   ; you must specify unit
   ;(t/until a b :minutes)
 
-  ```
-
-      ### Predicates
-
-          ```clojure
-
-  (t/date? x)
-  ```
 
 
-      )
+          )

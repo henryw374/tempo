@@ -62,7 +62,7 @@
 
 (comment
 
-  (gen/gen (str "./gen-out/" (->
+  (gen/gen (str "./gen-out/no-deps/src/" (->
                                (name 'com.widdindustries.tempo.cljs-protocols)
                                (string/replace "." "/")
                                (string/replace "-" "_")
