@@ -1,9 +1,10 @@
 (ns com.widdindustries.demo
   (:require [com.widdindustries.tempo :as t]
-            [com.widdindustries.tempo.cljs-protocols :as cljs-protocols]
-            [com.widdindustries.tempo.js-temporal-entities :as entities]
-            [com.widdindustries.tempo.js-temporal-methods :as methods]
-            [com.widdindustries.tempo.clock :as clock]))
+    ;[com.widdindustries.tempo.cljs-protocols :as cljs-protocols]
+    ;       [com.widdindustries.tempo.js-temporal-entities :as entities]
+    ;       [com.widdindustries.tempo.js-temporal-methods :as methods]
+    ;        [com.widdindustries.tempo.clock :as clock]
+            ))
 
 (comment
   

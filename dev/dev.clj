@@ -1,6 +1,24 @@
-(ns cljs
+(ns dev
   (:require [clojure.java.io :as io]
-            [com.widdindustries.tiado-cljs2 :as util]))
+            [com.widdindustries.tiado-cljs2 :as util]
+            [kaocha.repl :as kaocha]
+            [clojure.tools.namespace.repl :as refresh]
+            [com.widdindustries.gen.gen.tempo :as gen]))
+
+(defn refresh []
+  (refresh/refresh-all))
+
+(defn x []
+  (kaocha/run 'com.widdindustries.tempo-test))
+
+(defn run-clj-tests [_]
+  (refresh/refresh-all :after 'dev/x))
+
+(comment 
+  (refresh/clear)
+  (gen/generate-all nil)
+  (run-clj-tests nil)
+  )
 
 (defn browser-test-build [compile-mode opts]
   (.mkdirs (io/file "web-target" "public" "browser-test"))

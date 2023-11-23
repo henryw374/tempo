@@ -2,8 +2,11 @@
   "significant differences exist between java.time and Temporal wrt amounts of time.
   
   For now, have separate ns.
+ 
   "
   #?(:clj (:import [java.time Duration Period])))
+
+#?(:clj (set! *default-data-reader-fn* tagged-literal))
 
 (defn duration-parse [p]
   #?(:cljs (js/Temporal.Duration.from p)
@@ -16,6 +19,16 @@
 (defn duration->negated [d]
   #?(:cljs (.negated ^js d)
      :clj (.negated d))
+  )
+
+(comment
+
+  (-> (duration-parse "PT2h30m")
+      (.total #js{:unit "minute"})
+      (.total #js{:unit "year"}))
+
+  (-> (period-parse "P1Y")
+      (.total #js{:unit "year" :relativeTo (com.widdindustries.tempo/zdt-now)}))
   )
 
 ;(defn duration->as-years ([d]) ([d ref]))

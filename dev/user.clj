@@ -1,2 +1,9 @@
-(ns user
-  (:require [cljs]))
+(ns user)
+
+(defn dev []
+  (require 'dev)
+  (in-ns 'dev))
+
+(comment 
+  (dev)
+  )

@@ -2,12 +2,13 @@
   (:require [com.widdindustries.gen.gen.accessors :as accessors]
             [com.widdindustries.gen.gen.constructors :as constructors]
             [com.widdindustries.gen.gen :as gen]
+            [com.widdindustries.gen.cljs-protocols :as cljs-protocols]
             [clojure.string :as string]
             [clojure.java.io :as io]
             [clojure.set :as set]))
 
 (defn ns-decl [features]
-  (rest (gen/read-cond-forms "dev/com/widdindustries/gen/gen_in/tempo.cljc"
+  (rest (gen/read-cond-forms "gen_in/tempo.cljc"
           features)))
 
 (defn feature->ext [features]
@@ -21,19 +22,10 @@
 ;(feature->ext #{:cljcs :cljc})
 
 (defn gen-tempo [target features main-feature]
-  (let [deps (str "./gen-out/" target "/deps.edn")]
-    (io/make-parents deps)
-    (spit deps
-      (merge
-        (when (contains? features :cljc)
-          {:deps {'com.widdindustries/cljc.java-time {:mvn/version "0.1.18"}}})
-        {:paths ["src"]})))
-  (gen/gen (str "./gen-out/" target "/src/"
-             (->
-               (name 'com.widdindustries.tempo)
-               (string/replace "." "/")
-               (string/replace "-" "_")
-               )
+  
+  (gen/gen (str  "src/com/widdindustries/tempo" (when (= "cljc.java-time-dep" target)
+                                                   "/cljc-java-time-dep")
+             
              (feature->ext features))
     (concat (ns-decl features)
       ['(comment "accessors")]
@@ -46,9 +38,13 @@
       (constructors/constructor-fns features)
       )))
 
+(defn generate-all [_]
+  (gen-tempo "no-deps" #{:cljay} :cljay)
+  (gen-tempo "no-deps" #{:cljs} :cljs)
+  (cljs-protocols/gen-protocols))
 
 (comment
-
+(generate-all nil)
   (accessors/accessor-forms :cljs)
   (gen-tempo "no-deps" #{:cljay} :cljay)
   (gen-tempo "no-deps" #{:cljs} :cljs)

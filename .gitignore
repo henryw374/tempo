@@ -5,6 +5,7 @@ package.json
 web-target/public
 pom.xml
 pom.xml.asc
+.cpcache
 *.jar
 *.class
 /lib/

@@ -60,19 +60,15 @@
           entities))
     ))
 
-(comment
-
-  (gen/gen (str "./gen-out/no-deps/src/" (->
-                               (name 'com.widdindustries.tempo.cljs-protocols)
-                               (string/replace "." "/")
-                               (string/replace "-" "_")
-                               )
+(defn gen-protocols []
+  (gen/gen (str "src/" (->
+                         (name 'com.widdindustries.tempo.cljs-protocols)
+                         (string/replace "." "/")
+                         (string/replace "-" "_")
+                         )
              ".cljs")
     (concat [(ns-decl)]
       (non-temporals)
       (for [tt graph/temporal-types]
         (temporal-fn-gen (str tt)))
-      [(extend-all (concat graph/temporal-types ['timezone 'duration]))]))
-  
-  
-  )
+      [(extend-all (concat graph/temporal-types ['timezone 'duration]))])))

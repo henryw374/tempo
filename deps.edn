@@ -1,14 +1,16 @@
 ; this is not the deps for a lib user to depend on. find those under 'gen-out'
-{:paths   ["dev" "web-target" "gen-out/no-deps/src"]
- :deps  {;ring/ring-core                      {:mvn/version "1.8.1"}
-           backtick/backtick                   {:mvn/version "0.3.4"}
-           camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.2"}
-          medley/medley {:mvn/version "1.4.0"}
-           cljc-deps {:local/root "./gen-out/cljc.java-time-dep"}
-         com.widdindustries/tiado-cljs2 {:git/url "https://github.com/henryw374/tiado-cljs2.git" :git/sha "8aa3042d834d2695ec9d4f9f65532573c849d6bf" }
-
-         }
- :aliases {:release {:extra-deps {applied-science/deps-library {:mvn/version "RELEASE"}}
-                     :main-opts  ["-m" "applied-science.deps-library"]}
-           :output-no-deps {:extra-paths ["test" "src/temporal"]
-                            :extra-deps {tempo-no-deps {:local/root "gen-out/no-deps"}}}}}
+{:paths   ["src"]
+ :aliases {:dev {:extra-paths ["dev" "web-target" "test"]
+                 :extra-deps  {;ring/ring-core                      {:mvn/version "1.8.1"}
+                               backtick/backtick                   {:mvn/version "0.3.4"}
+                               camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.2"}
+                               medley/medley                       {:mvn/version "1.4.0"}
+                               com.widdindustries/tiado-cljs2      {:git/url "https://github.com/henryw374/tiado-cljs2.git" :git/sha "8aa3042d834d2695ec9d4f9f65532573c849d6bf"}
+                               com.widdindustries/cljc.java-time   {:mvn/version "0.1.21"}
+                               ;com.widdindustries/time-literals {:mvn/version "0.1.10" :exclusions [com.widdindustries/cljs.java-time]}
+                               org.clojure/tools.namespace {:mvn/version "1.4.4"}
+                               }
+                 }}
+ :release {:extra-deps {applied-science/deps-library {:mvn/version "RELEASE"}}
+           :main-opts  ["-m" "applied-science.deps-library"]}
+ }
