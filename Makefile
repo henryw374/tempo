@@ -1,5 +1,5 @@
 generate-all:
-			clj -Adev -X com.widdindustries.gen.gen.tempo/generate-all
+			clojure -Adev -X com.widdindustries.gen.gen.tempo/generate-all
 test-cljs:
 			clojure -Adev -X com.widdindustries.tiado-cljs2/tests-ci-shadow :compile-mode :release
 test-clj:
