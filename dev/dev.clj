@@ -62,4 +62,6 @@
   (util/build-report (app-config) "build-report.html")
 
   ; you can stop/start etc as required
-  (util/stop-server))
+  (util/stop-server)
+  (util/clean-build)
+  )

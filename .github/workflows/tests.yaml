@@ -29,8 +29,8 @@ jobs:
       - name: Generate library code
         run: make generate-all
         
-      - name: Run cljs tests  
-        run: make test-cljs        
-        
       - name: Run clj tests
-        run: make test-clj
+        run: make test-clj        
+        
+      - name: Run cljs tests  
+        run: make test-cljs              
