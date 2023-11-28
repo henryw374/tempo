@@ -29,8 +29,8 @@
         (conj sub-paths (vec (take x path)))))))
 
 
-
-(def full-paths
+(def ^{:doc "each path is a list from root to leaf"} 
+  full-paths
   (->>
     (loop [[next-path & remaining] all-paths
            access-paths #{}]
@@ -108,10 +108,33 @@
         target (last path)
         target-name (:tempo target)
         fn-name (symbol (str (name subject) "->" (name target-name)))]
-    ;(when-not (:ignore-accessor target))
-    (backtick/template
-      (defn ~fn-name [~(with-meta 'foo {:tag (get kw->class subject)})]
-        )))
+    (when-not (:ignore-accessor target)
+      (backtick/template
+        (defn ~fn-name [~(with-meta 'foo {:tag (symbol (str "js/Temporal." (str (get kw->temporal-class subject))))})]
+          (~(symbol
+              (if-let [x (special-accessor (get target feature))]
+                x
+                (if-let [target-class (get kw->class target-name)]
+                  (str ".to" (str target-class))
+                  (str ".-"  (csk/->camelCaseString (name target-name)))))) foo)
+          )))))
+
+(comment
+  (comment
+    (def p (->> full-paths
+                (filter (fn [path]
+                          (and
+                            (= 'zdt (:tempo (first path)))
+                            ;(= 'timezone (:tempo (last path)))
+                            ;(= 'timezone (:tempo (last path)))
+                            )
+                          ))
+                (first)
+                ))
+    )
+  (temporal-accessor :cljs p)
+  (temporal-accessor :cljs [{:tempo 'zdt} {:tempo 'instant}])
+  (temporal-accessor :cljs [{:tempo 'zdt} {:tempo 'hour}])
   )
 
 (defn java-accessor [feature path]

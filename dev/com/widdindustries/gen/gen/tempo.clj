@@ -45,10 +45,10 @@
 
 (comment
 (generate-all nil)
-  (accessors/accessor-forms :cljs)
+  ;(accessors/accessor-forms :cljs)
   (gen-tempo "no-deps" #{:cljay} :cljay)
   (gen-tempo "no-deps" #{:cljs} :cljs)
-  (gen-tempo "cljc.java-time-dep" #{:cljc :cljcc} :cljc)
-  (gen-tempo "cljc.java-time-dep" #{:cljc :cljcs} :cljc)
+  ;(gen-tempo "cljc.java-time-dep" #{:cljc :cljcc} :cljc)
+  ;(gen-tempo "cljc.java-time-dep" #{:cljc :cljcs} :cljc)
 
   )

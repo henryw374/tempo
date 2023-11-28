@@ -98,7 +98,9 @@
      :cljc (cljc.java-time.clock/fixed instant zone)
      :cljs (clock/fixed-clock instant zone)))
 
-(defn clock-system-default-zone []
+(defn clock-system-default-zone 
+  "a ticking clock having the ambient zone"
+  []
   #?(:cljay (Clock/systemDefaultZone)
      :cljc (cljc.java-time.clock/system-default-zone)
      :cljs js/Temporal.Now))

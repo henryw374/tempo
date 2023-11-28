@@ -1,5 +1,6 @@
 (ns com.widdindustries.gen.graph
-  (:require [clojure.walk])
+  (:require [clojure.walk]
+            [medley.core :as m])
   (:import (java.time ZonedDateTime MonthDay DayOfWeek YearMonth)))
 
 (defn parts->paths [parent-key parts]
@@ -28,9 +29,6 @@
                              (-> node val :parts)))]
         :else node))
     graph))
-
-
-(def non-graph {:zdt {:js-temporal {:entity-name 'ZonedDateTime}}})
 
 (def temporal-types
   ['instant
@@ -64,6 +62,7 @@
            :accessor 'getZone}
    :cljc {:parse 'of
           :accessor 'getZone}
+   :cljs {:accessor 'timeZoneId}
    :tempo 'timezone})
 
 (def yearmonth
@@ -136,3 +135,8 @@
 
 (def with-paths (paths graph))
 
+(comment 
+  
+  (->> with-paths
+       (m/find-first #(= {:tempo 'zdt} (key %1))))
+  )

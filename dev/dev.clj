@@ -14,12 +14,6 @@
 (defn run-clj-tests [_]
   (refresh/refresh-all :after 'dev/x))
 
-(comment 
-  (refresh/clear)
-  (gen/generate-all nil)
-  (run-clj-tests nil)
-  )
-
 (defn browser-test-build [compile-mode opts]
   (.mkdirs (io/file "web-target" "public" "browser-test"))
   (spit "web-target/public/browser-test/index.html"
@@ -50,6 +44,9 @@
   (test-watch)
   ; run cljs tests, having opened browser at test page (see print output of above "for tests, open...")
   (util/run-tests)
+  (refresh/clear)
+  (gen/generate-all nil)
+  (run-clj-tests nil)
   ; start a cljs repl session in the test build. :cljs/quit to exit
   (util/repl :browser-test-build)
   
@@ -65,3 +62,4 @@
   (util/stop-server)
   (util/clean-build)
   )
+

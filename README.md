@@ -1,5 +1,10 @@
 # Tempo
 
+<!-- [![Clojars Project](https://img.shields.io/clojars/v/com.widdindustries/cljc.java-time.svg)](https://clojars.org/com.widdindustries/cljc.java-time)-->
+[![Tests build](https://github.com/henryw374/tempo/actions/workflows/tests.yaml/badge.svg)](https://github.com/henryw374/tempo/actions/workflows/tests.yaml)
+<!-- [![bb compatible](https://raw.githubusercontent.com/babashka/babashka/master/logo/badge.svg)](https://babashka.org)-->
+
+
 zero-dependency, cross-platform Clojure time library
 
 *Status* - pre-alpha. 
@@ -226,8 +231,38 @@ api todo - see todos in tempo.cljc
   * maybe not necessarily exactly the same on both platforms? but afaik defaults for ambiguity resolution
   are the same on both atm
     
-microseconds - reified in temporal, not in java.time
-duration/period
+### microseconds - reified in temporal, not in java.time
 
- 
-    
+### duration/period
+
+- java.time fns work with period or duration. or periodDuration from 310-extras?
+
+### to/from legacy date
+
+### clocks 
+
+todo: fixed, offset
+
+### instant-from
+
+- epoch millis + (optionally) nanos
+
+### tests 
+
+for each entity:
+
+construct 
+
+- from: parse, now (+clock), parts
+- assert isa?
+
+accessors
+ - generic construct
+ - assert isa?
+
+comparators
+ - generic construct.
+ - >> by suitable duration
+ - compare + not=, hash not=
+
+= , hash, compare
