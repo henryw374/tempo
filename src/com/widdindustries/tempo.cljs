@@ -59,7 +59,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__35940# p2__35941#] (greater p1__35940# p2__35941#))
+  (fn* [p1__35957# p2__35958#] (greater p1__35957# p2__35958#))
   arg
   args))
 
@@ -71,7 +71,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__35942# p2__35943#] (lesser p1__35942# p2__35943#))
+  (fn* [p1__35959# p2__35960#] (lesser p1__35959# p2__35960#))
   arg
   args))
 
@@ -138,7 +138,7 @@
 
 (defn datetime->second [^js/Temporal.PlainDateTime foo] (.-second foo))
 
-(defn zdt->date [^js/Temporal.ZonedDateTime foo] (.toLocalDate foo))
+(defn zdt->date [^js/Temporal.ZonedDateTime foo] (.toPlainDate foo))
 
 (defn datetime->year [^js/Temporal.PlainDateTime foo] (.-year foo))
 
@@ -175,7 +175,7 @@
 (defn
  datetime->date
  [^js/Temporal.PlainDateTime foo]
- (.toLocalDate foo))
+ (.toPlainDate foo))
 
 (defn
  date->day-of-month
@@ -193,9 +193,9 @@
 (defn
  zdt->datetime
  [^js/Temporal.ZonedDateTime foo]
- (.toLocalDateTime foo))
+ (.toPlainDateTime foo))
 
-(defn zdt->time [^js/Temporal.ZonedDateTime foo] (.toLocalTime foo))
+(defn zdt->time [^js/Temporal.ZonedDateTime foo] (.toPlainTime foo))
 
 (defn monthday->month [^js/Temporal.PlainMonthDay foo] (.-month foo))
 
@@ -214,7 +214,7 @@
 (defn
  datetime->time
  [^js/Temporal.PlainDateTime foo]
- (.toLocalTime foo))
+ (.toPlainTime foo))
 
 ^{:line 33, :column 9} (comment "parsers")
 

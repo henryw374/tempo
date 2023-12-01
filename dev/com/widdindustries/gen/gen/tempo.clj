@@ -22,7 +22,6 @@
 ;(feature->ext #{:cljcs :cljc})
 
 (defn gen-tempo [target features main-feature]
-  
   (gen/gen (str  "src/com/widdindustries/tempo" (when (= "cljc.java-time-dep" target)
                                                    "/cljc-java-time-dep")
              
@@ -36,12 +35,32 @@
       (accessors/now-forms main-feature)
       ['(comment "constructors")]
       (constructors/constructor-fns features)
+      ))
+  
+  )
+
+(defn generate-test []
+  (gen/gen (str  "test/com/widdindustries/tempo_gen_test.cljc"
+             )
+    (concat ['(ns com.widdindustries.tempo-gen-test
+                (:require [clojure.test :refer [deftest is testing]]
+                          [com.widdindustries.tempo :as t]))]
+      ;['(comment "constructors")]
+      ;(constructors/constructor-tests features)
+      ['(comment "accessors")]
+      ;(accessors/accessor-forms main-feature)
+      ['(comment "parsers")]
+      ;(accessors/parse-forms main-feature)
+      ['(comment "nowers")]
+      (accessors/now-tests )
+
       )))
 
 (defn generate-all [_]
   (gen-tempo "no-deps" #{:cljay} :cljay)
   (gen-tempo "no-deps" #{:cljs} :cljs)
-  (cljs-protocols/gen-protocols))
+  (cljs-protocols/gen-protocols)
+  (generate-test))
 
 (comment
 (generate-all nil)

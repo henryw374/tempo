@@ -3,6 +3,7 @@
             [com.widdindustries.gen.gen :as gen]
             [clojure.walk]
             [backtick]
+            [com.widdindustries.tempo :as t]
             [medley.core :as m]
             [clojure.set :as set]
             [camel-snake-kebab.core :as csk]
@@ -114,7 +115,7 @@
           (~(symbol
               (if-let [x (special-accessor (get target feature))]
                 x
-                (if-let [target-class (get kw->class target-name)]
+                (if-let [target-class (get kw->temporal-class target-name)]
                   (str ".to" (str target-class))
                   (str ".-"  (csk/->camelCaseString (name target-name)))))) foo)
           )))))
@@ -212,6 +213,29 @@
        distinct
        (keep (fn [thing]
                (now-fn feature thing)))))
+
+(defn now-test [ subject]
+  (when (and (not (:no-now subject)) (get kw->class (:tempo subject)))
+    (let [fn-name (str (:tempo subject) "-now-test")]
+      (backtick/template
+        (deftest ~(symbol fn-name)
+          (let [now-now (~(symbol (str "t/" (:tempo subject) "-now")))]
+            (is (~(symbol (str "t/" (:tempo subject) "?")) now-now)))
+          (let [clock-1 (t/clock-fixed (t/instant-parse "1955-11-01T16:46:08.017143Z") (t/zone-system-default))
+                clock-2 (t/clock-fixed (t/instant-parse "1955-12-02T17:46:08.017143Z") (t/zone-system-default))
+                now-clock-1 (~(symbol (str "t/" (:tempo subject) "-now")) clock-1)
+                now-clock-2 (~(symbol (str "t/" (:tempo subject) "-now")) clock-2)
+                ]
+            (is (~(symbol (str "t/" (:tempo subject) "?")) now-clock-1))
+            (is (t/> now-clock-2 now-clock-1))
+            )
+          )))))
+
+(defn now-tests []
+  (->> (apply concat full-paths)
+       distinct
+       (keep (fn [thing]
+               (now-test thing)))))
 
 
 (comment
