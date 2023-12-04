@@ -83,7 +83,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__35953# p2__35954#] (greater p1__35953# p2__35954#))
+  (fn* [p1__39054# p2__39055#] (greater p1__39054# p2__39055#))
   arg
   args))
 
@@ -95,7 +95,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__35955# p2__35956#] (lesser p1__35955# p2__35956#))
+  (fn* [p1__39056# p2__39057#] (lesser p1__39056# p2__39057#))
   arg
   args))
 
@@ -151,7 +151,7 @@
     (>= y (first more)))
    false)))
 
-^{:line 31, :column 9} (comment "accessors")
+^{:line 30, :column 9} (comment "accessors")
 
 (defn zdt->month [^ZonedDateTime foo] (.getMonthValue foo))
 
@@ -219,7 +219,7 @@
 
 (defn datetime->time [^LocalDateTime foo] (.toLocalTime foo))
 
-^{:line 33, :column 9} (comment "parsers")
+^{:line 32, :column 9} (comment "parsers")
 
 (defn zdt-parse [^java.lang.String foo] (ZonedDateTime/parse foo))
 
@@ -237,7 +237,7 @@
 
 (defn timezone-parse [^java.lang.String foo] (ZoneId/of foo))
 
-^{:line 35, :column 9} (comment "nowers")
+^{:line 34, :column 9} (comment "nowers")
 
 (defn
  zdt-now
@@ -274,7 +274,7 @@
  ([] (YearMonth/now))
  ([^java.time.Clock clock] (YearMonth/now clock)))
 
-^{:line 37, :column 9} (comment "constructors")
+^{:line 36, :column 9} (comment "constructors")
 
 (defn
  time-from

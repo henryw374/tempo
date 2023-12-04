@@ -10,6 +10,55 @@
 
 ^{:line 52, :column 9} (comment "parsers")
 
+(deftest
+ zdt-parse-test
+ (let
+  [now-now (t/zdt-now)]
+  (is (= now-now (-> now-now str t/zdt-parse)))))
+
+(deftest
+ datetime-parse-test
+ (let
+  [now-now (t/datetime-now)]
+  (is (= now-now (-> now-now str t/datetime-parse)))))
+
+(deftest
+ date-parse-test
+ (let
+  [now-now (t/date-now)]
+  (is (= now-now (-> now-now str t/date-parse)))))
+
+(deftest
+ monthday-parse-test
+ (let
+  [now-now (t/monthday-now)]
+  (is (= now-now (-> now-now str t/monthday-parse)))))
+
+(deftest
+ time-parse-test
+ (let
+  [now-now (t/time-now)]
+  (is (= now-now (-> now-now str t/time-parse)))))
+
+(deftest
+ instant-parse-test
+ (let
+  [now-now (t/instant-now)]
+  (is (= now-now (-> now-now str t/instant-parse)))))
+
+(deftest
+ yearmonth-parse-test
+ (let
+  [now-now (t/yearmonth-now)]
+  (is (= now-now (-> now-now str t/yearmonth-parse)))))
+
+(deftest
+ timezone-parse-test
+ (is
+  (=
+   (t/zone-system-default)
+   (-> (t/zone-system-default) str t/timezone-parse))))
+
 ^{:line 54, :column 9} (comment "nowers")
 
 (deftest

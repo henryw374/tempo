@@ -50,7 +50,7 @@
       ['(comment "accessors")]
       ;(accessors/accessor-forms main-feature)
       ['(comment "parsers")]
-      ;(accessors/parse-forms main-feature)
+      (accessors/parse-tests)
       ['(comment "nowers")]
       (accessors/now-tests )
 

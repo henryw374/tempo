@@ -247,3 +247,21 @@
   (->> (apply concat full-paths) set)
   
   )
+
+(defn parse-test [subject]
+  (when (get kw->class (:tempo subject))
+    (let [fn-name (str (:tempo subject) "-parse-test")]
+      (if (= 'timezone (:tempo subject))
+        (backtick/template
+          (deftest ~(symbol fn-name)
+            (is (= (t/zone-system-default) (-> (t/zone-system-default) str ~(symbol (str "t/" (:tempo subject) "-parse")))))))
+        (backtick/template
+          (deftest ~(symbol fn-name)
+            (let [now-now (~(symbol (str "t/" (:tempo subject) "-now")))]
+              (is (= now-now (-> now-now str ~(symbol (str "t/" (:tempo subject) "-parse"))))))))))))
+
+(defn parse-tests []
+  (->> (apply concat full-paths)
+       distinct
+       (keep (fn [thing]
+               (parse-test thing)))))
