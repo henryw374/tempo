@@ -83,7 +83,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__39054# p2__39055#] (greater p1__39054# p2__39055#))
+  (fn* [p1__40486# p2__40487#] (greater p1__40486# p2__40487#))
   arg
   args))
 
@@ -95,7 +95,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__39056# p2__39057#] (lesser p1__39056# p2__39057#))
+  (fn* [p1__40488# p2__40489#] (lesser p1__40488# p2__40489#))
   arg
   args))
 
@@ -295,15 +295,15 @@
  [thing]
  (let
   [year
-   (or (-> (get thing :yearmonth) yearmonth->year) (:year thing))
+   (or (some-> (get thing :yearmonth) yearmonth->year) (:year thing))
    month
    (or
-    (-> (get thing :yearmonth) yearmonth->month)
+    (some-> (get thing :yearmonth) yearmonth->month)
     (-> (get thing :monthday) monthday->month)
     (:month thing))
    day
    (or
-    (-> (get thing :monthday) monthday->day-of-month)
+    (some-> (get thing :monthday) monthday->day-of-month)
     (get thing :day-of-month))]
   (LocalDate/of ^int year ^int month ^int day)))
 

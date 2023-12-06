@@ -59,7 +59,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__39058# p2__39059#] (greater p1__39058# p2__39059#))
+  (fn* [p1__40490# p2__40491#] (greater p1__40490# p2__40491#))
   arg
   args))
 
@@ -71,7 +71,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__39060# p2__39061#] (lesser p1__39060# p2__39061#))
+  (fn* [p1__40492# p2__40493#] (lesser p1__40492# p2__40493#))
   arg
   args))
 
@@ -321,15 +321,15 @@
  [thing]
  (let
   [year
-   (or (-> (get thing :yearmonth) yearmonth->year) (:year thing))
+   (or (some-> (get thing :yearmonth) yearmonth->year) (:year thing))
    month
    (or
-    (-> (get thing :yearmonth) yearmonth->month)
+    (some-> (get thing :yearmonth) yearmonth->month)
     (-> (get thing :monthday) monthday->month)
     (:month thing))
    day
    (or
-    (-> (get thing :monthday) monthday->day-of-month)
+    (some-> (get thing :monthday) monthday->day-of-month)
     (get thing :day-of-month))]
   (js/Temporal.PlainDate. ^int year ^int month ^int day)))
 

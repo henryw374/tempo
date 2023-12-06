@@ -13,15 +13,15 @@
        :cljc (cljc.java-time.local-time/of hour minute second nano))))
 
 (defn date-from [thing]
-  (let [year (or (-> (get thing :yearmonth)
+  (let [year (or (some-> (get thing :yearmonth)
                      yearmonth->year)
                (:year thing))
-        month (or (-> (get thing :yearmonth)
+        month (or (some-> (get thing :yearmonth)
                       yearmonth->month)
                 (-> (get thing :monthday)
                     monthday->month)
                 (:month thing))
-        day (or (-> (get thing :monthday)
+        day (or (some-> (get thing :monthday)
                     monthday->day-of-month)
               (get thing :day-of-month))]
 
