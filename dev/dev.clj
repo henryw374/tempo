@@ -19,7 +19,7 @@
   ((get util/compile-fns compile-mode)
    (util/browser-test-config) opts)
   (.mkdirs (io/file "web-target" "public" "browser-test"))
-  (spit "web-target/public/browser-test/foo.html"
+  (spit "web-target/public/browser-test/index.html"
     "<!DOCTYPE html>
     <html><head>
     <title>kaocha.cljs2.shadow-runner</title>
@@ -33,6 +33,8 @@
     </script>
     <script>kaocha.cljs2.shadow_runner.init();</script></body></html>"
     )
+
+  (println (slurp "web-target/public/browser-test/index.html"))
   
   (println "for tests, open " util/test-url))
 
@@ -45,8 +47,8 @@
   (browser-test-build compile-mode {})
   (println (fs/list-dir "web-target/public/browser-test"))
   (println "file")
-  (println (slurp "web-target/public/browser-test/foo.html"))
-  (println (slurp (str util/shadow-local "/browser-test/foo.html")))
+  (println (slurp "web-target/public/browser-test/index.html"))
+  (println (slurp (str util/shadow-local "/browser-test/index.html")))
   (try
     (util/kaocha-exit-if-fail (util/run-tests-headless nil))
     (catch Exception e
