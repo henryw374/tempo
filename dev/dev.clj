@@ -43,7 +43,9 @@
 (defn tests-ci-shadow [{:keys [compile-mode]}]
   (util/start-server)
   (browser-test-build compile-mode {})
-  (println (fs/list-dir "web-target/public"))
+  (println (fs/list-dir "web-target/public/browser-test"))
+  (println "file")
+  (println (slurp "web-target/public/browser-test/foo.html"))
   (println (slurp (str util/shadow-local "/browser-test/foo.html")))
   (try
     (util/kaocha-exit-if-fail (util/run-tests-headless nil))
