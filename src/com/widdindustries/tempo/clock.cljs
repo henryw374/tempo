@@ -38,15 +38,15 @@
   ([^js clock] (js/Temporal.PlainYearMonth.from (date clock))))
 
 (defn monthday
-  ([] (js/Temporal.MonthDay.from (date)) )
-  ([^js clock] (js/Temporal.MonthDay.from (date clock))))
+  ([] (js/Temporal.PlainMonthDay.from (date)) )
+  ([^js clock] (js/Temporal.PlainMonthDay.from (date clock))))
 
 (defn time 
   ([] (js/Temporal.Now.plainTimeISO))
   ([^js clock] (.plainTimeISO clock)))
 
 (defn time-zone 
-  ([] (js/Temporal.Now.timeZone))
+  ([] (js/Temporal.TimeZone.from (js/Temporal.Now.timeZoneId)))
   ([^js clock] (.timeZone clock)))
 
 #_(defn zoned-date-time 

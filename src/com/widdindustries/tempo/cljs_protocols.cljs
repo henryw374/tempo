@@ -106,7 +106,8 @@
   entities/month-day
   (-equiv [o other] (.equals ^js o other)))
  (extend-protocol IHash entities/month-day (-hash [o] (hash (str o))))
- (extend-protocol
+  ; cannot compare monthday
+ #_(extend-protocol
   IComparable
   entities/month-day
   (-compare [x y] (.compare entities/month-day ^js x y))))

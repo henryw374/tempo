@@ -20,12 +20,6 @@ jobs:
         with:
           cli: 1.11.1.1155 # Clojure CLI based on tools.deps
 
-      #- name: Run Clj Unit tests
-      #  run: make test-clj
-        
-      - name: Install Chrome  
-        uses: browser-actions/setup-chrome@latest
-        
       - name: Generate library code
         run: make generate-all
         
