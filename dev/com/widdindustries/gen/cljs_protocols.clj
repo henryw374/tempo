@@ -37,20 +37,22 @@
           js/Temporal.TimeZone
           (-hash [o] (hash (.-id ^js o))))))))
 
-(defn temporal-fn-gen [temporal-type]
-  (backtick/template
-    (defn ~(symbol temporal-type) []
-       (extend-protocol IEquiv
-         ~(symbol "entities" temporal-type)
-         (-equiv [o other] (.equals ^js o other)))
+(defn temporal-fn-gen [temporal-type overrides]
+  (let [compar (or (get overrides :compare)
+                 (backtick/template (-compare [x y] (.compare ~(symbol "entities" temporal-type) ^js x y))))]
+    (backtick/template
+      (defn ~(symbol temporal-type) []
+        (extend-protocol IEquiv
+          ~(symbol "entities" temporal-type)
+          (-equiv [o other] (.equals ^js o other)))
 
-       (extend-protocol IHash
-         ~(symbol "entities" temporal-type)
-         (-hash [o] (hash (str o))))
+        (extend-protocol IHash
+          ~(symbol "entities" temporal-type)
+          (-hash [o] (hash (str o))))
 
-       (extend-protocol IComparable
-         ~(symbol "entities" temporal-type)
-         (-compare [x y] (.compare ~(symbol "entities" temporal-type) ^js x y))))))
+        (extend-protocol IComparable
+          ~(symbol "entities" temporal-type)
+          ~compar)))))
 
 (defn extend-all [entities]
   (backtick/template
@@ -59,6 +61,14 @@
           (fn [e] (list e))
           entities))
     ))
+
+(def overrides 
+  {'monthday {:compare (backtick/template
+                         (-compare [^js x ^js y]
+                           (let [m (compare (.-monthCode x) (.-monthCode y))]
+                             (if (zero? m)
+                               (compare (.-day x) (.-day y))
+                               m))))}})
 
 (defn gen-protocols []
   (gen/gen (str "src/" (->
@@ -70,5 +80,5 @@
     (concat [(ns-decl)]
       (non-temporals)
       (for [tt graph/temporal-types]
-        (temporal-fn-gen (str tt)))
+        (temporal-fn-gen (str tt) (get overrides tt)))
       [(extend-all (concat graph/temporal-types ['timezone 'duration]))])))

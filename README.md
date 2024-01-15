@@ -245,6 +245,22 @@ api todo - see todos in tempo.cljc
 
 ### tests 
 
+## todo 
+
+accessors
+- generic construct
+- assert isa?
+
+e.g. create zdt. access day from zdt. confirm it is the right day
+
+comparators
+- generic construct.
+- >> by suitable duration
+- compare + not=, hash not=
+
+
+## Done
+
 for each entity:
 
 construct 
@@ -252,13 +268,4 @@ construct
 - from: parse, now (+clock), parts
 - assert isa?
 
-accessors
- - generic construct
- - assert isa?
 
-comparators
- - generic construct.
- - >> by suitable duration
- - compare + not=, hash not=
-
-= , hash, compare

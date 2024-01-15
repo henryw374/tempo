@@ -30,7 +30,7 @@
         (conj sub-paths (vec (take x path)))))))
 
 
-(def ^{:doc "each path is a list from root to leaf"} 
+(def ^{:doc "each path is a list from root to leaf"}
   full-paths
   (->>
     (loop [[next-path & remaining] all-paths
@@ -39,12 +39,12 @@
         access-paths
         (recur remaining
           (set/union access-paths (->sub-paths next-path)))))
-    
+
     (remove #(= 1 (count %)))
     (m/distinct-by (fn [path] [(-> path first :tempo) (-> path last :tempo)]))
     (sort-by (juxt (comp first :tempo) (comp second :tempo)))))
 
-(def kw->class 
+(def kw->class
   {
    'date      'LocalDate
    'timezone  'ZoneId
@@ -68,7 +68,7 @@
    'yearmonth 'cljc.java-time.year-month
    })
 
-(def kw->temporal-class 
+(def kw->temporal-class
   {
    'date      'PlainDate
    'timezone  'TimeZone
@@ -85,12 +85,14 @@
          (subs s 0 1)) (subs s 1 (count s))))
 
 (defn special-accessor [target]
-  (cond (:accessor target) (str "." (:accessor target))
+  (cond
+    (:xform-fn target) (:xform-fn target) 
+    (:accessor target) (str "." (:accessor target))
         :else nil))
 
 (defn cljc-accessor [feature path]
   (let [subject (:tempo (first path))
-        target  (last path)
+        target (last path)
         target-name (:tempo target)
         fn-name (symbol (str (name subject) "->" (name target-name)))]
     (when-not (:ignore-accessor target)
@@ -109,6 +111,8 @@
         target (last path)
         target-name (:tempo target)
         fn-name (symbol (str (name subject) "->" (name target-name)))]
+    #_(when (and (= 'zdt subject) (= 'timezone target-name))
+      (sc.api/spy) (comment (eval `(sc.api/defsc ~(sc.api/last-ep-id)))))
     (when-not (:ignore-accessor target)
       (backtick/template
         (defn ~fn-name [~(with-meta 'foo {:tag (symbol (str "js/Temporal." (str (get kw->temporal-class subject))))})]
@@ -117,8 +121,8 @@
                 x
                 (if-let [target-class (get kw->temporal-class target-name)]
                   (str ".to" (str target-class))
-                  (str ".-"  (csk/->camelCaseString (name target-name)))))) foo)
-          )))))
+                  (str ".-" (csk/->camelCaseString (name target-name)))))) 
+            foo))))))
 
 (comment
   (comment
@@ -147,7 +151,7 @@
         ;_ (comment (eval `(sc.api/defsc ~(sc.api/last-ep-id))))
         fn-name (symbol (str (name subject) "->" (name target-name)))
         ]
-    (when-not (:ignore-accessor  target)
+    (when-not (:ignore-accessor target)
       (backtick/template
         (defn ~fn-name [~(with-meta 'foo {:tag (get kw->class subject)})]
           (~(symbol
@@ -160,15 +164,15 @@
 (defn accessor-forms [feature]
   ; problems
   ;ignore-accessor
-  
+
   (->> full-paths
        (keep (fn [path]
-              (case feature
-                :cljay (java-accessor feature path)
-                :cljc (cljc-accessor feature path)
-                ;todo
-                :cljs (temporal-accessor feature path))
-              ))))
+               (case feature
+                 :cljay (java-accessor feature path)
+                 :cljc (cljc-accessor feature path)
+                 ;todo
+                 :cljs (temporal-accessor feature path))
+               ))))
 
 (defn parse-fn [feature subject]
   (when (get kw->class (:tempo subject))
@@ -178,7 +182,7 @@
                    :cljc (str (get kw->cljc-ns (:tempo subject)) "/" (or (-> subject feature :parse) "parse"))
                    :cljs (str "js/Temporal." (get kw->temporal-class (:tempo subject)) ".from")
                    )]
-      
+
       (backtick/template
         (defn ~(symbol fn-name) [~(with-meta 'foo {:tag String})]
           (~(symbol parser) foo)))
@@ -198,9 +202,9 @@
   (when (and (not (:no-now subject)) (get kw->class (:tempo subject)))
     (let [fn-name (str (:tempo subject) "-now")
           nower (case feature
-                   :cljay (str (get kw->class (:tempo subject)) "/" (or (-> subject feature :parse) "now"))
-                   :cljs (str "clock/"(:tempo subject) )
-                   :cljc (str (get kw->cljc-ns (:tempo subject)) "/" (or (-> subject feature :parse) "now")))]
+                  :cljay (str (get kw->class (:tempo subject)) "/" (or (-> subject feature :parse) "now"))
+                  :cljs (str "clock/" (:tempo subject))
+                  :cljc (str (get kw->cljc-ns (:tempo subject)) "/" (or (-> subject feature :parse) "now")))]
       (backtick/template
         (defn ~(symbol fn-name)
           ([] (~(symbol nower)))
@@ -214,7 +218,7 @@
        (keep (fn [thing]
                (now-fn feature thing)))))
 
-(defn now-test [ subject]
+(defn now-test [subject]
   (when (and (not (:no-now subject)) (get kw->class (:tempo subject)))
     (let [fn-name (str (:tempo subject) "-now-test")]
       (backtick/template
@@ -227,9 +231,7 @@
                 now-clock-2 (~(symbol (str "t/" (:tempo subject) "-now")) clock-2)
                 ]
             (is (~(symbol (str "t/" (:tempo subject) "?")) now-clock-1))
-            (is (t/> now-clock-2 now-clock-1))
-            )
-          )))))
+            (is (t/> now-clock-2 now-clock-1))))))))
 
 (defn now-tests []
   (->> (apply concat full-paths)
@@ -239,13 +241,13 @@
 
 
 (comment
-  
+
   (binding [*print-meta* true]
     (pr (java-accessor [:zdt :date])))
   (defn zdt->date [^java.time.ZonedDateTime foo] (.toLocalDate foo))
   (zdt->date (ZonedDateTime/now))
   (->> (apply concat full-paths) set)
-  
+
   )
 
 (defn parse-test [subject]

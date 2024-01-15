@@ -50,9 +50,9 @@
   
   ; start up live-compilation of tests
   (test-watch)
-  ; run cljs tests, having opened browser at test page (see print output of above "for tests, open...")
-  (util/run-tests)
+  
   (refresh/clear)
+  (gen/gen-after)
   (gen/generate-all nil)
   (run-clj-tests nil)
   ; start a cljs repl session in the test build. :cljs/quit to exit

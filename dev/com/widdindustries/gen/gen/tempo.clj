@@ -56,11 +56,15 @@
 
       )))
 
-(defn generate-all [_]
+(defn gen-after []
   (gen-tempo "no-deps" #{:cljay} :cljay)
   (gen-tempo "no-deps" #{:cljs} :cljs)
   (cljs-protocols/gen-protocols)
   (generate-test))
+
+(defn generate-all [_]
+  (clojure.tools.namespace.repl/refresh :after `gen-after)
+  )
 
 (comment
 (generate-all nil)

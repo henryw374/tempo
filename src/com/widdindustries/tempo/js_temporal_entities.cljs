@@ -6,9 +6,9 @@
 (def date js/Temporal.PlainDate)
 (def datetime js/Temporal.PlainDateTime)
 (def time js/Temporal.PlainTime)
-(def month-day js/Temporal.PlainMonthDay)
-(def year-month js/Temporal.PlainYearMonth)
-(def time-zone js/Temporal.TimeZone)
+(def monthday js/Temporal.PlainMonthDay)
+(def yearmonth js/Temporal.PlainYearMonth)
+(def timezone js/Temporal.TimeZone)
 
 ;temporal-amounts
 (def duration js/Temporal.Duration)

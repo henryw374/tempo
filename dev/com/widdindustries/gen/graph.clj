@@ -36,8 +36,8 @@
    'date
    'datetime
    'time
-   'month-day
-   'year-month
+   'monthday
+   'yearmonth
    ])
 
 (def non-temporal-types
@@ -58,12 +58,13 @@
 
 (def timezone
   {:no-now true
-   :cljay {:parse 'of
-           :accessor 'getZone}
-   :cljc {:parse 'of
-          :accessor 'getZone}
-   :cljs {:accessor 'timeZoneId}
-   :tempo 'timezone})
+   :cljay  {:parse    'of
+            :accessor 'getZone}
+   :cljc   {:parse    'of
+            :accessor 'getZone}
+   :cljs   {:xform-fn 'methods/has-timezone->timezone
+            }
+   :tempo  'timezone})
 
 (def yearmonth
   {:needed-to-go-up {'day-of-month {}}
@@ -120,11 +121,13 @@
                                                                                  month          {}}}}}
                                                             {:parts
                                                              {monthday {:parts {month                  {}
-                                                                                {:tempo 'day-of-month} {}}}}}
+                                                                                {:tempo 'day-of-month
+                                                                                 :cljs {:accessor '-day}} {}}}}}
                                                             {:parts
                                                              {{:tempo 'year}         {}
                                                               month                  {}
-                                                              {:tempo 'day-of-month} {}}}
+                                                              {:tempo 'day-of-month
+                                                               :cljs {:accessor '-day}} {}}}
                                                             {:parts
                                                              {day-of-week {}}}]
                                                            }

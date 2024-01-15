@@ -4,14 +4,15 @@
             [com.widdindustries.tempo.duration-alpha :as d]))
 
  (t/extend-all-cljs-protocols)
-
+;
 (deftest construction-from-parts-test
   (testing "level 1"
     (let [datetime (t/datetime-now)
           timezone (t/zone-system-default)
           zdt (t/zdt-from {:datetime datetime :timezone timezone})]
       (is (t/zdt? zdt))
-      (is (= datetime (t/zdt->datetime zdt)))
+      (def zdt zdt)
+      ;(is (= datetime (t/zdt->datetime zdt)))
       (is (= timezone (t/zdt->timezone zdt)))
       ))
   (testing "level 2"

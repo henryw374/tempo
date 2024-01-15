@@ -99,31 +99,34 @@
   (-compare [x y] (.compare entities/time ^js x y))))
 
 (defn
- month-day
+ monthday
  []
  (extend-protocol
   IEquiv
-  entities/month-day
+  entities/monthday
   (-equiv [o other] (.equals ^js o other)))
- (extend-protocol IHash entities/month-day (-hash [o] (hash (str o))))
-  ; cannot compare monthday
- #_(extend-protocol
+ (extend-protocol IHash entities/monthday (-hash [o] (hash (str o))))
+ (extend-protocol
   IComparable
-  entities/month-day
-  (-compare [x y] (.compare entities/month-day ^js x y))))
+  entities/monthday
+  (-compare
+   [^js x ^js y]
+   (let
+    [m (compare (.-monthCode x) (.-monthCode y))]
+    (if (zero? m) (compare (.-day x) (.-day y)) m)))))
 
 (defn
- year-month
+ yearmonth
  []
  (extend-protocol
   IEquiv
-  entities/year-month
+  entities/yearmonth
   (-equiv [o other] (.equals ^js o other)))
- (extend-protocol IHash entities/year-month (-hash [o] (hash (str o))))
+ (extend-protocol IHash entities/yearmonth (-hash [o] (hash (str o))))
  (extend-protocol
   IComparable
-  entities/year-month
-  (-compare [x y] (.compare entities/year-month ^js x y))))
+  entities/yearmonth
+  (-compare [x y] (.compare entities/yearmonth ^js x y))))
 
 (defn
  extend-all
@@ -133,8 +136,8 @@
  (date)
  (datetime)
  (time)
- (month-day)
- (year-month)
+ (monthday)
+ (yearmonth)
  (timezone)
  (duration))
 
