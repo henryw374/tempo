@@ -2,6 +2,7 @@
   (:require [clojure.java.io :as io]
             [com.widdindustries.tiado-cljs2 :as util]
             [kaocha.repl :as kaocha]
+            [babashka.fs :as fs]
             [clojure.tools.namespace.repl :as refresh]
             [com.widdindustries.gen.gen.tempo :as gen]))
 
@@ -15,8 +16,10 @@
   (refresh/refresh-all :after 'dev/x))
 
 (defn browser-test-build [compile-mode opts]
+  ((get util/compile-fns compile-mode)
+   (util/browser-test-config) opts)
   (.mkdirs (io/file "web-target" "public" "browser-test"))
-  (spit "web-target/public/browser-test/index.html"
+  (spit "web-target/public/browser-test/foo.html"
     "<!DOCTYPE html>
     <html><head>
     <title>kaocha.cljs2.shadow-runner</title>
@@ -30,13 +33,23 @@
     </script>
     <script>kaocha.cljs2.shadow_runner.init();</script></body></html>"
     )
-  ((get util/compile-fns compile-mode)
-   (util/browser-test-config) opts)
+  
   (println "for tests, open " util/test-url))
 
 
 (defn test-watch []
   (browser-test-build :watch {}))
+
+(defn tests-ci-shadow [{:keys [compile-mode]}]
+  (util/start-server)
+  (browser-test-build compile-mode {})
+  (println (fs/list-dir "web-target/public"))
+  (println (slurp (str util/shadow-local "/browser-test/foo.html")))
+  (try
+    (util/kaocha-exit-if-fail (util/run-tests-headless nil))
+    (catch Exception e
+      (println e)
+      (System/exit 1))))
 
 (comment
   

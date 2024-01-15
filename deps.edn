@@ -5,10 +5,11 @@
                                backtick/backtick                   {:mvn/version "0.3.4"}
                                camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.2"}
                                medley/medley                       {:mvn/version "1.4.0"}
-                               com.widdindustries/tiado-cljs2      {:git/url "https://github.com/henryw374/tiado-cljs2.git" :git/sha "8aa3042d834d2695ec9d4f9f65532573c849d6bf"}
+                               com.widdindustries/tiado-cljs2      {:git/url "https://github.com/henryw374/tiado-cljs2.git" :git/sha "40d94de3ae6c1692d99d66a2a3d48c93dbc2f34a"}
                                com.widdindustries/cljc.java-time   {:mvn/version "0.1.21"}
                                ;com.widdindustries/time-literals {:mvn/version "0.1.10" :exclusions [com.widdindustries/cljs.java-time]}
                                org.clojure/tools.namespace {:mvn/version "1.4.4"}
+                               babashka/fs {:mvn/version "0.5.20"}
                                }
                  }}
  :release {:extra-deps {applied-science/deps-library {:mvn/version "RELEASE"}}

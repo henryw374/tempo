@@ -1,7 +1,7 @@
 generate-all:
 			clojure -Adev -X com.widdindustries.gen.gen.tempo/generate-all
 test-cljs:
-			clojure -Adev -X com.widdindustries.tiado-cljs2/tests-ci-shadow :compile-mode :release
+			clojure -Adev -X dev/tests-ci-shadow :compile-mode :release
 test-clj:
 			clojure -Adev -X dev/run-clj-tests
 .PHONY: list

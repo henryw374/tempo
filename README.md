@@ -239,10 +239,6 @@ api todo - see todos in tempo.cljc
 
 ### to/from legacy date
 
-### clocks 
-
-todo: fixed, offset
-
 ### instant-from
 
 - epoch millis + (optionally) nanos
