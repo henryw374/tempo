@@ -48,7 +48,9 @@
   (println (fs/list-dir "web-target/public/browser-test"))
   (println "file")
   (println (slurp "web-target/public/browser-test/index.html"))
-  (println (slurp (str util/shadow-local "/browser-test/index.html")))
+  (let [url util/test-url]
+    (println url)
+    (println (slurp url)))
   (try
     (util/kaocha-exit-if-fail (util/run-tests-headless nil))
     (catch Exception e
