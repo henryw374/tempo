@@ -4,6 +4,7 @@
             [com.widdindustries.gen.gen :as gen]
             [com.widdindustries.gen.cljs-protocols :as cljs-protocols]
             [clojure.string :as string]
+            [clojure.tools.namespace.repl]
             [clojure.java.io :as io]
             [clojure.set :as set]))
 
