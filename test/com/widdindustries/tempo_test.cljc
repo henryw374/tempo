@@ -34,9 +34,12 @@
       (is (t/zdt? zdt))
       (is (= (t/yearmonth->year ym) (t/zdt->year zdt)))
       (is (= 1 (t/zdt->day-of-month zdt)))
-      (is (= 1 (t/zdt->hour zdt)))      )
-    )
-  )
+      (is (= 1 (t/zdt->hour zdt)))))
+  (testing "level 4"
+    (let [zdt (t/zdt-now)]
+      (is (t/instant? (t/instant-from {:zdt zdt})))
+      (let [i (t/instant-parse "2024-01-16T12:43:44.196000Z")]
+        (is (= i (t/instant-from {:epochmilli (t/instant->epochmilli i)} )))))))
 
 (deftest parsing-duration
   (is (t/duration? (d/duration-parse "PT1S")))) 

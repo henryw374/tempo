@@ -252,6 +252,7 @@ accessors
 - assert isa?
 
 e.g. create zdt. access day from zdt. confirm it is the right day
+same for year, same for month etc etc.
 
 comparators
 - generic construct.

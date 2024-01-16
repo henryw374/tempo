@@ -59,7 +59,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__55770# p2__55771#] (greater p1__55770# p2__55771#))
+  (fn* [p1__63711# p2__63712#] (greater p1__63711# p2__63712#))
   arg
   args))
 
@@ -71,7 +71,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__55772# p2__55773#] (lesser p1__55772# p2__55773#))
+  (fn* [p1__63713# p2__63714#] (lesser p1__63713# p2__63714#))
   arg
   args))
 
@@ -127,7 +127,7 @@
     (>= y (first more)))
    false)))
 
-^{:line 30, :column 9} (comment "accessors")
+^{:line 31, :column 9} (comment "accessors")
 
 (defn datetime->second [^js/Temporal.PlainDateTime foo] (.-second foo))
 
@@ -139,16 +139,11 @@
 
 (defn zdt->year [^js/Temporal.ZonedDateTime foo] (.-year foo))
 
-(defn
- monthday->day-of-month
- [^js/Temporal.PlainMonthDay foo]
- (.-day foo))
-
 (defn datetime->hour [^js/Temporal.PlainDateTime foo] (.-hour foo))
 
-(defn zdt->month [^js/Temporal.ZonedDateTime foo] (.-month foo))
-
 (defn date->day-of-month [^js/Temporal.PlainDate foo] (.-day foo))
+
+(defn zdt->month [^js/Temporal.ZonedDateTime foo] (.-month foo))
 
 (defn date->month [^js/Temporal.PlainDate foo] (.-month foo))
 
@@ -158,9 +153,11 @@
 
 (defn zdt->nano [^js/Temporal.ZonedDateTime foo] (.-nano foo))
 
-(defn yearmonth->month [^js/Temporal.PlainYearMonth foo] (.-month foo))
+(defn monthday->month [^js/Temporal.PlainMonthDay foo] (.-month foo))
 
 (defn zdt->minute [^js/Temporal.ZonedDateTime foo] (.-minute foo))
+
+(defn yearmonth->year [^js/Temporal.PlainYearMonth foo] (.-year foo))
 
 (defn
  datetime->day-of-month
@@ -190,30 +187,33 @@
  [^js/Temporal.ZonedDateTime foo]
  (.toPlainDateTime foo))
 
+(defn yearmonth->month [^js/Temporal.PlainYearMonth foo] (.-month foo))
+
 (defn zdt->time [^js/Temporal.ZonedDateTime foo] (.toPlainTime foo))
 
 (defn datetime->minute [^js/Temporal.PlainDateTime foo] (.-minute foo))
 
 (defn time->nano [^js/Temporal.PlainTime foo] (.-nano foo))
 
+(defn zdt->day-of-month [^js/Temporal.ZonedDateTime foo] (.-day foo))
+
 (defn time->minute [^js/Temporal.PlainTime foo] (.-minute foo))
 
 (defn time->hour [^js/Temporal.PlainTime foo] (.-hour foo))
 
+(defn
+ monthday->day-of-month
+ [^js/Temporal.PlainMonthDay foo]
+ (.-day foo))
+
 (defn datetime->nano [^js/Temporal.PlainDateTime foo] (.-nano foo))
-
-(defn monthday->month [^js/Temporal.PlainMonthDay foo] (.-month foo))
-
-(defn zdt->day-of-month [^js/Temporal.ZonedDateTime foo] (.-day foo))
-
-(defn yearmonth->year [^js/Temporal.PlainYearMonth foo] (.-year foo))
 
 (defn
  datetime->time
  [^js/Temporal.PlainDateTime foo]
  (.toPlainTime foo))
 
-^{:line 32, :column 9} (comment "parsers")
+^{:line 33, :column 9} (comment "parsers")
 
 (defn
  datetime-parse
@@ -241,21 +241,21 @@
  (js/Temporal.Instant.from foo))
 
 (defn
- yearmonth-parse
- [^java.lang.String foo]
- (js/Temporal.PlainYearMonth.from foo))
-
-(defn
  monthday-parse
  [^java.lang.String foo]
  (js/Temporal.PlainMonthDay.from foo))
+
+(defn
+ yearmonth-parse
+ [^java.lang.String foo]
+ (js/Temporal.PlainYearMonth.from foo))
 
 (defn
  timezone-parse
  [^java.lang.String foo]
  (js/Temporal.TimeZone.from foo))
 
-^{:line 34, :column 9} (comment "nowers")
+^{:line 35, :column 9} (comment "nowers")
 
 (defn
  datetime-now
@@ -283,16 +283,16 @@
  ([^java.time.Clock clock] (clock/instant clock)))
 
 (defn
- yearmonth-now
- ([] (clock/yearmonth))
- ([^java.time.Clock clock] (clock/yearmonth clock)))
-
-(defn
  monthday-now
  ([] (clock/monthday))
  ([^java.time.Clock clock] (clock/monthday clock)))
 
-^{:line 36, :column 9} (comment "constructors")
+(defn
+ yearmonth-now
+ ([] (clock/yearmonth))
+ ([^java.time.Clock clock] (clock/yearmonth clock)))
+
+^{:line 37, :column 9} (comment "constructors")
 
 (defn
  time-from
@@ -349,4 +349,13 @@
    zone
    (get thing :timezone)]
   (.toZonedDateTime ^js ldt zone)))
+
+(defn
+ instant-from
+ [thing]
+ (or
+  (some->
+   (get thing :epochmilli)
+   (js/Temporal.Instant.fromEpochMilliseconds))
+  (some-> (or (get thing :zdt) (zdt-from thing)) (zdt->instant))))
 
