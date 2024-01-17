@@ -209,21 +209,7 @@ aka construction a new entity from one of the same type
 
 ## Dev 
 
-to create library, run:
-
- run com.widdindustries.gen.gen.tempo/gen-tempo
-
-
-
-* start figwheel from compilation.clj and visit http://localhost:9503 to run tests 
-  
-## Work in progress todo list
-
-add temporal as submodule and use to dev/test via node/CI
-   git@github.com:tc39/proposal-temporal.git
-   ("node --experimental-modules --no-warnings --icu-data-dir node_modules/full-icu -r ./lib/init.js")
-
-api todo - see todos in tempo.cljc
+see dev.clj for instructions  
 
 ## TBD 
 
@@ -237,11 +223,13 @@ api todo - see todos in tempo.cljc
 
 - java.time fns work with period or duration. or periodDuration from 310-extras?
 
-### to/from legacy date
+### misc 
 
-### instant-from
-
-- epoch millis + (optionally) nanos
+until/between
+truncate
+with - setting specific field
+coincident?
+t/DECEMBER, t/FRIDAY
 
 ### tests 
 
@@ -269,4 +257,5 @@ construct
 - from: parse, now (+clock), parts
 - assert isa?
 
+### to/from legacy date
 

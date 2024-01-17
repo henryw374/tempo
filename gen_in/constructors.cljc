@@ -50,6 +50,9 @@
   (or (some-> (get thing :epochmilli)
         #?(:cljay (Instant/ofEpochMilli)
            :cljs (js/Temporal.Instant.fromEpochMilliseconds)))
+    (when-let [d (get thing :legacydate)]
+      #?(:cljay (.toInstant ^Date d)
+         :cljs (.toTemporalInstant ^js d)))
     (some-> (or (get thing :zdt) (zdt-from thing))
       (zdt->instant))))
 

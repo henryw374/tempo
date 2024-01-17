@@ -22,7 +22,8 @@
    ZoneId
    OffsetDateTime
    OffsetTime]
-  [java.time.temporal Temporal TemporalAmount]))
+  [java.time.temporal Temporal TemporalAmount]
+  [java.util Date]))
 
 (set! *warn-on-reflection* true)
 
@@ -83,7 +84,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__63707# p2__63708#] (greater p1__63707# p2__63708#))
+  (fn* [p1__68596# p2__68597#] (greater p1__68596# p2__68597#))
   arg
   args))
 
@@ -95,7 +96,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__63709# p2__63710#] (lesser p1__63709# p2__63710#))
+  (fn* [p1__68598# p2__68599#] (lesser p1__68598# p2__68599#))
   arg
   args))
 
@@ -332,5 +333,6 @@
  [thing]
  (or
   (some-> (get thing :epochmilli) (Instant/ofEpochMilli))
+  (when-let [d (get thing :legacydate)] (.toInstant ^Date d))
   (some-> (or (get thing :zdt) (zdt-from thing)) (zdt->instant))))
 

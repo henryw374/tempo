@@ -53,7 +53,7 @@
    :cljay {:accessor 'toEpochMilli}})
 
 (def epochnano
-  {:ignore-accessor true ; not in java
+  {:ignore-accessor true ; its not in java
    :tempo 'epochnano})
 
 (def timezone
@@ -97,44 +97,46 @@
 
 (def graph
   {{:tempo 'instant} {:parts
-                      {epochmilli {}
-                       epochnano  {}}}
+                      {epochmilli   {}
+                       epochnano    {}
+                       {:tempo 'legacydate
+                        :accessor 'getZone} {}}}
    {:tempo 'zdt
     ;todo - https://tc39.es/proposal-temporal/docs/zoneddatetime.html#startOfDay
     ;hours-in-day
     ;in-leap-year
-    }     {:branches
+    }                {:branches
                       [#_{:parts {
-                                {:tempo 'start-of-day} {}
-                                {:tempo 'hours-in-day} {}
-                                }}
+                                  {:tempo 'start-of-day} {}
+                                  {:tempo 'hours-in-day} {}
+                                  }}
                        {:parts {{:tempo 'instant} {}}}
                        {:parts {timezone {}
                                 {:tempo 'datetime
                                  ;todo - in leap year? daysinyear?
                                  }
-                                         {:parts
-                                          {{:tempo 'date}
-                                                          {:branches
-                                                           [{:parts
-                                                             {yearmonth {:parts {{:tempo 'year} {}
-                                                                                 month          {}}}}}
-                                                            {:parts
-                                                             {monthday {:parts {month                  {}
-                                                                                {:tempo 'day-of-month
-                                                                                 :cljs {:accessor '-day}} {}}}}}
-                                                            {:parts
-                                                             {{:tempo 'year}         {}
-                                                              month                  {}
-                                                              {:tempo 'day-of-month
-                                                               :cljs {:accessor '-day}} {}}}
-                                                            {:parts
-                                                             {day-of-week {}}}]
-                                                           }
-                                           {:tempo 'time} {:parts {{:tempo 'hour}   {}
-                                                                   {:tempo 'minute} {}
-                                                                   {:tempo 'second} {}
-                                                                   {:tempo 'nano}   {}}}}}}}]}})
+                                {:parts
+                                 {{:tempo 'date}
+                                  {:branches
+                                   [{:parts
+                                     {yearmonth {:parts {{:tempo 'year} {}
+                                                         month          {}}}}}
+                                    {:parts
+                                     {monthday {:parts {month                      {}
+                                                        {:tempo 'day-of-month
+                                                         :cljs  {:accessor '-day}} {}}}}}
+                                    {:parts
+                                     {{:tempo 'year}             {}
+                                      month                      {}
+                                      {:tempo 'day-of-month
+                                       :cljs  {:accessor '-day}} {}}}
+                                    {:parts
+                                     {day-of-week {}}}]
+                                   }
+                                  {:tempo 'time} {:parts {{:tempo 'hour}   {}
+                                                          {:tempo 'minute} {}
+                                                          {:tempo 'second} {}
+                                                          {:tempo 'nano}   {}}}}}}}]}})
 
 (def with-paths (paths graph))
 

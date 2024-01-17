@@ -18,8 +18,16 @@
 
 (defn duration->negated [d]
   #?(:cljs (.negated ^js d)
-     :clj (.negated d))
-  )
+     :clj (.negated ^Duration d)))
+
+;(def duraion-zero (duration-parse "PT0S"))
+
+(defn duration-negative? [d]
+  #?(:cljay(.isNegative ^Duration d)
+     :cljs (neg? (.-sign ^js d))))
+
+
+
 
 (comment
 

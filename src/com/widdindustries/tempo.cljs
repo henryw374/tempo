@@ -59,7 +59,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__63711# p2__63712#] (greater p1__63711# p2__63712#))
+  (fn* [p1__68600# p2__68601#] (greater p1__68600# p2__68601#))
   arg
   args))
 
@@ -71,7 +71,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__63713# p2__63714#] (lesser p1__63713# p2__63714#))
+  (fn* [p1__68602# p2__68603#] (lesser p1__68602# p2__68603#))
   arg
   args))
 
@@ -357,5 +357,6 @@
   (some->
    (get thing :epochmilli)
    (js/Temporal.Instant.fromEpochMilliseconds))
+  (when-let [d (get thing :legacydate)] (.toTemporalInstant ^js d))
   (some-> (or (get thing :zdt) (zdt-from thing)) (zdt->instant))))
 

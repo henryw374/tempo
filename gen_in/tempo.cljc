@@ -6,7 +6,8 @@
   #?(:cljay
      (:import
        [java.time Clock MonthDay ZoneId ZoneOffset Instant Duration Period DayOfWeek Month ZonedDateTime LocalTime LocalDateTime LocalDate Year YearMonth ZoneId OffsetDateTime OffsetTime]
-       [java.time.temporal Temporal TemporalAmount])
+       [java.time.temporal Temporal TemporalAmount]
+       [java.util Date])
      :cljc (:require     
              [cljc.java-time.local-date]
              [cljc.java-time.local-date-time]
@@ -77,20 +78,6 @@
   #?(:cljay (ZoneId/systemDefault)
      :cljc (cljc.java-time.zone-id/system-default)
      :cljs (clock/time-zone)))
-
-
-(defn duration->negated [d]
-  #?(:cljay(.negated ^Duration d)
-     :cljs (.negated ^js d)))
-
-;(def duraion-zero (duration-parse "PT0S"))
-
-(defn duration-negative? [d]
-  #?(:cljay(.isNegative ^Duration d)
-     :cljs (neg? (.-sign ^js d))))
-
-
-
 
 ;; construction of clocks
 (defn clock-fixed [instant zone]

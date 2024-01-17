@@ -1,7 +1,8 @@
 (ns com.widdindustries.tempo-test
   (:require [clojure.test :refer [deftest is testing]]
             [com.widdindustries.tempo :as t]
-            [com.widdindustries.tempo.duration-alpha :as d]))
+            [com.widdindustries.tempo.duration-alpha :as d])
+  #?(:clj (:import [java.util Date])))
 
  (t/extend-all-cljs-protocols)
 ;
@@ -39,7 +40,11 @@
     (let [zdt (t/zdt-now)]
       (is (t/instant? (t/instant-from {:zdt zdt})))
       (let [i (t/instant-parse "2024-01-16T12:43:44.196000Z")]
-        (is (= i (t/instant-from {:epochmilli (t/instant->epochmilli i)} )))))))
+        (is (= i (t/instant-from {:epochmilli (t/instant->epochmilli i)}))))
+      (let [d #?(:clj (Date.) :cljs (js/Date.))
+            i (t/instant-from {:legacydate d})]
+        (= (.getTime d) (t/instant->epochmilli i))
+        ))))
 
 (deftest parsing-duration
   (is (t/duration? (d/duration-parse "PT1S")))) 
