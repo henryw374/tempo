@@ -84,6 +84,9 @@
      :cljc (cljc.java-time.clock/system-default-zone)
      :cljs js/Temporal.Now))
 
+(defn clock-offset [offset-or-zone]
+  )
+
 (defn greater [x y]
   (if (neg? (compare x y)) y x))
 

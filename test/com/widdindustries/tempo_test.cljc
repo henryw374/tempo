@@ -114,4 +114,7 @@
 t/weekday-friday
 (get t/weekday-number->weekday 4)
 (-> (t/zdt-now) (t/zdt->timezone))
-
+; clock tests
+(t/clock-fixed (t/instant-now) (t/zone-system-default))
+(t/clock-system-default-zone)
+;(t/clock-offset)

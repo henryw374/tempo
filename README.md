@@ -20,10 +20,34 @@ FYI The API is planned to mostly consist of generated code.
 
 * Zero dependency => platform APIs only - see [comparison of java.time vs temporal](https://widdindustries.com/ecma-temporal-vs-java-time/)
 * platform+performance friendly - max DCE-ability for cljs, reflection-free on jvm. Likely means little/no polymorphism.
-* API based on mnemonics => lots of generated functions. 
+* explicitly named conversions from type to type. no keyword arguments in functions
+* no implicit/contextual use of ambient zone or clock
+* API based on mnemonics
 * small feature set - aim for 80% of everyday date/time use cases.
 * totally ignore non-ISO8601 calendars. 
 * data-literals - same ones as [time-literals](https://github.com/henryw374/time-literals) (IOW just a new artifact from that project)
+
+### java.time vs Temporal
+
+venn diagram 
+
+*just java.time*
+
+* parsing non-iso strings
+* 2 types to represent temporal amounts Duration and Period
+* clojure identity and comparison fns: =,>,>= etc all 'just work' - so these are added to Temporal objects in Tempo
+* fixed & offset clocks - so these are added in cljs Tempo
+* OffsetDateTime, OffsetTime, Month, Year and DayOfWeek entities - cljs Temporal adds DayOfWeek and Month 
+
+*just temporal*
+
+* Duration type matching ISO spec
+* user-controllable rounding and conflict resolution - Tempo doesnt expose this and chooses same behaviour as java.time
+* first-class support for non-ISO calendars
+
+*both*
+
+* formatting non-iso strings - this is not in Tempo (yet)
 
 ## Rationale 
 
@@ -36,11 +60,11 @@ For application developers targeting Clojurescript in the browser,
 Tick comes with a cost of [additional build size](https://github.com/juxt/tick/blob/master/docs/cljs.adoc#optional-timezone--locale-data-for-reducing-build-size).
 For many use-cases, the 'cost' of that build size will be negligible, because the 
 build size will not impact significantly on user's experience of the application: ie neither load time
-or memory usage will be an issue given anticipated network and device capabilities. 
+or memory usage will be an issue given anticipated network and device capabilities - see [this experiment](https://widdindustries.com/blog/clojurescript-datetime-lib-comparison.html) proving that. 
 
 At the other end of the date-time spectrum, Javascript's existing platform Date object has [well documented, "won't fix" issues](https://www.youtube.com/watch?v=aVuor-VAWTI),
 which you see as either outright bugs or just a bizarre API.
-Also, since there is only one platform Date entity, an instance of which represents the start of a millisecond on the global timeline, there 
+Also, since there is only one platform `Date` entity, an instance of which represents the start of a millisecond on the global timeline, there 
 are many use cases it does not serve well, such as representing a calendar date, like 2020-02-02 for example. 
 
 Fortunately,
@@ -67,20 +91,9 @@ functionality for that between java.time and js/Temporal. (But might be [in the 
 It is expected that in future, a version of Tick could be built on top of `tempo` - probably as a separate Tick-lite
 artifact.
 
-### Having said all that... 
-
-tl;dr this is something of a thought experiment at the moment for what I would look for in a 
-core Clojure(Script) time library. A zero-dependency, cross-platform API was my ideal when I first
-started on the 'cross-platform time-API' path in early 2017 - so this API feels like some kind of 
-end-state. 
-
 ## Usage
 
-; todo - show graph of entities
-; leaf entities are all ints
-; explain why no OffsetDateTime, OffsetTime, Month, Year or DayOfWeek entities
-; distinguish between temporal-amounts and temporals
-; explain Period/Duration discrepancy between java.time and Temporal
+; show graph of entities?
 
 ### Depend 
 
@@ -110,7 +123,17 @@ Depend on tempo via deps.edn:
 
 #### Clocks
 
-;todo - system, fixed, offset
+```clojure
+;fixed in time and place
+(t/clock-fixed (t/instant-now) (t/zone-system-default))
+
+;  ambient place, ticking clock
+(t/clock-system-default-zone)
+
+; specified place, ticking clock
+(t/clock-offset (t/timezone-parse "Europe/London"))
+
+```
 
 #### Temporals
 
@@ -143,6 +166,9 @@ Depend on tempo via deps.edn:
 ```
 
 #### Temporal-amounts
+
+; explain Period/Duration discrepancy between java.time and Temporal
+
 ```clojure
 
 (t/period->days (t/period-parse "P3Y5M3D")) ; > 3
