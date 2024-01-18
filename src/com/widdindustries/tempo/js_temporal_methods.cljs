@@ -1,7 +1,5 @@
 (ns com.widdindustries.tempo.js-temporal-methods)
 
-(defn has-timezone->timezone [^js x]
-  (-> x (.-timeZoneId) (js/Temporal.TimeZone.from)))
 
 (defn from [^js x thing]
   (.from x thing))

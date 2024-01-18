@@ -98,13 +98,13 @@
     (when-not (:ignore-accessor target)
       (backtick/template
         (defn ~fn-name [~(with-meta 'foo {:tag (get kw->class subject)})]
-          (~(symbol
+          (-> foo
+              ~(symbol
               (if-let [x (special-accessor (or (get target :cljc) (get target :cljay)))]
                 x
                 (if-let [target-class (get kw->class target-name)]
                   (str (get kw->cljc-ns subject) "/to-" (csk/->kebab-case (.getSimpleName target-class)))
-                  (str (get kw->cljc-ns subject) "/get-" (csk/->kebab-case (name target-name))))))
-            foo))))))
+                  (str (get kw->cljc-ns subject) "/get-" (csk/->kebab-case (name target-name))))))))))))
 
 (defn temporal-accessor [feature path]
   (let [subject (:tempo (first path))
@@ -116,13 +116,11 @@
     (when-not (:ignore-accessor target)
       (backtick/template
         (defn ~fn-name [~(with-meta 'foo {:tag (symbol (str "js/Temporal." (str (get kw->temporal-class subject))))})]
-          (~(symbol
-              (if-let [x (special-accessor (get target feature))]
-                x
-                (if-let [target-class (get kw->temporal-class target-name)]
-                  (str ".to" (str target-class))
-                  (str ".-" (csk/->camelCaseString (name target-name)))))) 
-            foo))))))
+          (-> foo ~(if-let [x (special-accessor (get target feature))]
+              x
+              (symbol (if-let [target-class (get kw->temporal-class target-name)]
+                        (str ".to" (str target-class))
+                        (str ".-" (csk/->camelCaseString (name target-name))))))))))))
 
 (comment
   (comment
@@ -154,12 +152,11 @@
     (when-not (:ignore-accessor target)
       (backtick/template
         (defn ~fn-name [~(with-meta 'foo {:tag (get kw->class subject)})]
-          (~(symbol
-              (if-let [x (special-accessor (get target feature))]
-                x
-                (if-let [target-class (get kw->class target-name)]
-                  (str ".to" (str target-class))
-                  (str ".get" (upper-first (csk/->camelCaseString (name target-name))))))) foo))))))
+          (-> foo ~(if-let [x (special-accessor (get target feature))]
+              x
+              (symbol (if-let [target-class (get kw->class target-name)]
+                        (str ".to" (str target-class))
+                        (str ".get" (upper-first (csk/->camelCaseString (name target-name)))))))))))))
 
 (defn accessor-forms [feature]
   ; problems

@@ -35,12 +35,6 @@
   (is (= now-now (-> now-now str t/date-parse)))))
 
 (deftest
- instant-parse-test
- (let
-  [now-now (t/instant-now)]
-  (is (= now-now (-> now-now str t/instant-parse)))))
-
-(deftest
  monthday-parse-test
  (let
   [now-now (t/monthday-now)]
@@ -51,6 +45,12 @@
  (let
   [now-now (t/yearmonth-now)]
   (is (= now-now (-> now-now str t/yearmonth-parse)))))
+
+(deftest
+ instant-parse-test
+ (let
+  [now-now (t/instant-now)]
+  (is (= now-now (-> now-now str t/instant-parse)))))
 
 (deftest
  timezone-parse-test
@@ -138,25 +138,6 @@
   (is (t/> now-clock-2 now-clock-1))))
 
 (deftest
- instant-now-test
- (let [now-now (t/instant-now)] (is (t/instant? now-now)))
- (let
-  [clock-1
-   (t/clock-fixed
-    (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (t/zone-system-default))
-   clock-2
-   (t/clock-fixed
-    (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (t/zone-system-default))
-   now-clock-1
-   (t/instant-now clock-1)
-   now-clock-2
-   (t/instant-now clock-2)]
-  (is (t/instant? now-clock-1))
-  (is (t/> now-clock-2 now-clock-1))))
-
-(deftest
  monthday-now-test
  (let [now-now (t/monthday-now)] (is (t/monthday? now-now)))
  (let
@@ -192,5 +173,24 @@
    now-clock-2
    (t/yearmonth-now clock-2)]
   (is (t/yearmonth? now-clock-1))
+  (is (t/> now-clock-2 now-clock-1))))
+
+(deftest
+ instant-now-test
+ (let [now-now (t/instant-now)] (is (t/instant? now-now)))
+ (let
+  [clock-1
+   (t/clock-fixed
+    (t/instant-parse "1955-11-01T16:46:08.017143Z")
+    (t/zone-system-default))
+   clock-2
+   (t/clock-fixed
+    (t/instant-parse "1955-12-02T17:46:08.017143Z")
+    (t/zone-system-default))
+   now-clock-1
+   (t/instant-now clock-1)
+   now-clock-2
+   (t/instant-now clock-2)]
+  (is (t/instant? now-clock-1))
   (is (t/> now-clock-2 now-clock-1))))
 

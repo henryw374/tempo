@@ -59,11 +59,11 @@
 (def timezone
   {:no-now true
    :cljay  {:parse    'of
-            :accessor 'getZone}
+            ;:accessor 'getZone
+            :xform-fn '(-> (.getZone) (.getId))}
    :cljc   {:parse    'of
             :accessor 'getZone}
-   :cljs   {:xform-fn 'methods/has-timezone->timezone
-            }
+   :cljs   {:accessor '-timeZoneId}
    :tempo  'timezone})
 
 (def yearmonth
@@ -91,9 +91,14 @@
 (def day-of-week
   {:tempo    'day-of-week
    :get-only true
-   :ignore-accessor true
-   :cljay    {:ignore true 
-              :accessor {:wrap '(fn [^DayOfWeek dow] (.getValue dow))}}})
+   ;:ignore-accessor true
+   :cljay    {;:ignore true 
+              ;:accessor 'getDayOfWeek
+              :xform-fn '(-> (.getDayOfWeek) (.getValue))
+              }
+   :cljs     {:accessor '-dayOfWeek
+              ;:xform-fn '(-> (.-dayOfWeek) weekday-number->weekday)
+              }})
 
 (def graph
   {{:tempo 'instant} {:parts

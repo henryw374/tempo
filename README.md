@@ -225,7 +225,6 @@ see dev.clj for instructions
 
 ### misc 
 
-until/between
 truncate
 with - setting specific field
 coincident?

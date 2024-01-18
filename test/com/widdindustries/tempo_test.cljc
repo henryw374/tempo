@@ -93,9 +93,25 @@
   (is (= 1 (get {(t/timezone-parse "Europe/London") 1} (t/timezone-parse "Europe/London")))))
 
 (deftest shift
+  ;todo - generate for combinations of duration/period and entity
   (let [a-date (t/date-now)
         period (d/period-parse "P3D")
         plus3 (t/>> a-date period)]
     (is (= a-date (t/<< plus3 period)))))
 
+(deftest shift-until-test 
+  ;todo - generate these for combinations of entity and unit
+  (let [i-1 (t/instant-now)
+        i-2 (-> i-1
+                (t/>> 1 t/days-unit))]
+    (= 1 (t/until i-1 i-2 t/days-unit))
+    (= -1 (t/until i-2 i-1 t/days-unit))))
+
+;todo - exhaustively test the following
+
+(-> (t/date-now) (t/date->day-of-week)
+    t/weekday-number->weekday)
+t/weekday-friday
+(get t/weekday-number->weekday 4)
+(-> (t/zdt-now) (t/zdt->timezone))
 
