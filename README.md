@@ -239,6 +239,13 @@ see dev.clj for instructions
 
 ## TBD 
 
+how much type safety is possible or desirable
+
+getters - yes!
+shift - could be a bit verbose - but still good. still have >> then?
+
+
+
 * observed behaviour will be that of the host api
   * maybe not necessarily exactly the same on both platforms? but afaik defaults for ambiguity resolution
   are the same on both atm
@@ -252,9 +259,8 @@ see dev.clj for instructions
 ### misc 
 
 truncate
-with - setting specific field
 coincident?
-t/DECEMBER, t/FRIDAY
+t/DECEMBER
 
 ### tests 
 

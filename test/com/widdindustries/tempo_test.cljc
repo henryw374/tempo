@@ -103,9 +103,9 @@
   ;todo - generate these for combinations of entity and unit
   (let [i-1 (t/instant-now)
         i-2 (-> i-1
-                (t/>> 1 t/days-unit))]
-    (= 1 (t/until i-1 i-2 t/days-unit))
-    (= -1 (t/until i-2 i-1 t/days-unit))))
+                (t/>> 1 t/days-property))]
+    (= 1 (t/until i-1 i-2 t/days-property))
+    (= -1 (t/until i-2 i-1 t/days-property))))
 
 ;todo - exhaustively test the following
 
@@ -118,3 +118,7 @@ t/weekday-friday
 (t/clock-fixed (t/instant-now) (t/zone-system-default))
 (t/clock-system-default-zone)
 ;(t/clock-offset)
+(-> (t/zdt-now) (t/with 20 t/years-property))
+; or... (t/zdt-with-years 20) ?
+; (t/instant->>-hours 5)
+
