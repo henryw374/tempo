@@ -87,8 +87,8 @@
 (defn special-accessor [target]
   (cond
     (:xform-fn target) (:xform-fn target) 
-    (:accessor target) (str "." (:accessor target))
-        :else nil))
+    (:accessor target) (symbol (str "." (:accessor target)))
+    :else nil))
 
 (defn cljc-accessor [feature path]
   (let [subject (:tempo (first path))

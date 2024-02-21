@@ -28,7 +28,7 @@
     )
   (testing "level 3"
     (let [ym (t/yearmonth-now)
-          timezone (t/zone-system-default)
+          timezone (str (t/zone-system-default))
           zdt (t/zdt-from {:yearmonth ym :day-of-month 1 
                            :hour 1 
                            :timezone timezone})]

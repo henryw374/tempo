@@ -1,5 +1,7 @@
 (ns com.widdindustries.gen.gen-in.constructors
-  #?(:cljay (:import (java.time LocalDateTime ZonedDateTime))))
+  #?(:cljay (:import (java.time LocalDateTime ZonedDateTime)))
+  (:require [com.widdindustries.tempo :as t]
+            [com.widdindustries.tempo :as t]))
 
 (defn time-from [thing]
   (let [hour (get thing :hour 0)
@@ -41,8 +43,8 @@
 (defn zdt-from [thing]
   (let [ldt (or (get thing :datetime)
               (datetime-from thing))
-        zone (get thing :timezone)]
-    #?(:cljay (ZonedDateTime/of ^LocalDateTime ldt ^ZoneId zone)
+        zone   (get thing :timezone)]
+    #?(:cljay (ZonedDateTime/of ^LocalDateTime ldt ^ZoneId (timezone-parse zone))
        :cljs (.toZonedDateTime ^js ldt zone)
        :cljc (cljc.java-time.zoned-date-time/of ^LocalDateTime ldt ^ZoneId zone))))
 

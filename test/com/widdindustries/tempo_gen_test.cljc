@@ -11,16 +11,16 @@
 ^{:line 53, :column 9} (comment "parsers")
 
 (deftest
- datetime-parse-test
+ date-parse-test
  (let
-  [now-now (t/datetime-now)]
-  (is (= now-now (-> now-now str t/datetime-parse)))))
+  [now-now (t/date-now)]
+  (is (= now-now (-> now-now str t/date-parse)))))
 
 (deftest
- time-parse-test
+ yearmonth-parse-test
  (let
-  [now-now (t/time-now)]
-  (is (= now-now (-> now-now str t/time-parse)))))
+  [now-now (t/yearmonth-now)]
+  (is (= now-now (-> now-now str t/yearmonth-parse)))))
 
 (deftest
  zdt-parse-test
@@ -29,10 +29,10 @@
   (is (= now-now (-> now-now str t/zdt-parse)))))
 
 (deftest
- date-parse-test
+ datetime-parse-test
  (let
-  [now-now (t/date-now)]
-  (is (= now-now (-> now-now str t/date-parse)))))
+  [now-now (t/datetime-now)]
+  (is (= now-now (-> now-now str t/datetime-parse)))))
 
 (deftest
  monthday-parse-test
@@ -41,10 +41,10 @@
   (is (= now-now (-> now-now str t/monthday-parse)))))
 
 (deftest
- yearmonth-parse-test
+ time-parse-test
  (let
-  [now-now (t/yearmonth-now)]
-  (is (= now-now (-> now-now str t/yearmonth-parse)))))
+  [now-now (t/time-now)]
+  (is (= now-now (-> now-now str t/time-parse)))))
 
 (deftest
  instant-parse-test
@@ -62,8 +62,8 @@
 ^{:line 55, :column 9} (comment "nowers")
 
 (deftest
- datetime-now-test
- (let [now-now (t/datetime-now)] (is (t/datetime? now-now)))
+ date-now-test
+ (let [now-now (t/date-now)] (is (t/date? now-now)))
  (let
   [clock-1
    (t/clock-fixed
@@ -74,15 +74,15 @@
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
     (t/zone-system-default))
    now-clock-1
-   (t/datetime-now clock-1)
+   (t/date-now clock-1)
    now-clock-2
-   (t/datetime-now clock-2)]
-  (is (t/datetime? now-clock-1))
+   (t/date-now clock-2)]
+  (is (t/date? now-clock-1))
   (is (t/> now-clock-2 now-clock-1))))
 
 (deftest
- time-now-test
- (let [now-now (t/time-now)] (is (t/time? now-now)))
+ yearmonth-now-test
+ (let [now-now (t/yearmonth-now)] (is (t/yearmonth? now-now)))
  (let
   [clock-1
    (t/clock-fixed
@@ -93,10 +93,10 @@
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
     (t/zone-system-default))
    now-clock-1
-   (t/time-now clock-1)
+   (t/yearmonth-now clock-1)
    now-clock-2
-   (t/time-now clock-2)]
-  (is (t/time? now-clock-1))
+   (t/yearmonth-now clock-2)]
+  (is (t/yearmonth? now-clock-1))
   (is (t/> now-clock-2 now-clock-1))))
 
 (deftest
@@ -119,8 +119,8 @@
   (is (t/> now-clock-2 now-clock-1))))
 
 (deftest
- date-now-test
- (let [now-now (t/date-now)] (is (t/date? now-now)))
+ datetime-now-test
+ (let [now-now (t/datetime-now)] (is (t/datetime? now-now)))
  (let
   [clock-1
    (t/clock-fixed
@@ -131,10 +131,10 @@
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
     (t/zone-system-default))
    now-clock-1
-   (t/date-now clock-1)
+   (t/datetime-now clock-1)
    now-clock-2
-   (t/date-now clock-2)]
-  (is (t/date? now-clock-1))
+   (t/datetime-now clock-2)]
+  (is (t/datetime? now-clock-1))
   (is (t/> now-clock-2 now-clock-1))))
 
 (deftest
@@ -157,8 +157,8 @@
   (is (t/> now-clock-2 now-clock-1))))
 
 (deftest
- yearmonth-now-test
- (let [now-now (t/yearmonth-now)] (is (t/yearmonth? now-now)))
+ time-now-test
+ (let [now-now (t/time-now)] (is (t/time? now-now)))
  (let
   [clock-1
    (t/clock-fixed
@@ -169,10 +169,10 @@
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
     (t/zone-system-default))
    now-clock-1
-   (t/yearmonth-now clock-1)
+   (t/time-now clock-1)
    now-clock-2
-   (t/yearmonth-now clock-2)]
-  (is (t/yearmonth? now-clock-1))
+   (t/time-now clock-2)]
+  (is (t/time? now-clock-1))
   (is (t/> now-clock-2 now-clock-1))))
 
 (deftest
