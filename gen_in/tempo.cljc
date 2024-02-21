@@ -45,7 +45,7 @@
 
 ;;; manipulating temporal objects
 
-(defn zone-system-default []
+(defn timezone-system-default []
   #?(:cljay (ZoneId/systemDefault)
      :cljc (cljc.java-time.zone-id/system-default)
      :cljs (clock/time-zone)))

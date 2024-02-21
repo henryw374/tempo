@@ -222,8 +222,8 @@
         (deftest ~(symbol fn-name)
           (let [now-now (~(symbol (str "t/" (:tempo subject) "-now")))]
             (is (~(symbol (str "t/" (:tempo subject) "?")) now-now)))
-          (let [clock-1 (t/clock-fixed (t/instant-parse "1955-11-01T16:46:08.017143Z") (t/zone-system-default))
-                clock-2 (t/clock-fixed (t/instant-parse "1955-12-02T17:46:08.017143Z") (t/zone-system-default))
+          (let [clock-1 (t/clock-fixed (t/instant-parse "1955-11-01T16:46:08.017143Z") (t/timezone-system-default))
+                clock-2 (t/clock-fixed (t/instant-parse "1955-12-02T17:46:08.017143Z") (t/timezone-system-default))
                 now-clock-1 (~(symbol (str "t/" (:tempo subject) "-now")) clock-1)
                 now-clock-2 (~(symbol (str "t/" (:tempo subject) "-now")) clock-2)
                 ]
@@ -253,7 +253,7 @@
       (if (= 'timezone (:tempo subject))
         (backtick/template
           (deftest ~(symbol fn-name)
-            (is (= (t/zone-system-default) (-> (t/zone-system-default) str ~(symbol (str "t/" (:tempo subject) "-parse")))))))
+            (is (= (t/timezone-system-default) (-> (t/timezone-system-default) str ~(symbol (str "t/" (:tempo subject) "-parse")))))))
         (backtick/template
           (deftest ~(symbol fn-name)
             (let [now-now (~(symbol (str "t/" (:tempo subject) "-now")))]

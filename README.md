@@ -125,7 +125,7 @@ Depend on tempo via deps.edn:
 
 ```clojure
 ;fixed in time and place
-(t/clock-fixed (t/instant-now) (t/zone-system-default))
+(t/clock-fixed (t/instant-now) (t/timezone-system-default))
 
 ;  ambient place, ticking clock
 (t/clock-system-default-zone)
@@ -236,57 +236,4 @@ aka construction a new entity from one of the same type
 ## Dev 
 
 see dev.clj for instructions  
-
-## TBD 
-
-how much type safety is possible or desirable
-
-getters - yes!
-shift - could be a bit verbose - but still good. still have >> then?
-
-
-
-* observed behaviour will be that of the host api
-  * maybe not necessarily exactly the same on both platforms? but afaik defaults for ambiguity resolution
-  are the same on both atm
-    
-### microseconds - reified in temporal, not in java.time
-
-### duration/period
-
-- java.time fns work with period or duration. or periodDuration from 310-extras?
-
-### misc 
-
-truncate
-coincident?
-t/DECEMBER
-
-### tests 
-
-## todo 
-
-accessors
-- generic construct
-- assert isa?
-
-e.g. create zdt. access day from zdt. confirm it is the right day
-same for year, same for month etc etc.
-
-comparators
-- generic construct.
-- >> by suitable duration
-- compare + not=, hash not=
-
-
-## Done
-
-for each entity:
-
-construct 
-
-- from: parse, now (+clock), parts
-- assert isa?
-
-### to/from legacy date
 

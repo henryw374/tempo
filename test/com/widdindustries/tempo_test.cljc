@@ -9,7 +9,7 @@
 (deftest construction-from-parts-test
   (testing "level 1"
     (let [datetime (t/datetime-now)
-          timezone (t/zone-system-default)
+          timezone (str (t/timezone-system-default))
           zdt (t/zdt-from {:datetime datetime :timezone timezone})]
       (is (t/zdt? zdt))
       (def zdt zdt)
@@ -19,7 +19,7 @@
   (testing "level 2"
     (let [date (t/date-now)
           time (t/time-now)
-          timezone (t/zone-system-default)
+          timezone (str (t/timezone-system-default))
           zdt (t/zdt-from {:date date :time time :timezone timezone})]
       (is (t/zdt? zdt))
       (is (= time (t/zdt->time zdt)))
@@ -27,14 +27,15 @@
       (is (= timezone (t/zdt->timezone zdt)))      )
     )
   (testing "level 3"
-    (let [ym (t/yearmonth-now)
-          timezone (str (t/zone-system-default))
+    (let [ym (t/yearmonth-parse "2020-02")
+          timezone (str (t/timezone-parse "Pacific/Honolulu"))
           zdt (t/zdt-from {:yearmonth ym :day-of-month 1 
                            :hour 1 
                            :timezone timezone})]
       (is (t/zdt? zdt))
       (is (= (t/yearmonth->year ym) (t/zdt->year zdt)))
       (is (= 1 (t/zdt->day-of-month zdt)))
+      (is (= t/weekday-saturday (t/weekday-number->weekday (t/zdt->day-of-week zdt))))
       (is (= 1 (t/zdt->hour zdt)))))
   (testing "level 4"
     (let [zdt (t/zdt-now)]
@@ -99,23 +100,33 @@
         plus3 (t/>> a-date period)]
     (is (= a-date (t/<< plus3 period)))))
 
-(deftest shift-until-test 
-  ;todo - generate these for combinations of entity and unit
-  (let [i-1 (t/instant-now)
-        i-2 (-> i-1
-                (t/>> 1 t/days-property))]
-    (= 1 (t/until i-1 i-2 t/days-property))
-    (= -1 (t/until i-2 i-1 t/days-property))))
+(deftest shift-until-test
+  (let [combos [[t/instant-now [t/nanos-property t/micros-property t/millis-property
+                                t/seconds-property t/hours-property
+                                ; not days - mistakenly assumed to be 24hr in java.time
+                                ]]
+                [t/zdt-now [t/nanos-property t/micros-property t/millis-property
+                            t/seconds-property t/hours-property
+                            t/days-property t/months-property t/years-property]]
+                [t/datetime-now [t/nanos-property t/micros-property t/millis-property
+                                 t/seconds-property t/hours-property
+                                 t/days-property t/months-property t/years-property]]
+                [t/date-now [t/days-property t/months-property t/years-property]]
+                [t/yearmonth-now [t/months-property t/years-property]]
+                ;[t/monthday-now [t/months-property t/days-property]]
+                ]]
+    (doseq [[now shiftable-props] combos
+          prop shiftable-props]
+      (let [i-1 (now)
+            i-2 (-> i-1
+                    (t/>> 1 prop))]
+        (testing (str "shift " now " by " prop))
+        (is (= 1 (t/until i-1 i-2 prop)))
+        (is (= -1 (t/until i-2 i-1 prop)))))))
 
-;todo - exhaustively test the following
-
-(-> (t/date-now) (t/date->day-of-week)
-    t/weekday-number->weekday)
-t/weekday-friday
-(get t/weekday-number->weekday 4)
 (-> (t/zdt-now) (t/zdt->timezone))
 ; clock tests
-(t/clock-fixed (t/instant-now) (t/zone-system-default))
+(t/clock-fixed (t/instant-now) (t/timezone-system-default))
 (t/clock-system-default-zone)
 ;(t/clock-offset)
 (-> (t/zdt-now) (t/with 20 t/years-property))

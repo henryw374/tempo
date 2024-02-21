@@ -56,8 +56,8 @@
  timezone-parse-test
  (is
   (=
-   (t/zone-system-default)
-   (-> (t/zone-system-default) str t/timezone-parse))))
+   (t/timezone-system-default)
+   (-> (t/timezone-system-default) str t/timezone-parse))))
 
 ^{:line 55, :column 9} (comment "nowers")
 
@@ -68,11 +68,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (t/zone-system-default))
+    (t/timezone-system-default))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (t/zone-system-default))
+    (t/timezone-system-default))
    now-clock-1
    (t/date-now clock-1)
    now-clock-2
@@ -87,11 +87,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (t/zone-system-default))
+    (t/timezone-system-default))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (t/zone-system-default))
+    (t/timezone-system-default))
    now-clock-1
    (t/yearmonth-now clock-1)
    now-clock-2
@@ -106,11 +106,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (t/zone-system-default))
+    (t/timezone-system-default))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (t/zone-system-default))
+    (t/timezone-system-default))
    now-clock-1
    (t/zdt-now clock-1)
    now-clock-2
@@ -125,11 +125,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (t/zone-system-default))
+    (t/timezone-system-default))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (t/zone-system-default))
+    (t/timezone-system-default))
    now-clock-1
    (t/datetime-now clock-1)
    now-clock-2
@@ -144,11 +144,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (t/zone-system-default))
+    (t/timezone-system-default))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (t/zone-system-default))
+    (t/timezone-system-default))
    now-clock-1
    (t/monthday-now clock-1)
    now-clock-2
@@ -163,11 +163,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (t/zone-system-default))
+    (t/timezone-system-default))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (t/zone-system-default))
+    (t/timezone-system-default))
    now-clock-1
    (t/time-now clock-1)
    now-clock-2
@@ -182,11 +182,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (t/zone-system-default))
+    (t/timezone-system-default))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (t/zone-system-default))
+    (t/timezone-system-default))
    now-clock-1
    (t/instant-now clock-1)
    now-clock-2
