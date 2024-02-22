@@ -99,11 +99,10 @@
         plus3 (t/>> a-date period)]
     (is (= a-date (t/<< plus3 period)))))
 
-(deftest shift-until-test
+(deftest prop-test
   (let [combos [[t/instant-now [t/nanos-property t/micros-property t/millis-property
-                                t/seconds-property t/hours-property
                                 ; not days - mistakenly assumed to be 24hr in java.time
-                                ]]
+                                ] [t/seconds-property t/hours-property]]
                 [t/zdt-now [t/nanos-property t/micros-property t/millis-property
                             t/seconds-property t/hours-property
                             t/days-property t/months-property t/years-property]]
@@ -114,14 +113,18 @@
                 [t/yearmonth-now [t/months-property t/years-property]]
                 ;[t/monthday-now [t/months-property t/days-property]]
                 ]]
-    (doseq [[now shiftable-props] combos
-          prop shiftable-props]
+    (doseq [[now props xtras] combos
+          shiftable-prop (concat props xtras)]
       (let [i-1 (now)
             i-2 (-> i-1
-                    (t/>> 1 prop))]
-        (testing (str "shift " now " by " prop))
-        (is (= 1 (t/until i-1 i-2 prop)))
-        (is (= -1 (t/until i-2 i-1 prop)))))))
+                    (t/>> 1 shiftable-prop))]
+        (testing (str "shift until" now " by " shiftable-prop)
+          (is (= 1 (t/until i-1 i-2 shiftable-prop)))
+          (is (= -1 (t/until i-2 i-1 shiftable-prop))))))
+    (doseq [[now props ] combos
+            withable-prop props]
+      (let [i-1 (now)]
+        (is (not= i-1 (t/with i-1 1 withable-prop)))))))
 
 
 ; clock tests
@@ -135,9 +138,10 @@
     (is (t/> (t/instant-now (t/clock-system-default-zone)) (t/instant-now fixed)))
     (is (= (t/zdt->timezone_id (t/zdt-now fixed)) (t/zdt->timezone_id (t/zdt-now offset))))
     ))
-(t/clock-system-default-zone)
-;(t/clock-offset)
-(-> (t/zdt-now) (t/with 20 t/years-property))
-; or... (t/zdt-with-years 20) ?
-; (t/instant->>-hours 5)
 
+
+
+t/max
+t/min
+t/>=
+;t/zdt->millis >micros

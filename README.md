@@ -187,19 +187,19 @@ Where a timezone is accessed from an object, or passed into an object, only the 
 
 #### Temporal-amounts
 
-; explain Period/Duration discrepancy between java.time and Temporal
+A temporal-amount is a quantity of time, e.g. hour, month, second.
+
+Temporal-Amount entities are represented differently in java.time and Temporal, but with some overlap.
+
+An `alpha` ns (groan!) exists which contains a few functions for working with temporal-amounts.
+
+If not sufficient, use reader conditionals in your code to construct/manipulate as appropriate.
 
 ```clojure
 
-(t/period->days (t/period-parse "P3Y5M3D")) ; > 3
+(require '[com.widdindustries.tempo.duration-alpha :as d])
 
-(t/duration->as-minutes (t/duration-parse "PT3H")) ; > 180
-
-; following won't exist bc years and months are variable length
-;(t/period->as-days (t/period-parse "P3Y5M3D"))
-
-```
-
+(d/duration-parse "PT0.001S")
 
 ### Manipulation 
 
@@ -209,7 +209,8 @@ aka construction a new entity from one of the same type
 
 ```clojure
 
-(t/+ (t/duration-parse "PT3H") (t/duration-parse "PT3S"))
+(require '[com.widdindustries.tempo.duration-alpha :as d])
+(t/+ (d/duration-parse "PT3H") (d/duration-parse "PT3S"))
 
 ```
 
@@ -217,11 +218,12 @@ aka construction a new entity from one of the same type
 
 ```clojure
 
-;; move date forward 3 days
-(t/>> (t/date-now) (t/period-parse "P3D"))
+(require '[com.widdindustries.tempo.duration-alpha :as d])
 
-(-> (t/date-now) (t/with {:year 2021 :month 7}))
-(-> (t/date-now) (t/with-year 3030))
+;; move date forward 3 days
+(t/>> (t/date-now) (d/period-parse "P3D"))
+
+(-> (t/date-now) (t/with 3030 t/years-property))
 
 ; todo - is this easily doable with platform api??
 (-> (t/date-now) (t/truncate-to-month))
