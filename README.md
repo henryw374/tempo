@@ -225,10 +225,6 @@ aka construction a new entity from one of the same type
 
 (-> (t/date-now) (t/with 3030 t/years-property))
 
-; todo - is this easily doable with platform api??
-(-> (t/date-now) (t/truncate-to-month))
-(-> (t/instant-now) (t/truncate-to-month))
-
 ```
 
 ### Comparison
@@ -244,7 +240,7 @@ aka construction a new entity from one of the same type
 (t/max a b c)
 
 ; you must specify unit
-(t/until a b :minutes)
+(t/until a b t/minutes-property)
 
 ```
 

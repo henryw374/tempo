@@ -118,9 +118,7 @@
                                   }}
                        {:parts {{:tempo 'instant} {}}}
                        {:parts {timezone_id {}
-                                {:tempo 'datetime
-                                 ;todo - in leap year? daysinyear?
-                                 }
+                                {:tempo 'datetime}
                                 {:parts
                                  {{:tempo 'date}
                                   {:branches
@@ -142,7 +140,12 @@
                                   {:tempo 'time} {:parts {{:tempo 'hour}   {}
                                                           {:tempo 'minute} {}
                                                           {:tempo 'second} {}
-                                                          {:tempo 'nano}   {}}}}}}}]}})
+                                                          {:tempo 'millisecond
+                                                           :cljay  {:xform-fn '(-> (.getNano) (Duration/ofNanos) (.toMillisPart))}} {}
+                                                          {:tempo 'microsecond
+                                                           :cljay  {:xform-fn '(-> (.getNano) (/ 1000) long (mod 1000))}} {}
+                                                          {:tempo 'nanosecond
+                                                           :cljay  {:xform-fn '(-> (.getNano) (mod 1000))}}   {}}}}}}}]}})
 
 (def with-paths (paths graph))
 

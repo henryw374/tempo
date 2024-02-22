@@ -125,33 +125,92 @@
   (unit-amount [_])
   (unit-accessor [_ x]))
 
-(defprotocol Property 
+(defprotocol Property
   (unit [_])
   (field [_]))
 
-(def nanos-property #?(:cljay (reify Property (unit [_] ChronoUnit/NANOS) (field [_] ChronoField/NANO_OF_SECOND))       :cljs (reify Property (field [_] "nanosecond")(unit [_] (reify Unit (unit-amount [_] "nanoseconds") (unit-field [_] "nanosecond") (unit-accessor [_ ^js x] (.-nanos x)))))))
-(def micros-property #?(:cljay (reify Property (unit [_] ChronoUnit/MICROS) (field [_] ChronoField/MICRO_OF_SECOND))    :cljs (reify Property (field [_] "microsecond")(unit [_] (reify Unit (unit-amount [_] "microseconds") (unit-field [_] "microsecond") (unit-accessor [_ ^js x] (.-micros x)))))))
-(def millis-property #?(:cljay (reify Property (unit [_] ChronoUnit/MILLIS) (field [_] ChronoField/MILLI_OF_SECOND))    :cljs (reify Property (field [_] "millisecond")(unit [_] (reify Unit (unit-amount [_] "milliseconds") (unit-field [_] "millisecond") (unit-accessor [_ ^js x] (.-millis x)))))))
-(def seconds-property #?(:cljay (reify Property (unit [_] ChronoUnit/SECONDS) (field [_] ChronoField/SECOND_OF_MINUTE)) :cljs (reify Property (field [_] "second")(unit [_] (reify Unit (unit-amount [_] "seconds") (unit-field [_] "second") (unit-accessor [_ ^js x] (.-seconds x)))))))
-(def minutes-property #?(:cljay (reify Property (unit [_] ChronoUnit/MINUTES) (field [_] ChronoField/MINUTE_OF_HOUR))   :cljs (reify Property (field [_] "minute")(unit [_] (reify Unit (unit-amount [_] "minutes") (unit-field [_] "minute") (unit-accessor [_ ^js x] (.-minutes x)))))))
-(def hours-property #?(:cljay (reify Property (unit [_] ChronoUnit/HOURS) (field [_] ChronoField/HOUR_OF_DAY))          :cljs (reify Property (field [_] "hour")(unit [_] (reify Unit (unit-amount [_] "hours") (unit-field [_] "hour") (unit-accessor [_ ^js x] (.-hours x)))))))
-(def days-property #?(:cljay (reify Property (unit [_] ChronoUnit/DAYS) (field [_] ChronoField/DAY_OF_MONTH))           :cljs (reify Property (field [_] "day")(unit [_] (reify Unit (unit-amount [_] "days") (unit-field [_] "day") (unit-accessor [_ ^js x] (.-days x)))))))
-(def months-property #?(:cljay (reify Property (unit [_] ChronoUnit/MONTHS) (field [_] ChronoField/MONTH_OF_YEAR))      :cljs (reify Property (field [_] "month")(unit [_] (reify Unit (unit-amount [_] "months") (unit-field [_] "month") (unit-accessor [_ ^js x] (.-months x)))))))
-(def years-property #?(:cljay (reify Property (unit [_] ChronoUnit/YEARS) (field [_] ChronoField/YEAR))                 :cljs (reify Property (field [_] "year")(unit [_] (reify Unit (unit-amount [_] "years") (unit-field [_] "year") (unit-accessor [_ ^js x] (.-years x)))))))
+(defprotocol HasTime 
+  (getFractional [_])
+  (setFractional [_ _]))
+
+(extend-protocol HasTime 
+  ZonedDateTime
+  (getFractional [x] (.getNano (.toLocalTime x)))
+  (setFractional [x t] (.withNano x t))
+  LocalDateTime
+  (getFractional [x] (.getNano (.toLocalTime x)))
+  (setFractional [x t] (.withNano x t))
+  LocalTime
+  (getFractional [x] (.getNano x))
+  (setFractional [x t] (.withNano x t))
+  Instant
+  (getFractional [x] (.getNano x))
+  (setFractional [x ^long t] (.with x ChronoField/NANO_OF_SECOND t))
+  )
+
+
+(def nanos-property #?(:cljay (reify Property (unit [_] ChronoUnit/NANOS)
+                                (field [_] (reify java.time.temporal.TemporalField
+                                             (adjustInto [_ temporal value]
+                                               (let [fractional (getFractional temporal)
+                                                     millis+micros (-> fractional (/ 1000) long (* 1000))
+                                                     new-fractional (+ millis+micros value)]
+                                                 (-> temporal (setFractional new-fractional)))))))
+                       :cljs (reify Property 
+                               (field [_] "nanosecond")
+                               (unit [_]
+                                 (reify Unit 
+                                   (unit-amount [_] "nanoseconds") 
+                                   (unit-field [_] "nanosecond") 
+                                   (unit-accessor [_ ^js x] (.-nanos x)))))))
+(def micros-property #?(:cljay (reify Property (unit [_] ChronoUnit/MICROS)
+                                 (field [_] (reify java.time.temporal.TemporalField
+                                              (adjustInto [_ temporal value]
+                                                (let [fractional (getFractional temporal)
+                                                      millis (-> fractional (/ 1000000) long (* 1000000))
+                                                      nanos (-> fractional (mod 1000))
+                                                      new-fractional (+ millis nanos (-> value (* 1000)))]
+                                                  (-> temporal (setFractional new-fractional)))))))
+                        :cljs (reify Property (field [_] "microsecond") (unit [_] (reify Unit (unit-amount [_] "microseconds") (unit-field [_] "microsecond") (unit-accessor [_ ^js x] (.-micros x)))))))
+(def millis-property #?(:cljay (reify Property (unit [_] ChronoUnit/MILLIS)
+                                 (field [_] (reify java.time.temporal.TemporalField
+                                              (adjustInto [_ temporal value]
+                                                (let [fractional (getFractional temporal)
+                                                      micros+nanos (-> fractional (mod 1000000))]
+                                                  (-> temporal (setFractional (+ micros+nanos (-> value (* 1000000))))))))))
+                        :cljs (reify Property (field [_] "millisecond") (unit [_] (reify Unit (unit-amount [_] "milliseconds") (unit-field [_] "millisecond") (unit-accessor [_ ^js x] (.-millis x)))))))
+(def seconds-property #?(:cljay (reify Property (unit [_] ChronoUnit/SECONDS)
+                                  (field [_] ChronoField/SECOND_OF_MINUTE))
+                         :cljs (reify Property (field [_] "second") (unit [_] (reify Unit (unit-amount [_] "seconds") (unit-field [_] "second") (unit-accessor [_ ^js x] (.-seconds x)))))))
+(def minutes-property #?(:cljay (reify Property (unit [_] ChronoUnit/MINUTES)
+                                  (field [_] ChronoField/MINUTE_OF_HOUR))
+                         :cljs (reify Property (field [_] "minute") (unit [_] (reify Unit (unit-amount [_] "minutes") (unit-field [_] "minute") (unit-accessor [_ ^js x] (.-minutes x)))))))
+(def hours-property #?(:cljay (reify Property (unit [_] ChronoUnit/HOURS)
+                                (field [_] ChronoField/HOUR_OF_DAY))
+                       :cljs (reify Property (field [_] "hour") (unit [_] (reify Unit (unit-amount [_] "hours") (unit-field [_] "hour") (unit-accessor [_ ^js x] (.-hours x)))))))
+(def days-property #?(:cljay (reify Property (unit [_] ChronoUnit/DAYS)
+                               (field [_] ChronoField/DAY_OF_MONTH))
+                      :cljs (reify Property (field [_] "day") (unit [_] (reify Unit (unit-amount [_] "days") (unit-field [_] "day") (unit-accessor [_ ^js x] (.-days x)))))))
+(def months-property #?(:cljay (reify Property (unit [_] ChronoUnit/MONTHS)
+                                 (field [_] ChronoField/MONTH_OF_YEAR))
+                        :cljs (reify Property (field [_] "month") (unit [_] (reify Unit (unit-amount [_] "months") (unit-field [_] "month") (unit-accessor [_ ^js x] (.-months x)))))))
+(def years-property #?(:cljay (reify Property (unit [_] ChronoUnit/YEARS)
+                                (field [_] ChronoField/YEAR))
+                       :cljs (reify Property (field [_] "year") (unit [_] (reify Unit (unit-amount [_] "years") (unit-field [_] "year") (unit-accessor [_ ^js x] (.-years x)))))))
 
 (defn with [temporal value property]
   #?(:cljay (.with ^Temporal temporal ^TemporalField (field property) ^long value)
      :cljs (.with ^js temporal (js-obj (field property) value))))
 
 #_(defn truncate [temporal property]
-  #_?(:cljay 
-     :cljs ))
+    #_? (:cljay
+          :cljs))
 
 (defn until [v1 v2 property]
   #?(:cljay (.until ^Temporal v1 v2 (unit property))
      ;https://tc39.es/proposal-temporal/docs/instant.html#until
      :cljs (-> (.until ^js v1 ^js v2 #js{:smallestUnit (unit-field (unit property)) :largestUnit (unit-field (unit property))})
-                (unit-accessor (unit property)))))
+               (unit-accessor (unit property)))))
 
 (defn >>
   ([temporal temporal-amount]
@@ -169,17 +228,17 @@
    #?(:cljay (.minus ^Temporal temporal amount ^TemporalUnit (unit temporal-property))
       :cljs (.subtract ^js temporal (js-obj (unit-amount (unit temporal-property)) amount)))))
 
-(defprotocol WeekDay 
+(defprotocol WeekDay
   (weekday-number [_])
   (english-name [_]))
 
-#?(:cljay 
+#?(:cljay
    (extend-protocol WeekDay
-     DayOfWeek 
+     DayOfWeek
      (weekday-number [x] (.getValue x))
      (english-name [x] (str x))))
 
-(def weekday-monday  #?(:cljay DayOfWeek/MONDAY :cljs (reify WeekDay (weekday-number [_] 1) (english-name [_] "MONDAY"))))
+(def weekday-monday #?(:cljay DayOfWeek/MONDAY :cljs (reify WeekDay (weekday-number [_] 1) (english-name [_] "MONDAY"))))
 (def weekday-tuesday #?(:cljay DayOfWeek/TUESDAY :cljs (reify WeekDay (weekday-number [_] 2) (english-name [_] "TUESDAY"))))
 (def weekday-wednesday #?(:cljay DayOfWeek/WEDNESDAY :cljs (reify WeekDay (weekday-number [_] 3) (english-name [_] "WEDNESDAY"))))
 (def weekday-thursday #?(:cljay DayOfWeek/THURSDAY :cljs (reify WeekDay (weekday-number [_] 4) (english-name [_] "THURSDAY"))))
@@ -187,11 +246,11 @@
 (def weekday-saturday #?(:cljay DayOfWeek/SATURDAY :cljs (reify WeekDay (weekday-number [_] 6) (english-name [_] "SATURDAY"))))
 (def weekday-sunday #?(:cljay DayOfWeek/SUNDAY :cljs (reify WeekDay (weekday-number [_] 7) (english-name [_] "SUNDAY"))))
 
-(def weekday-number->weekday 
+(def weekday-number->weekday
   {1 weekday-monday
-  2 weekday-tuesday
-  3 weekday-wednesday
-  4 weekday-thursday
-  5 weekday-friday
-  6 weekday-saturday
-  7 weekday-sunday})
+   2 weekday-tuesday
+   3 weekday-wednesday
+   4 weekday-thursday
+   5 weekday-friday
+   6 weekday-saturday
+   7 weekday-sunday})

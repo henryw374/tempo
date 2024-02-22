@@ -139,9 +139,54 @@
     (is (= (t/zdt->timezone_id (t/zdt-now fixed)) (t/zdt->timezone_id (t/zdt-now offset))))
     ))
 
+(deftest adjust-test
+  (testing "adjusting date"
+    ;todo
+    )
+  (testing "adjusting time"
+    ;todo - instant
+    (doseq [[x hour minute second milli micro nano] [[(t/zdt-parse "2024-02-22T00:00:00Z[Europe/London]")
+                                                      t/zdt->hour
+                                                      t/zdt->minute
+                                                      t/zdt->second
+                                                      t/zdt->millisecond
+                                                      t/zdt->microsecond
+                                                      t/zdt->nanosecond]
+                                                     [(t/time-from {:hour 0})
+                                                      t/time->hour
+                                                      t/time->minute
+                                                      t/time->second
+                                                      t/time->millisecond
+                                                      t/time->microsecond
+                                                      t/time->nanosecond]
+                                                     [
+                                                      (-> (t/datetime-from {:year 1 :month 1 :day-of-month 1})
+                                                          ;(t/with 10 t/hours-property)
+                                                          )
+                                                      t/datetime->hour
+                                                      t/datetime->minute
+                                                      t/datetime->second
+                                                      t/datetime->millisecond
+                                                      t/datetime->microsecond
+                                                      t/datetime->nanosecond]]]
+      (let [
+            y (-> x
+                  (t/with 10 t/hours-property)
+                  (t/with 55 t/minutes-property)
+                  (t/with 30 t/seconds-property)
+                  (t/with 123 t/millis-property)
+                  (t/with 456 t/micros-property)
+                  (t/with 789 t/nanos-property))]
+        (is (= 10 (hour y)))
+        (is (= 55 (minute y)))
+        (is (= 30 (second y)))
+        (is (= 123 (milli y)))
+        (is (= 456 (micro y)))
+        (is (= 789 (nano y)))))))
+
+
 
 
 t/max
 t/min
 t/>=
-;t/zdt->millis >micros

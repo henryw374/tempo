@@ -80,7 +80,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__55061# p2__55062#] (greater p1__55061# p2__55062#))
+  (fn* [p1__70972# p2__70973#] (greater p1__70972# p2__70973#))
   arg
   args))
 
@@ -92,7 +92,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__55063# p2__55064#] (lesser p1__55063# p2__55064#))
+  (fn* [p1__70974# p2__70975#] (lesser p1__70974# p2__70975#))
   arg
   args))
 
@@ -156,26 +156,84 @@
 
 (defprotocol Property (unit [_]) (field [_]))
 
+(defprotocol HasTime (getFractional [_]) (setFractional [_ _]))
+
+(extend-protocol
+ HasTime
+ ZonedDateTime
+ (getFractional [x] (.getNano (.toLocalTime x)))
+ (setFractional [x t] (.withNano x t))
+ LocalDateTime
+ (getFractional [x] (.getNano (.toLocalTime x)))
+ (setFractional [x t] (.withNano x t))
+ LocalTime
+ (getFractional [x] (.getNano x))
+ (setFractional [x t] (.withNano x t))
+ Instant
+ (getFractional [x] (.getNano x))
+ (setFractional [x ^long t] (.with x ChronoField/NANO_OF_SECOND t)))
+
 (def
  nanos-property
  (reify
   Property
   (unit [_] ChronoUnit/NANOS)
-  (field [_] ChronoField/NANO_OF_SECOND)))
+  (field
+   [_]
+   (reify
+    java.time.temporal.TemporalField
+    (adjustInto
+     [_ temporal value]
+     (let
+      [fractional
+       (getFractional temporal)
+       millis+micros
+       (-> fractional (/ 1000) long (* 1000))
+       new-fractional
+       (+ millis+micros value)]
+      (-> temporal (setFractional new-fractional))))))))
 
 (def
  micros-property
  (reify
   Property
   (unit [_] ChronoUnit/MICROS)
-  (field [_] ChronoField/MICRO_OF_SECOND)))
+  (field
+   [_]
+   (reify
+    java.time.temporal.TemporalField
+    (adjustInto
+     [_ temporal value]
+     (let
+      [fractional
+       (getFractional temporal)
+       millis
+       (-> fractional (/ 1000000) long (* 1000000))
+       nanos
+       (-> fractional (mod 1000))
+       new-fractional
+       (+ millis nanos (-> value (* 1000)))]
+      (-> temporal (setFractional new-fractional))))))))
 
 (def
  millis-property
  (reify
   Property
   (unit [_] ChronoUnit/MILLIS)
-  (field [_] ChronoField/MILLI_OF_SECOND)))
+  (field
+   [_]
+   (reify
+    java.time.temporal.TemporalField
+    (adjustInto
+     [_ temporal value]
+     (let
+      [fractional
+       (getFractional temporal)
+       micros+nanos
+       (-> fractional (mod 1000000))]
+      (->
+       temporal
+       (setFractional (+ micros+nanos (-> value (* 1000000)))))))))))
 
 (def
  seconds-property
@@ -286,10 +344,6 @@
 
 ^{:line 31, :column 9} (comment "accessors")
 
-(defn date->year [^LocalDate foo] (-> foo .getYear))
-
-(defn date->day-of-month [^LocalDate foo] (-> foo .getDayOfMonth))
-
 (defn datetime->second [^LocalDateTime foo] (-> foo .getSecond))
 
 (defn zdt->date [^ZonedDateTime foo] (-> foo .toLocalDate))
@@ -298,9 +352,10 @@
 
 (defn datetime->month [^LocalDateTime foo] (-> foo .getMonthValue))
 
-(defn date->month [^LocalDate foo] (-> foo .getMonthValue))
-
-(defn zdt->day-of-month [^ZonedDateTime foo] (-> foo .getDayOfMonth))
+(defn
+ time->millisecond
+ [^LocalTime foo]
+ (-> foo (-> (.getNano) (Duration/ofNanos) (.toMillisPart))))
 
 (defn zdt->year [^ZonedDateTime foo] (-> foo .getYear))
 
@@ -311,22 +366,30 @@
 
 (defn datetime->hour [^LocalDateTime foo] (-> foo .getHour))
 
-(defn monthday->day-of-month [^MonthDay foo] (-> foo .getDayOfMonth))
+(defn
+ zdt->nanosecond
+ [^ZonedDateTime foo]
+ (-> foo (-> (.getNano) (mod 1000))))
+
+(defn date->year [^LocalDate foo] (-> foo .getYear))
+
+(defn date->day-of-month [^LocalDate foo] (-> foo .getDayOfMonth))
+
+(defn date->month [^LocalDate foo] (-> foo .getMonthValue))
 
 (defn zdt->hour [^ZonedDateTime foo] (-> foo .getHour))
 
 (defn zdt->instant [^ZonedDateTime foo] (-> foo .toInstant))
-
-(defn yearmonth->year [^YearMonth foo] (-> foo .getYear))
-
-(defn zdt->nano [^ZonedDateTime foo] (-> foo .getNano))
 
 (defn
  zdt->day-of-week
  [^ZonedDateTime foo]
  (-> foo (-> (.getDayOfWeek) (.getValue))))
 
-(defn zdt->month [^ZonedDateTime foo] (-> foo .getMonthValue))
+(defn
+ time->nanosecond
+ [^LocalTime foo]
+ (-> foo (-> (.getNano) (mod 1000))))
 
 (defn zdt->minute [^ZonedDateTime foo] (-> foo .getMinute))
 
@@ -337,20 +400,44 @@
 
 (defn datetime->date [^LocalDateTime foo] (-> foo .toLocalDate))
 
+(defn
+ datetime->nanosecond
+ [^LocalDateTime foo]
+ (-> foo (-> (.getNano) (mod 1000))))
+
 (defn zdt->second [^ZonedDateTime foo] (-> foo .getSecond))
+
+(defn zdt->month [^ZonedDateTime foo] (-> foo .getMonthValue))
+
+(defn yearmonth->year [^YearMonth foo] (-> foo .getYear))
+
+(defn
+ zdt->millisecond
+ [^ZonedDateTime foo]
+ (-> foo (-> (.getNano) (Duration/ofNanos) (.toMillisPart))))
 
 (defn instant->epochmilli [^Instant foo] (-> foo .toEpochMilli))
 
+(defn monthday->month [^MonthDay foo] (-> foo .getMonthValue))
+
 (defn time->second [^LocalTime foo] (-> foo .getSecond))
+
+(defn
+ time->microsecond
+ [^LocalTime foo]
+ (-> foo (-> (.getNano) (/ 1000) long (mod 1000))))
 
 (defn
  date->day-of-week
  [^LocalDate foo]
  (-> foo (-> (.getDayOfWeek) (.getValue))))
 
-(defn monthday->month [^MonthDay foo] (-> foo .getMonthValue))
-
 (defn zdt->datetime [^ZonedDateTime foo] (-> foo .toLocalDateTime))
+
+(defn
+ datetime->microsecond
+ [^LocalDateTime foo]
+ (-> foo (-> (.getNano) (/ 1000) long (mod 1000))))
 
 (defn yearmonth->month [^YearMonth foo] (-> foo .getMonthValue))
 
@@ -365,13 +452,23 @@
  [^LocalDateTime foo]
  (-> foo (-> (.getDayOfWeek) (.getValue))))
 
-(defn time->nano [^LocalTime foo] (-> foo .getNano))
+(defn
+ datetime->millisecond
+ [^LocalDateTime foo]
+ (-> foo (-> (.getNano) (Duration/ofNanos) (.toMillisPart))))
+
+(defn zdt->day-of-month [^ZonedDateTime foo] (-> foo .getDayOfMonth))
 
 (defn time->minute [^LocalTime foo] (-> foo .getMinute))
 
 (defn time->hour [^LocalTime foo] (-> foo .getHour))
 
-(defn datetime->nano [^LocalDateTime foo] (-> foo .getNano))
+(defn
+ zdt->microsecond
+ [^ZonedDateTime foo]
+ (-> foo (-> (.getNano) (/ 1000) long (mod 1000))))
+
+(defn monthday->day-of-month [^MonthDay foo] (-> foo .getDayOfMonth))
 
 (defn datetime->time [^LocalDateTime foo] (-> foo .toLocalTime))
 
@@ -385,13 +482,13 @@
 
 (defn datetime-parse [^java.lang.String foo] (LocalDateTime/parse foo))
 
-(defn date-parse [^java.lang.String foo] (LocalDate/parse foo))
+(defn time-parse [^java.lang.String foo] (LocalTime/parse foo))
 
-(defn monthday-parse [^java.lang.String foo] (MonthDay/parse foo))
+(defn date-parse [^java.lang.String foo] (LocalDate/parse foo))
 
 (defn yearmonth-parse [^java.lang.String foo] (YearMonth/parse foo))
 
-(defn time-parse [^java.lang.String foo] (LocalTime/parse foo))
+(defn monthday-parse [^java.lang.String foo] (MonthDay/parse foo))
 
 ^{:line 35, :column 9} (comment "nowers")
 
@@ -399,21 +496,6 @@
  datetime-now
  ([] (LocalDateTime/now))
  ([^java.time.Clock clock] (LocalDateTime/now clock)))
-
-(defn
- date-now
- ([] (LocalDate/now))
- ([^java.time.Clock clock] (LocalDate/now clock)))
-
-(defn
- monthday-now
- ([] (MonthDay/now))
- ([^java.time.Clock clock] (MonthDay/now clock)))
-
-(defn
- yearmonth-now
- ([] (YearMonth/now))
- ([^java.time.Clock clock] (YearMonth/now clock)))
 
 (defn
  time-now
@@ -426,9 +508,24 @@
  ([^java.time.Clock clock] (ZonedDateTime/now clock)))
 
 (defn
+ date-now
+ ([] (LocalDate/now))
+ ([^java.time.Clock clock] (LocalDate/now clock)))
+
+(defn
  instant-now
  ([] (Instant/now))
  ([^java.time.Clock clock] (Instant/now clock)))
+
+(defn
+ yearmonth-now
+ ([] (YearMonth/now))
+ ([^java.time.Clock clock] (YearMonth/now clock)))
+
+(defn
+ monthday-now
+ ([] (MonthDay/now))
+ ([^java.time.Clock clock] (MonthDay/now clock)))
 
 ^{:line 37, :column 9} (comment "constructors")
 
@@ -442,9 +539,18 @@
    (get thing :minute 0)
    second
    (get thing :second 0)
+   milli
+   (get thing :millisecond 0)
+   micro
+   (get thing :microsecond 0)
    nano
-   (get thing :nano 0)]
-  (LocalTime/of ^int hour ^int minute ^int second ^int nano)))
+   (get thing :nanosecond 0)]
+  (LocalTime/of
+   ^int hour
+   ^int minute
+   ^int second
+   ^{:tag int}
+   (+ (* milli 1000000) (* micro 1000) nano))))
 
 (defn
  date-from
@@ -455,7 +561,7 @@
    month
    (or
     (some-> (get thing :yearmonth) yearmonth->month)
-    (-> (get thing :monthday) monthday->month)
+    (some-> (get thing :monthday) monthday->month)
     (:month thing))
    day
    (or

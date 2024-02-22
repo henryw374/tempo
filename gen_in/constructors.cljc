@@ -7,12 +7,14 @@
   (let [hour (get thing :hour 0)
         minute (get thing :minute 0)
         second (get thing :second 0)
-        nano (get thing :nano 0)]
-    #?(:cljay (LocalTime/of ^int hour ^int minute ^int second ^int nano)
+        milli (get thing :millisecond 0)
+        micro (get thing :microsecond 0)
+        nano (get thing :nanosecond 0)]
+    #?(:cljay (LocalTime/of ^int hour ^int minute ^int second ^int (+ (* milli 1000000)
+                                                                     (* micro 1000)
+                                                                     nano))
        :cljs (js/Temporal.PlainTime. hour minute second
-               (-> (Math/floor (/ nano 1000)) (* 1000))
-               (mod nano 1000))
-       :cljc (cljc.java-time.local-time/of hour minute second nano))))
+               milli micro nano))))
 
 (defn date-from [thing]
   (let [year (or (some-> (get thing :yearmonth)
@@ -20,7 +22,7 @@
                (:year thing))
         month (or (some-> (get thing :yearmonth)
                     yearmonth->month)
-                (-> (get thing :monthday)
+                (some-> (get thing :monthday)
                   monthday->month)
                 (:month thing))
         day (or (some-> (get thing :monthday)
@@ -28,8 +30,7 @@
               (get thing :day-of-month))]
 
     #?(:cljay (LocalDate/of ^int year ^int month ^int day)
-       :cljs (js/Temporal.PlainDate. ^int year ^int month ^int day)
-       :cljc (cljc.java-time.local-date/of ^int year ^int month ^int day))))
+       :cljs (js/Temporal.PlainDate. ^int year ^int month ^int day))))
 
 (defn datetime-from [thing]
   (let [date (or (get thing :date)
@@ -37,16 +38,14 @@
         time (or (get thing :time)
                (time-from thing))]
     #?(:cljay (LocalDateTime/of ^LocalDate date ^LocalTime time)
-       :cljs (.toPlainDateTime ^js date time)
-       :cljc (cljc.java-time.local-date-time/of ^LocalDate date ^LocalTime time))))
+       :cljs (.toPlainDateTime ^js date time))))
 
 (defn zdt-from [thing]
   (let [ldt (or (get thing :datetime)
               (datetime-from thing))
         zone   (get thing :timezone_id)]
     #?(:cljay (ZonedDateTime/of ^LocalDateTime ldt ^ZoneId (timezone-parse zone))
-       :cljs (.toZonedDateTime ^js ldt zone)
-       :cljc (cljc.java-time.zoned-date-time/of ^LocalDateTime ldt ^ZoneId zone))))
+       :cljs (.toZonedDateTime ^js ldt zone))))
 
 (defn instant-from [thing]
   (or (some-> (get thing :epochmilli)
