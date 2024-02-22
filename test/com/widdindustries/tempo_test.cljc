@@ -7,6 +7,14 @@
  (t/extend-all-cljs-protocols)
 ;
 (deftest construction-from-parts-test
+  (testing "level 0"
+    (let [nanos 789
+          micros 456
+          millis 123]
+      ;todo
+      
+      )
+    )
   (testing "level 1"
     (let [datetime (t/datetime-now)
           timezone (str (t/timezone-system-default))
