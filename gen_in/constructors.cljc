@@ -43,7 +43,7 @@
 (defn zdt-from [thing]
   (let [ldt (or (get thing :datetime)
               (datetime-from thing))
-        zone   (get thing :timezone)]
+        zone   (get thing :timezone_id)]
     #?(:cljay (ZonedDateTime/of ^LocalDateTime ldt ^ZoneId (timezone-parse zone))
        :cljs (.toZonedDateTime ^js ldt zone)
        :cljc (cljc.java-time.zoned-date-time/of ^LocalDateTime ldt ^ZoneId zone))))

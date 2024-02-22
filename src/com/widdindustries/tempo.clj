@@ -54,20 +54,23 @@
 
 (defn zdt? [v] (instance? ZonedDateTime v))
 
-(defn zone-system-default [] (ZoneId/systemDefault))
+(defn timezone-system-default [] (ZoneId/systemDefault))
 
 (defn
  clock-fixed
- [instant zone]
- (Clock/fixed ^Instant instant ^ZoneId zone))
+ [instant ^String zone-str]
+ (Clock/fixed ^Instant instant (ZoneId/of zone-str)))
 
 (defn
  clock-system-default-zone
- "a ticking clock having the ambient zone"
+ "a ticking clock having the ambient zone. "
  []
  (Clock/systemDefaultZone))
 
-(defn clock-offset [offset-or-zone])
+(defn
+ clock-offset-millis
+ [clock offset-millis]
+ (Clock/offset clock (Duration/ofMillis offset-millis)))
 
 (defn greater [x y] (if (neg? (compare x y)) y x))
 
@@ -77,7 +80,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__38368# p2__38369#] (greater p1__38368# p2__38369#))
+  (fn* [p1__55061# p2__55062#] (greater p1__55061# p2__55062#))
   arg
   args))
 
@@ -89,7 +92,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__38370# p2__38371#] (lesser p1__38370# p2__38371#))
+  (fn* [p1__55063# p2__55064#] (lesser p1__55063# p2__55064#))
   arg
   args))
 
@@ -283,11 +286,9 @@
 
 ^{:line 31, :column 9} (comment "accessors")
 
-(defn date->month [^LocalDate foo] (-> foo .getMonthValue))
+(defn date->year [^LocalDate foo] (-> foo .getYear))
 
-(defn yearmonth->month [^YearMonth foo] (-> foo .getMonthValue))
-
-(defn zdt->month [^ZonedDateTime foo] (-> foo .getMonthValue))
+(defn date->day-of-month [^LocalDate foo] (-> foo .getDayOfMonth))
 
 (defn datetime->second [^LocalDateTime foo] (-> foo .getSecond))
 
@@ -297,17 +298,26 @@
 
 (defn datetime->month [^LocalDateTime foo] (-> foo .getMonthValue))
 
-(defn monthday->day-of-month [^MonthDay foo] (-> foo .getDayOfMonth))
+(defn date->month [^LocalDate foo] (-> foo .getMonthValue))
+
+(defn zdt->day-of-month [^ZonedDateTime foo] (-> foo .getDayOfMonth))
 
 (defn zdt->year [^ZonedDateTime foo] (-> foo .getYear))
 
+(defn
+ zdt->timezone_id
+ [^ZonedDateTime foo]
+ (-> foo (-> (.getZone) (.getId))))
+
 (defn datetime->hour [^LocalDateTime foo] (-> foo .getHour))
 
-(defn date->day-of-month [^LocalDate foo] (-> foo .getDayOfMonth))
+(defn monthday->day-of-month [^MonthDay foo] (-> foo .getDayOfMonth))
 
 (defn zdt->hour [^ZonedDateTime foo] (-> foo .getHour))
 
 (defn zdt->instant [^ZonedDateTime foo] (-> foo .toInstant))
+
+(defn yearmonth->year [^YearMonth foo] (-> foo .getYear))
 
 (defn zdt->nano [^ZonedDateTime foo] (-> foo .getNano))
 
@@ -315,6 +325,8 @@
  zdt->day-of-week
  [^ZonedDateTime foo]
  (-> foo (-> (.getDayOfWeek) (.getValue))))
+
+(defn zdt->month [^ZonedDateTime foo] (-> foo .getMonthValue))
 
 (defn zdt->minute [^ZonedDateTime foo] (-> foo .getMinute))
 
@@ -325,11 +337,7 @@
 
 (defn datetime->date [^LocalDateTime foo] (-> foo .toLocalDate))
 
-(defn date->year [^LocalDate foo] (-> foo .getYear))
-
 (defn zdt->second [^ZonedDateTime foo] (-> foo .getSecond))
-
-(defn zdt->day-of-month [^ZonedDateTime foo] (-> foo .getDayOfMonth))
 
 (defn instant->epochmilli [^Instant foo] (-> foo .toEpochMilli))
 
@@ -340,12 +348,11 @@
  [^LocalDate foo]
  (-> foo (-> (.getDayOfWeek) (.getValue))))
 
+(defn monthday->month [^MonthDay foo] (-> foo .getMonthValue))
+
 (defn zdt->datetime [^ZonedDateTime foo] (-> foo .toLocalDateTime))
 
-(defn
- zdt->timezone
- [^ZonedDateTime foo]
- (-> foo (-> (.getZone) (.getId))))
+(defn yearmonth->month [^YearMonth foo] (-> foo .getMonthValue))
 
 (defn zdt->time [^ZonedDateTime foo] (-> foo .toLocalTime))
 
@@ -364,48 +371,29 @@
 
 (defn time->hour [^LocalTime foo] (-> foo .getHour))
 
-(defn monthday->month [^MonthDay foo] (-> foo .getMonthValue))
-
 (defn datetime->nano [^LocalDateTime foo] (-> foo .getNano))
-
-(defn yearmonth->year [^YearMonth foo] (-> foo .getYear))
 
 (defn datetime->time [^LocalDateTime foo] (-> foo .toLocalTime))
 
 ^{:line 33, :column 9} (comment "parsers")
 
-(defn date-parse [^java.lang.String foo] (LocalDate/parse foo))
+(defn timezone-parse [^java.lang.String foo] (ZoneId/of foo))
 
-(defn yearmonth-parse [^java.lang.String foo] (YearMonth/parse foo))
+(defn instant-parse [^java.lang.String foo] (Instant/parse foo))
 
 (defn zdt-parse [^java.lang.String foo] (ZonedDateTime/parse foo))
 
 (defn datetime-parse [^java.lang.String foo] (LocalDateTime/parse foo))
 
+(defn date-parse [^java.lang.String foo] (LocalDate/parse foo))
+
 (defn monthday-parse [^java.lang.String foo] (MonthDay/parse foo))
+
+(defn yearmonth-parse [^java.lang.String foo] (YearMonth/parse foo))
 
 (defn time-parse [^java.lang.String foo] (LocalTime/parse foo))
 
-(defn instant-parse [^java.lang.String foo] (Instant/parse foo))
-
-(defn timezone-parse [^java.lang.String foo] (ZoneId/of foo))
-
 ^{:line 35, :column 9} (comment "nowers")
-
-(defn
- date-now
- ([] (LocalDate/now))
- ([^java.time.Clock clock] (LocalDate/now clock)))
-
-(defn
- yearmonth-now
- ([] (YearMonth/now))
- ([^java.time.Clock clock] (YearMonth/now clock)))
-
-(defn
- zdt-now
- ([] (ZonedDateTime/now))
- ([^java.time.Clock clock] (ZonedDateTime/now clock)))
 
 (defn
  datetime-now
@@ -413,14 +401,29 @@
  ([^java.time.Clock clock] (LocalDateTime/now clock)))
 
 (defn
+ date-now
+ ([] (LocalDate/now))
+ ([^java.time.Clock clock] (LocalDate/now clock)))
+
+(defn
  monthday-now
  ([] (MonthDay/now))
  ([^java.time.Clock clock] (MonthDay/now clock)))
 
 (defn
+ yearmonth-now
+ ([] (YearMonth/now))
+ ([^java.time.Clock clock] (YearMonth/now clock)))
+
+(defn
  time-now
  ([] (LocalTime/now))
  ([^java.time.Clock clock] (LocalTime/now clock)))
+
+(defn
+ zdt-now
+ ([] (ZonedDateTime/now))
+ ([^java.time.Clock clock] (ZonedDateTime/now clock)))
 
 (defn
  instant-now
@@ -477,7 +480,7 @@
   [ldt
    (or (get thing :datetime) (datetime-from thing))
    zone
-   (get thing :timezone)]
+   (get thing :timezone_id)]
   (ZonedDateTime/of
    ^LocalDateTime ldt
    ^{:tag ZoneId}

@@ -47,24 +47,22 @@
 
 (defn timezone-system-default []
   #?(:cljay (ZoneId/systemDefault)
-     :cljc (cljc.java-time.zone-id/system-default)
-     :cljs (clock/time-zone)))
+     :cljs (clock/timezone)))
 
 ;; construction of clocks
-(defn clock-fixed [instant zone]
-  #?(:cljay (Clock/fixed ^Instant instant ^ZoneId zone)
-     :cljc (cljc.java-time.clock/fixed instant zone)
-     :cljs (clock/fixed-clock instant zone)))
+(defn clock-fixed [instant ^String zone-str]
+  #?(:cljay (Clock/fixed ^Instant instant (ZoneId/of zone-str))
+     :cljs (clock/fixed-clock instant zone-str)))
 
 (defn clock-system-default-zone
-  "a ticking clock having the ambient zone"
+  "a ticking clock having the ambient zone. "
   []
   #?(:cljay (Clock/systemDefaultZone)
-     :cljc (cljc.java-time.clock/system-default-zone)
      :cljs js/Temporal.Now))
 
-(defn clock-offset [offset-or-zone]
-  )
+(defn clock-offset-millis [clock offset-millis]
+  #?(:cljay (Clock/offset clock (Duration/ofMillis offset-millis))
+     :cljs (clock/offset-clock-millis clock offset-millis)))
 
 (defn greater [x y]
   (if (neg? (compare x y)) y x))

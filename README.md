@@ -29,7 +29,13 @@ FYI The API is planned to mostly consist of generated code.
 
 ### java.time vs Temporal
 
-venn diagram 
+java.time and Temporal share some concepts, but both have some unshared concepts. Naming is also partially shared. [See here for a brief introduction and overview](https://widdindustries.com/blog/ecma-temporal-vs-java-time.html)
+
+The below graph shows the entities in Temporal. If you know java.time and you squint a bit, it will look familiar to you. 
+
+![graph of entities in Temporal](https://tc39.es/proposal-temporal/docs/object-model.svg)
+
+Tempo tries to find obvious common ground between java.time and Temporal and put it in an API. Following is some more detail:
 
 *just java.time*
 
@@ -37,7 +43,10 @@ venn diagram
 * 2 types to represent temporal amounts Duration and Period
 * clojure identity and comparison fns: =,>,>= etc all 'just work' - so these are added to Temporal objects in Tempo
 * fixed & offset clocks - so these are added in cljs Tempo
-* OffsetDateTime, OffsetTime, Month, Year and DayOfWeek entities - cljs Temporal adds DayOfWeek and Month 
+* OffsetDateTime, OffsetTime, Month, Year and DayOfWeek entities 
+  * Tempo adds DayOfWeek to cljs, so there is e.g. `t/weekday-saturday`
+  * OffsetDateTime & OffsetTime are not in Tempo
+  * Month and Year are just represented by integers in Tempo
 
 *just temporal*
 
@@ -93,8 +102,6 @@ artifact.
 
 ## Usage
 
-; show graph of entities?
-
 ### Depend 
 
 There is no tempo maven artifact atm.
@@ -125,14 +132,27 @@ Depend on tempo via deps.edn:
 
 ```clojure
 ;fixed in time and place
-(t/clock-fixed (t/instant-now) (t/timezone-system-default))
+(t/clock-fixed (t/instant-now) "Europe/Paris")
 
 ;  ambient place, ticking clock
 (t/clock-system-default-zone)
 
-; specified place, ticking clock
-(t/clock-offset (t/timezone-parse "Europe/London"))
+; offset existing clock by specified millis
+(t/clock-offset clock -5)
 
+```
+
+#### Time zones 
+
+```clojure
+(t/timezone-parse "Europe/London")
+```
+
+Where a timezone is accessed from an object, or passed into an object, only the string representation is used, referred to as `timezone_id` 
+
+```clojure
+(t/zdt->timezone_id zdt)
+(t/zdt-from {:datetime datetime :timezone_id timezone})
 ```
 
 #### Temporals

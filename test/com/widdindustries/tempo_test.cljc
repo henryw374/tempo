@@ -10,28 +10,28 @@
   (testing "level 1"
     (let [datetime (t/datetime-now)
           timezone (str (t/timezone-system-default))
-          zdt (t/zdt-from {:datetime datetime :timezone timezone})]
+          zdt (t/zdt-from {:datetime datetime :timezone_id timezone})]
       (is (t/zdt? zdt))
       (def zdt zdt)
       ;(is (= datetime (t/zdt->datetime zdt)))
-      (is (= timezone (t/zdt->timezone zdt)))
+      (is (= timezone (t/zdt->timezone_id zdt)))
       ))
   (testing "level 2"
     (let [date (t/date-now)
           time (t/time-now)
           timezone (str (t/timezone-system-default))
-          zdt (t/zdt-from {:date date :time time :timezone timezone})]
+          zdt (t/zdt-from {:date date :time time :timezone_id timezone})]
       (is (t/zdt? zdt))
       (is (= time (t/zdt->time zdt)))
       (is (= date (t/zdt->date zdt)))
-      (is (= timezone (t/zdt->timezone zdt)))      )
+      (is (= timezone (t/zdt->timezone_id zdt)))      )
     )
   (testing "level 3"
     (let [ym (t/yearmonth-parse "2020-02")
           timezone (str (t/timezone-parse "Pacific/Honolulu"))
           zdt (t/zdt-from {:yearmonth ym :day-of-month 1 
                            :hour 1 
-                           :timezone timezone})]
+                           :timezone_id timezone})]
       (is (t/zdt? zdt))
       (is (= (t/yearmonth->year ym) (t/zdt->year zdt)))
       (is (= 1 (t/zdt->day-of-month zdt)))
@@ -67,8 +67,7 @@
   (is (t/date? (t/date-now (t/clock-system-default-zone))))
   (is (= "2020-02-02"
         (str (t/date-now
-               (t/clock-fixed (t/instant-parse "2020-02-02T09:19:42.128946Z")
-                 (t/timezone-parse "UTC")))))))
+               (t/clock-fixed (t/instant-parse "2020-02-02T09:19:42.128946Z") "UTC"))))))
 
 (deftest equals-hash-compare-date
   (let [middle (t/date-now)
@@ -124,9 +123,18 @@
         (is (= 1 (t/until i-1 i-2 prop)))
         (is (= -1 (t/until i-2 i-1 prop)))))))
 
-(-> (t/zdt-now) (t/zdt->timezone))
+
 ; clock tests
-(t/clock-fixed (t/instant-now) (t/timezone-system-default))
+(deftest clock-test
+  (let [zone (str (t/timezone-system-default))
+        now (t/instant-now)
+        fixed (t/clock-fixed now zone)
+        offset (t/clock-offset-millis fixed 1)]
+    (is (= now (t/instant-now fixed)))
+    (is (= (t/>> now (d/duration-parse "PT0.001S")) (t/instant-now offset)))
+    (is (t/> (t/instant-now (t/clock-system-default-zone)) (t/instant-now fixed)))
+    (is (= (t/zdt->timezone_id (t/zdt-now fixed)) (t/zdt->timezone_id (t/zdt-now offset))))
+    ))
 (t/clock-system-default-zone)
 ;(t/clock-offset)
 (-> (t/zdt-now) (t/with 20 t/years-property))

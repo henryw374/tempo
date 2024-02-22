@@ -40,9 +40,6 @@
    'yearmonth
    ])
 
-(def non-temporal-types
-  ['time-zone])
-
 ;leaf entities are all numbers
 ; (zdt-from {args}) args either...
 ; instant
@@ -56,15 +53,18 @@
   {:ignore-accessor true ; its not in java
    :tempo 'epochnano})
 
-(def timezone
+(def timezone_id
   {:no-now true
-   :cljay  {:parse    'of
+   :cljay  {
             ;:accessor 'getZone
             :xform-fn '(-> (.getZone) (.getId))}
-   :cljc   {:parse    'of
-            :accessor 'getZone}
    :cljs   {:accessor '-timeZoneId}
-   :tempo  'timezone})
+   :tempo  'timezone_id})
+
+(def timezone 
+  {:tempo  'timezone
+   :no-now true 
+   :cljay {:parse    'of}})
 
 (def yearmonth
   {:needed-to-go-up {'day-of-month {}}
@@ -101,7 +101,8 @@
               }})
 
 (def graph
-  {{:tempo 'instant} {:parts
+  {timezone {:parts {}}
+   {:tempo 'instant} {:parts
                       {epochmilli   {}
                        epochnano    {}
                        {:tempo 'legacydate
@@ -116,7 +117,7 @@
                                   {:tempo 'hours-in-day} {}
                                   }}
                        {:parts {{:tempo 'instant} {}}}
-                       {:parts {timezone {}
+                       {:parts {timezone_id {}
                                 {:tempo 'datetime
                                  ;todo - in leap year? daysinyear?
                                  }
@@ -146,7 +147,9 @@
 (def with-paths (paths graph))
 
 (comment 
+  (-> with-paths 
+       keys)
   
   (->> with-paths
-       (m/find-first #(= {:tempo 'zdt} (key %1))))
+       (m/find-first #(= {:tempo 'timezone} (select-keys (key %1) [:tempo]))))
   )

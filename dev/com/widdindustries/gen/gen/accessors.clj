@@ -189,11 +189,10 @@
   (parse-fn :cljay (ffirst full-paths)))
 
 (defn parse-forms [feature]
-  (->> (apply concat full-paths)
+  (->> (apply concat (-> graph/with-paths keys) full-paths )
        distinct
        (keep (fn [thing]
-               (parse-fn feature thing))))
-  )
+               (parse-fn feature thing)))))
 
 (defn now-fn [feature subject]
   (when (and (not (:no-now subject)) (get kw->class (:tempo subject)))
