@@ -6,7 +6,7 @@
   #?(:cljay
      (:import
        [java.time Clock MonthDay ZoneId ZoneOffset Instant Duration Period DayOfWeek Month ZonedDateTime LocalTime LocalDateTime LocalDate Year YearMonth ZoneId OffsetDateTime OffsetTime]
-       [java.time.temporal Temporal TemporalAmount TemporalUnit ChronoUnit ChronoField]
+       [java.time.temporal Temporal TemporalAmount TemporalUnit ChronoUnit ChronoField ValueRange]
        [java.util Date])
      :cljs (:require [com.widdindustries.tempo.cljs-protocols :as cljs-protocols]
              [com.widdindustries.tempo.js-temporal-entities :as entities]
@@ -148,10 +148,12 @@
   (setFractional [x ^long t] (.with x ChronoField/NANO_OF_SECOND t))
   )
 
+(def ^ValueRange sub-second-range (ValueRange/of 0 999))
 
 (def nanos-property #?(:cljay (reify Property (unit [_] ChronoUnit/NANOS)
                                 (field [_] (reify java.time.temporal.TemporalField
                                              (adjustInto [_ temporal value]
+                                               (.checkValidValue sub-second-range value nil)
                                                (let [fractional (getFractional temporal)
                                                      millis+micros (-> fractional (/ 1000) long (* 1000))
                                                      new-fractional (+ millis+micros value)]
@@ -166,6 +168,7 @@
 (def micros-property #?(:cljay (reify Property (unit [_] ChronoUnit/MICROS)
                                  (field [_] (reify java.time.temporal.TemporalField
                                               (adjustInto [_ temporal value]
+                                                (.checkValidValue sub-second-range value nil)
                                                 (let [fractional (getFractional temporal)
                                                       millis (-> fractional (/ 1000000) long (* 1000000))
                                                       nanos (-> fractional (mod 1000))
@@ -175,6 +178,7 @@
 (def millis-property #?(:cljay (reify Property (unit [_] ChronoUnit/MILLIS)
                                  (field [_] (reify java.time.temporal.TemporalField
                                               (adjustInto [_ temporal value]
+                                                (.checkValidValue sub-second-range value nil)
                                                 (let [fractional (getFractional temporal)
                                                       micros+nanos (-> fractional (mod 1000000))]
                                                   (-> temporal (setFractional (+ micros+nanos (-> value (* 1000000))))))))))
@@ -200,7 +204,7 @@
 
 (defn with [temporal value property]
   #?(:cljay (.with ^Temporal temporal ^TemporalField (field property) ^long value)
-     :cljs (.with ^js temporal (js-obj (field property) value))))
+     :cljs (.with ^js temporal (js-obj (field property) value) #js{"overflow" "reject"})))
 
 #_(defn truncate [temporal property]
     #_? (:cljay

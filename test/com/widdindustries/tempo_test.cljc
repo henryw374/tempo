@@ -4,6 +4,8 @@
             [com.widdindustries.tempo.duration-alpha :as d])
   #?(:clj (:import [java.util Date])))
 
+(require '[com.widdindustries.tempo] :reload-all)
+
  (t/extend-all-cljs-protocols)
 ;
 (deftest construction-from-parts-test
@@ -12,6 +14,7 @@
           micros 456
           millis 123]
       ;todo
+      
       
       )
     )
@@ -129,10 +132,10 @@
         (testing (str "shift until" now " by " shiftable-prop)
           (is (= 1 (t/until i-1 i-2 shiftable-prop)))
           (is (= -1 (t/until i-2 i-1 shiftable-prop))))))
-    (doseq [[now props ] combos
+    (doseq [[now props] combos
             withable-prop props]
       (let [i-1 (now)]
-        (is (not= i-1 (t/with i-1 1 withable-prop)))))))
+        (is (not= i-1 (t/with i-1 1 withable-prop)) (str i-1 " " withable-prop))))))
 
 
 ; clock tests
@@ -151,34 +154,33 @@
   (testing "adjusting date"
     ;todo
     )
-  (testing "adjusting time"
-    ;todo - instant
-    (doseq [[x hour minute second milli micro nano] [[(t/zdt-parse "2024-02-22T00:00:00Z[Europe/London]")
-                                                      t/zdt->hour
-                                                      t/zdt->minute
-                                                      t/zdt->second
-                                                      t/zdt->millisecond
-                                                      t/zdt->microsecond
-                                                      t/zdt->nanosecond]
-                                                     [(t/time-from {:hour 0})
-                                                      t/time->hour
-                                                      t/time->minute
-                                                      t/time->second
-                                                      t/time->millisecond
-                                                      t/time->microsecond
-                                                      t/time->nanosecond]
-                                                     [
-                                                      (-> (t/datetime-from {:year 1 :month 1 :day-of-month 1})
-                                                          ;(t/with 10 t/hours-property)
-                                                          )
-                                                      t/datetime->hour
-                                                      t/datetime->minute
-                                                      t/datetime->second
-                                                      t/datetime->millisecond
-                                                      t/datetime->microsecond
-                                                      t/datetime->nanosecond]]]
-      (let [
-            y (-> x
+  ;todo - instant
+  (doseq [[x hour minute second milli micro nano] [[(t/zdt-parse "2024-02-22T00:00:00Z[Europe/London]")
+                                                    t/zdt->hour
+                                                    t/zdt->minute
+                                                    t/zdt->second
+                                                    t/zdt->millisecond
+                                                    t/zdt->microsecond
+                                                    t/zdt->nanosecond]
+                                                   [(t/time-from {:hour 0})
+                                                    t/time->hour
+                                                    t/time->minute
+                                                    t/time->second
+                                                    t/time->millisecond
+                                                    t/time->microsecond
+                                                    t/time->nanosecond]
+                                                   [
+                                                    (-> (t/datetime-from {:year 1 :month 1 :day-of-month 1})
+                                                        ;(t/with 10 t/hours-property)
+                                                        )
+                                                    t/datetime->hour
+                                                    t/datetime->minute
+                                                    t/datetime->second
+                                                    t/datetime->millisecond
+                                                    t/datetime->microsecond
+                                                    t/datetime->nanosecond]]]
+    (testing (str "adjusting time " x)
+      (let [y (-> x
                   (t/with 10 t/hours-property)
                   (t/with 55 t/minutes-property)
                   (t/with 30 t/seconds-property)
@@ -190,7 +192,13 @@
         (is (= 30 (second y)))
         (is (= 123 (milli y)))
         (is (= 456 (micro y)))
-        (is (= 789 (nano y)))))))
+        (is (= 789 (nano y)))))
+    (testing (str "range errors on sub-second fields " x)
+      (doseq [prop [t/millis-property
+                    t/micros-property
+                    t/nanos-property]]
+        (is (thrown? #?(:clj Throwable :cljs js/Error) (-> x (t/with 1000 prop))) (str x " " prop))
+        (is (thrown? #?(:clj Throwable :cljs js/Error) (-> x (t/with -1 prop))))))))
 
 
 

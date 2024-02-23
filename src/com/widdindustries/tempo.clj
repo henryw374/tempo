@@ -27,7 +27,8 @@
    TemporalAmount
    TemporalUnit
    ChronoUnit
-   ChronoField]
+   ChronoField
+   ValueRange]
   [java.util Date]))
 
 (set! *warn-on-reflection* true)
@@ -80,7 +81,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__70972# p2__70973#] (greater p1__70972# p2__70973#))
+  (fn* [p1__75887# p2__75888#] (greater p1__75887# p2__75888#))
   arg
   args))
 
@@ -92,7 +93,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__70974# p2__70975#] (lesser p1__70974# p2__70975#))
+  (fn* [p1__75889# p2__75890#] (lesser p1__75889# p2__75890#))
   arg
   args))
 
@@ -173,6 +174,8 @@
  (getFractional [x] (.getNano x))
  (setFractional [x ^long t] (.with x ChronoField/NANO_OF_SECOND t)))
 
+(def ^ValueRange sub-second-range (ValueRange/of 0 999))
+
 (def
  nanos-property
  (reify
@@ -184,6 +187,7 @@
     java.time.temporal.TemporalField
     (adjustInto
      [_ temporal value]
+     (.checkValidValue sub-second-range value nil)
      (let
       [fractional
        (getFractional temporal)
@@ -204,6 +208,7 @@
     java.time.temporal.TemporalField
     (adjustInto
      [_ temporal value]
+     (.checkValidValue sub-second-range value nil)
      (let
       [fractional
        (getFractional temporal)
@@ -226,6 +231,7 @@
     java.time.temporal.TemporalField
     (adjustInto
      [_ temporal value]
+     (.checkValidValue sub-second-range value nil)
      (let
       [fractional
        (getFractional temporal)

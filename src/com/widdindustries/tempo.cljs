@@ -56,7 +56,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__70976# p2__70977#] (greater p1__70976# p2__70977#))
+  (fn* [p1__75891# p2__75892#] (greater p1__75891# p2__75892#))
   arg
   args))
 
@@ -68,7 +68,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__70978# p2__70979#] (lesser p1__70978# p2__70979#))
+  (fn* [p1__75893# p2__75894#] (lesser p1__75893# p2__75894#))
   arg
   args))
 
@@ -148,6 +148,8 @@
  Instant
  (getFractional [x] (.getNano x))
  (setFractional [x ^long t] (.with x ChronoField/NANO_OF_SECOND t)))
+
+(def sub-second-range (ValueRange/of 0 999))
 
 (def
  nanos-property
@@ -269,7 +271,10 @@
 (defn
  with
  [temporal value property]
- (.with ^js temporal (js-obj (field property) value)))
+ (.with
+  ^js temporal
+  (js-obj (field property) value)
+  #js {"overflow" "reject"}))
 
 (defn
  until
