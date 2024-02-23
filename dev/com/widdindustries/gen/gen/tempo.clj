@@ -54,6 +54,8 @@
       (accessors/parse-tests)
       ['(comment "nowers")]
       (accessors/now-tests )
+      ['(comment "accessors")]
+      (accessors/accessor-tests )
 
       )))
 

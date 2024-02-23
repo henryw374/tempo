@@ -21,6 +21,10 @@
   #?(:cljs
      (cljs-protocols/extend-all)))
 
+(defn legacydate? [v]
+  #?(:cljs (instance? js/Date v)
+     :cljay (instance? java.util.Date v)
+     ))
 (defn period? [v] #?(:cljs (instance? entities/duration v)
                      :cljay (instance? Period v)
                      ))
@@ -63,6 +67,10 @@
 (defn clock-offset-millis [clock offset-millis]
   #?(:cljay (Clock/offset clock (Duration/ofMillis offset-millis))
      :cljs (clock/offset-clock-millis clock offset-millis)))
+
+(defn legacydate->instant [d]
+  #?(:cljay (.toInstant ^java.util.Date d)
+     :cljs (.toTemporalInstant d)))
 
 (defn greater [x y]
   (if (neg? (compare x y)) y x))
@@ -150,7 +158,7 @@
 
 (def ^ValueRange sub-second-range (ValueRange/of 0 999))
 
-(def nanos-property #?(:cljay (reify Property (unit [_] ChronoUnit/NANOS)
+(def nanoseconds-property #?(:cljay (reify Property (unit [_] ChronoUnit/NANOS)
                                 (field [_] (reify java.time.temporal.TemporalField
                                              (adjustInto [_ temporal value]
                                                (.checkValidValue sub-second-range value nil)
@@ -165,7 +173,7 @@
                                    (unit-amount [_] "nanoseconds") 
                                    (unit-field [_] "nanosecond") 
                                    (unit-accessor [_ ^js x] (.-nanos x)))))))
-(def micros-property #?(:cljay (reify Property (unit [_] ChronoUnit/MICROS)
+(def microseconds-property #?(:cljay (reify Property (unit [_] ChronoUnit/MICROS)
                                  (field [_] (reify java.time.temporal.TemporalField
                                               (adjustInto [_ temporal value]
                                                 (.checkValidValue sub-second-range value nil)
@@ -175,7 +183,7 @@
                                                       new-fractional (+ millis nanos (-> value (* 1000)))]
                                                   (-> temporal (setFractional new-fractional)))))))
                         :cljs (reify Property (field [_] "microsecond") (unit [_] (reify Unit (unit-amount [_] "microseconds") (unit-field [_] "microsecond") (unit-accessor [_ ^js x] (.-micros x)))))))
-(def millis-property #?(:cljay (reify Property (unit [_] ChronoUnit/MILLIS)
+(def milliseconds-property #?(:cljay (reify Property (unit [_] ChronoUnit/MILLIS)
                                  (field [_] (reify java.time.temporal.TemporalField
                                               (adjustInto [_ temporal value]
                                                 (.checkValidValue sub-second-range value nil)

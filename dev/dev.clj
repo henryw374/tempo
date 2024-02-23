@@ -52,7 +52,10 @@
   (test-watch)
   
   (refresh/clear)
-  (gen/gen-after)
+  (do
+    (require '[com.widdindustries.gen.gen.tempo] :reload)
+    (require '[com.widdindustries.gen.gen.accessors] :reload)
+    (gen/gen-after))
   (gen/generate-all nil)
   (run-clj-tests nil)
   ; start a cljs repl session in the test build. :cljs/quit to exit

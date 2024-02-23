@@ -166,8 +166,6 @@
        (keep (fn [path]
                (case feature
                  :cljay (java-accessor feature path)
-                 :cljc (cljc-accessor feature path)
-                 ;todo
                  :cljs (temporal-accessor feature path))
                ))))
 
@@ -221,8 +219,8 @@
         (deftest ~(symbol fn-name)
           (let [now-now (~(symbol (str "t/" (:tempo subject) "-now")))]
             (is (~(symbol (str "t/" (:tempo subject) "?")) now-now)))
-          (let [clock-1 (t/clock-fixed (t/instant-parse "1955-11-01T16:46:08.017143Z") (t/timezone-system-default))
-                clock-2 (t/clock-fixed (t/instant-parse "1955-12-02T17:46:08.017143Z") (t/timezone-system-default))
+          (let [clock-1 (t/clock-fixed (t/instant-parse "1955-11-01T16:46:08.017143Z") (str (t/timezone-system-default)))
+                clock-2 (t/clock-fixed (t/instant-parse "1955-12-02T17:46:08.017143Z") (str (t/timezone-system-default)))
                 now-clock-1 (~(symbol (str "t/" (:tempo subject) "-now")) clock-1)
                 now-clock-2 (~(symbol (str "t/" (:tempo subject) "-now")) clock-2)
                 ]
@@ -235,8 +233,46 @@
        (keep (fn [thing]
                (now-test thing)))))
 
+(defn accessor-test [path]
+  (let [subject (:tempo (first path))
+        target (last path)
+        target-name (:tempo target)
+        ;_ (when-not (get target :return) (sc.api/spy)) ;(sc.api/defsc [1 -1]) 
+        ;_ (comment (eval `(sc.api/defsc ~(sc.api/last-ep-id))))
+        fn-name (symbol (str (name subject) "->" (name target-name)))
+        pred (or (get target :return)
+               (symbol (str "t/" (name target-name) "?")))
+        prop (symbol (str "t/" (name target-name) "s-property"))
+        ]
+    (when-not (:ignore-accessor target)
+      ;(println (get target :return))
+      (backtick/template
+        (deftest ~(symbol fn-name)
+          (let [now-now (~(symbol (str "t/" subject "-now")))]
+            (is (~pred (~(symbol (str "t/" fn-name)) now-now)))
+            ~(when (and 
+                     (and (not= 'monthday subject) (not= 'month target-name))
+                     (not (contains? #{'day-of-week 'date 'day-of-month 'instant 'datetime 'time 'timezone_id 'legacydate
+                                          'epochmilli}
+                               target-name)))
+               (list 'is (list '= 'now-now (list 't/with 'now-now (list (symbol (str "t/" fn-name)) 'now-now) prop))))
+            ))))))
+
+(defn accessor-tests []
+  (->> full-paths
+       distinct
+       (keep (fn [thing]
+               (accessor-test thing)))))
 
 (comment
+  (->>
+    full-paths
+    distinct
+    (filter #(not= 'day-of-week (-> % last :tempo)))
+    ;(drop 2)
+    (map accessor-test)
+    (take 1)
+    )
 
   (binding [*print-meta* true]
     (pr (java-accessor [:zdt :date])))

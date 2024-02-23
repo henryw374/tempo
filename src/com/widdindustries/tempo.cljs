@@ -10,6 +10,8 @@
 
 (defn extend-all-cljs-protocols [] (cljs-protocols/extend-all))
 
+(defn legacydate? [v] (instance? js/Date v))
+
 (defn period? [v] (instance? entities/duration v))
 
 (defn duration? [v] (instance? entities/duration v))
@@ -48,6 +50,8 @@
  [clock offset-millis]
  (clock/offset-clock-millis clock offset-millis))
 
+(defn legacydate->instant [d] (.toTemporalInstant d))
+
 (defn greater [x y] (if (neg? (compare x y)) y x))
 
 (defn
@@ -56,7 +60,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__75891# p2__75892#] (greater p1__75891# p2__75892#))
+  (fn* [p1__115979# p2__115980#] (greater p1__115979# p2__115980#))
   arg
   args))
 
@@ -68,7 +72,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__75893# p2__75894#] (lesser p1__75893# p2__75894#))
+  (fn* [p1__115981# p2__115982#] (lesser p1__115981# p2__115982#))
   arg
   args))
 
@@ -149,10 +153,10 @@
  (getFractional [x] (.getNano x))
  (setFractional [x ^long t] (.with x ChronoField/NANO_OF_SECOND t)))
 
-(def sub-second-range (ValueRange/of 0 999))
+(def ^ValueRange sub-second-range (ValueRange/of 0 999))
 
 (def
- nanos-property
+ nanoseconds-property
  (reify
   Property
   (field [_] "nanosecond")
@@ -165,7 +169,7 @@
     (unit-accessor [_ ^js x] (.-nanos x))))))
 
 (def
- micros-property
+ microseconds-property
  (reify
   Property
   (field [_] "microsecond")
@@ -178,7 +182,7 @@
     (unit-accessor [_ ^js x] (.-micros x))))))
 
 (def
- millis-property
+ milliseconds-property
  (reify
   Property
   (field [_] "millisecond")
@@ -344,129 +348,7 @@
 
 ^{:line 31, :column 9} (comment "accessors")
 
-(defn
- datetime->second
- [^js/Temporal.PlainDateTime foo]
- (-> foo .-second))
-
-(defn zdt->date [^js/Temporal.ZonedDateTime foo] (-> foo .toPlainDate))
-
-(defn datetime->year [^js/Temporal.PlainDateTime foo] (-> foo .-year))
-
-(defn datetime->month [^js/Temporal.PlainDateTime foo] (-> foo .-month))
-
-(defn
- time->millisecond
- [^js/Temporal.PlainTime foo]
- (-> foo .-millisecond))
-
 (defn zdt->year [^js/Temporal.ZonedDateTime foo] (-> foo .-year))
-
-(defn
- zdt->timezone_id
- [^js/Temporal.ZonedDateTime foo]
- (-> foo .-timeZoneId))
-
-(defn datetime->hour [^js/Temporal.PlainDateTime foo] (-> foo .-hour))
-
-(defn
- zdt->nanosecond
- [^js/Temporal.ZonedDateTime foo]
- (-> foo .-nanosecond))
-
-(defn date->year [^js/Temporal.PlainDate foo] (-> foo .-year))
-
-(defn date->day-of-month [^js/Temporal.PlainDate foo] (-> foo .-day))
-
-(defn date->month [^js/Temporal.PlainDate foo] (-> foo .-month))
-
-(defn zdt->hour [^js/Temporal.ZonedDateTime foo] (-> foo .-hour))
-
-(defn zdt->instant [^js/Temporal.ZonedDateTime foo] (-> foo .toInstant))
-
-(defn
- zdt->day-of-week
- [^js/Temporal.ZonedDateTime foo]
- (-> foo .-dayOfWeek))
-
-(defn
- time->nanosecond
- [^js/Temporal.PlainTime foo]
- (-> foo .-nanosecond))
-
-(defn zdt->minute [^js/Temporal.ZonedDateTime foo] (-> foo .-minute))
-
-(defn
- datetime->day-of-month
- [^js/Temporal.PlainDateTime foo]
- (-> foo .-day))
-
-(defn
- datetime->date
- [^js/Temporal.PlainDateTime foo]
- (-> foo .toPlainDate))
-
-(defn
- datetime->nanosecond
- [^js/Temporal.PlainDateTime foo]
- (-> foo .-nanosecond))
-
-(defn zdt->second [^js/Temporal.ZonedDateTime foo] (-> foo .-second))
-
-(defn zdt->month [^js/Temporal.ZonedDateTime foo] (-> foo .-month))
-
-(defn yearmonth->year [^js/Temporal.PlainYearMonth foo] (-> foo .-year))
-
-(defn
- zdt->millisecond
- [^js/Temporal.ZonedDateTime foo]
- (-> foo .-millisecond))
-
-(defn
- instant->epochmilli
- [^js/Temporal.Instant foo]
- (-> foo .-epochmilli))
-
-(defn monthday->month [^js/Temporal.PlainMonthDay foo] (-> foo .-month))
-
-(defn time->second [^js/Temporal.PlainTime foo] (-> foo .-second))
-
-(defn
- time->microsecond
- [^js/Temporal.PlainTime foo]
- (-> foo .-microsecond))
-
-(defn
- date->day-of-week
- [^js/Temporal.PlainDate foo]
- (-> foo .-dayOfWeek))
-
-(defn
- zdt->datetime
- [^js/Temporal.ZonedDateTime foo]
- (-> foo .toPlainDateTime))
-
-(defn
- datetime->microsecond
- [^js/Temporal.PlainDateTime foo]
- (-> foo .-microsecond))
-
-(defn
- yearmonth->month
- [^js/Temporal.PlainYearMonth foo]
- (-> foo .-month))
-
-(defn zdt->time [^js/Temporal.ZonedDateTime foo] (-> foo .toPlainTime))
-
-(defn
- datetime->minute
- [^js/Temporal.PlainDateTime foo]
- (-> foo .-minute))
-
-(defn
- instant->legacydate
- [^js/Temporal.Instant foo]
- (-> foo .-legacydate))
 
 (defn
  datetime->day-of-week
@@ -474,25 +356,147 @@
  (-> foo .-dayOfWeek))
 
 (defn
- datetime->millisecond
- [^js/Temporal.PlainDateTime foo]
+ zdt->millisecond
+ [^js/Temporal.ZonedDateTime foo]
  (-> foo .-millisecond))
 
-(defn zdt->day-of-month [^js/Temporal.ZonedDateTime foo] (-> foo .-day))
+(defn
+ datetime->second
+ [^js/Temporal.PlainDateTime foo]
+ (-> foo .-second))
 
-(defn time->minute [^js/Temporal.PlainTime foo] (-> foo .-minute))
-
-(defn time->hour [^js/Temporal.PlainTime foo] (-> foo .-hour))
+(defn zdt->date [^js/Temporal.ZonedDateTime foo] (-> foo .toPlainDate))
 
 (defn
  zdt->microsecond
  [^js/Temporal.ZonedDateTime foo]
  (-> foo .-microsecond))
 
+(defn date->month [^js/Temporal.PlainDate foo] (-> foo .-month))
+
+(defn
+ datetime->millisecond
+ [^js/Temporal.PlainDateTime foo]
+ (-> foo .-millisecond))
+
+(defn date->year [^js/Temporal.PlainDate foo] (-> foo .-year))
+
+(defn zdt->month [^js/Temporal.ZonedDateTime foo] (-> foo .-month))
+
+(defn zdt->day-of-month [^js/Temporal.ZonedDateTime foo] (-> foo .-day))
+
+(defn
+ time->nanosecond
+ [^js/Temporal.PlainTime foo]
+ (-> foo .-nanosecond))
+
+(defn
+ datetime->microsecond
+ [^js/Temporal.PlainDateTime foo]
+ (-> foo .-microsecond))
+
+(defn zdt->second [^js/Temporal.ZonedDateTime foo] (-> foo .-second))
+
+(defn
+ datetime->minute
+ [^js/Temporal.PlainDateTime foo]
+ (-> foo .-minute))
+
+(defn
+ zdt->nanosecond
+ [^js/Temporal.ZonedDateTime foo]
+ (-> foo .-nanosecond))
+
+(defn zdt->hour [^js/Temporal.ZonedDateTime foo] (-> foo .-hour))
+
+(defn
+ time->millisecond
+ [^js/Temporal.PlainTime foo]
+ (-> foo .-millisecond))
+
+(defn zdt->instant [^js/Temporal.ZonedDateTime foo] (-> foo .toInstant))
+
+(defn datetime->month [^js/Temporal.PlainDateTime foo] (-> foo .-month))
+
+(defn
+ datetime->day-of-month
+ [^js/Temporal.PlainDateTime foo]
+ (-> foo .-day))
+
+(defn
+ time->microsecond
+ [^js/Temporal.PlainTime foo]
+ (-> foo .-microsecond))
+
+(defn
+ datetime->date
+ [^js/Temporal.PlainDateTime foo]
+ (-> foo .toPlainDate))
+
+(defn
+ zdt->day-of-week
+ [^js/Temporal.ZonedDateTime foo]
+ (-> foo .-dayOfWeek))
+
+(defn time->second [^js/Temporal.PlainTime foo] (-> foo .-second))
+
+(defn yearmonth->year [^js/Temporal.PlainYearMonth foo] (-> foo .-year))
+
+(defn datetime->year [^js/Temporal.PlainDateTime foo] (-> foo .-year))
+
 (defn
  monthday->day-of-month
  [^js/Temporal.PlainMonthDay foo]
  (-> foo .-day))
+
+(defn
+ yearmonth->month
+ [^js/Temporal.PlainYearMonth foo]
+ (-> foo .-month))
+
+(defn
+ datetime->nanosecond
+ [^js/Temporal.PlainDateTime foo]
+ (-> foo .-nanosecond))
+
+(defn datetime->hour [^js/Temporal.PlainDateTime foo] (-> foo .-hour))
+
+(defn date->day-of-month [^js/Temporal.PlainDate foo] (-> foo .-day))
+
+(defn
+ zdt->datetime
+ [^js/Temporal.ZonedDateTime foo]
+ (-> foo .toPlainDateTime))
+
+(defn time->minute [^js/Temporal.PlainTime foo] (-> foo .-minute))
+
+(defn time->hour [^js/Temporal.PlainTime foo] (-> foo .-hour))
+
+(defn zdt->time [^js/Temporal.ZonedDateTime foo] (-> foo .toPlainTime))
+
+(defn
+ zdt->timezone_id
+ [^js/Temporal.ZonedDateTime foo]
+ (-> foo .-timeZoneId))
+
+(defn monthday->month [^js/Temporal.PlainMonthDay foo] (-> foo .-month))
+
+(defn
+ date->day-of-week
+ [^js/Temporal.PlainDate foo]
+ (-> foo .-dayOfWeek))
+
+(defn zdt->minute [^js/Temporal.ZonedDateTime foo] (-> foo .-minute))
+
+(defn
+ instant->legacydate
+ [^js/Temporal.Instant foo]
+ (-> foo (-> (.-epochMilliseconds) (Date.))))
+
+(defn
+ instant->epochmilli
+ [^js/Temporal.Instant foo]
+ (-> foo .-epochmilli))
 
 (defn
  datetime->time
@@ -522,36 +526,26 @@
  (js/Temporal.PlainDateTime.from foo))
 
 (defn
- time-parse
- [^java.lang.String foo]
- (js/Temporal.PlainTime.from foo))
-
-(defn
  date-parse
  [^java.lang.String foo]
  (js/Temporal.PlainDate.from foo))
 
 (defn
- yearmonth-parse
+ time-parse
  [^java.lang.String foo]
- (js/Temporal.PlainYearMonth.from foo))
+ (js/Temporal.PlainTime.from foo))
 
 (defn
  monthday-parse
  [^java.lang.String foo]
  (js/Temporal.PlainMonthDay.from foo))
 
+(defn
+ yearmonth-parse
+ [^java.lang.String foo]
+ (js/Temporal.PlainYearMonth.from foo))
+
 ^{:line 35, :column 9} (comment "nowers")
-
-(defn
- datetime-now
- ([] (clock/datetime))
- ([^java.time.Clock clock] (clock/datetime clock)))
-
-(defn
- time-now
- ([] (clock/time))
- ([^java.time.Clock clock] (clock/time clock)))
 
 (defn
  zdt-now
@@ -559,9 +553,19 @@
  ([^java.time.Clock clock] (clock/zdt clock)))
 
 (defn
+ datetime-now
+ ([] (clock/datetime))
+ ([^java.time.Clock clock] (clock/datetime clock)))
+
+(defn
  date-now
  ([] (clock/date))
  ([^java.time.Clock clock] (clock/date clock)))
+
+(defn
+ time-now
+ ([] (clock/time))
+ ([^java.time.Clock clock] (clock/time clock)))
 
 (defn
  instant-now
@@ -569,14 +573,14 @@
  ([^java.time.Clock clock] (clock/instant clock)))
 
 (defn
- yearmonth-now
- ([] (clock/yearmonth))
- ([^java.time.Clock clock] (clock/yearmonth clock)))
-
-(defn
  monthday-now
  ([] (clock/monthday))
  ([^java.time.Clock clock] (clock/monthday clock)))
+
+(defn
+ yearmonth-now
+ ([] (clock/yearmonth))
+ ([^java.time.Clock clock] (clock/yearmonth clock)))
 
 ^{:line 37, :column 9} (comment "constructors")
 

@@ -47,14 +47,17 @@
 
 (def epochmilli
   {:tempo 'epochmilli
+   :return 'int?
    :cljay {:accessor 'toEpochMilli}})
 
 (def epochnano
   {:ignore-accessor true ; its not in java
+   :return 'int?
    :tempo 'epochnano})
 
 (def timezone_id
   {:no-now true
+   :return 'string?
    :cljay  {
             ;:accessor 'getZone
             :xform-fn '(-> (.getZone) (.getId))}
@@ -77,6 +80,7 @@
 
 (def month
   {:tempo 'month
+   :return 'int?
    :cljay {:accessor 'getMonthValue}})
 
 (def monthday
@@ -90,6 +94,7 @@
 
 (def day-of-week
   {:tempo    'day-of-week
+   :return 'int?
    :get-only true
    ;:ignore-accessor true
    :cljay    {;:ignore true 
@@ -106,7 +111,10 @@
                       {epochmilli   {}
                        epochnano    {}
                        {:tempo 'legacydate
-                        :accessor 'getZone} {}}}
+                        :cljay    {:xform-fn '(-> (.toEpochMilli) (java.util.Date.))}
+                        :cljs     {
+                                   :xform-fn '(-> (.-epochMilliseconds) (Date.))
+                                   }} {}}}
    {:tempo 'zdt
     ;todo - https://tc39.es/proposal-temporal/docs/zoneddatetime.html#startOfDay
     ;hours-in-day
@@ -123,28 +131,38 @@
                                  {{:tempo 'date}
                                   {:branches
                                    [{:parts
-                                     {yearmonth {:parts {{:tempo 'year} {}
+                                     {yearmonth {:parts {{:tempo 'year
+                                                          :return 'int?} {}
                                                          month          {}}}}}
                                     {:parts
                                      {monthday {:parts {month                      {}
                                                         {:tempo 'day-of-month
+                                                         :return 'int?
                                                          :cljs  {:accessor '-day}} {}}}}}
                                     {:parts
-                                     {{:tempo 'year}             {}
+                                     {{:tempo 'year
+                                       :return 'int?}             {}
                                       month                      {}
                                       {:tempo 'day-of-month
+                                       :return 'int?
                                        :cljs  {:accessor '-day}} {}}}
                                     {:parts
                                      {day-of-week {}}}]
                                    }
-                                  {:tempo 'time} {:parts {{:tempo 'hour}   {}
-                                                          {:tempo 'minute} {}
-                                                          {:tempo 'second} {}
+                                  {:tempo 'time} {:parts {{:tempo 'hour
+                                                           :return 'int?}   {}
+                                                          {:tempo 'minute
+                                                           :return 'int?} {}
+                                                          {:tempo 'second
+                                                           :return 'int?} {}
                                                           {:tempo 'millisecond
+                                                           :return 'int?
                                                            :cljay  {:xform-fn '(-> (.getNano) (Duration/ofNanos) (.toMillisPart))}} {}
                                                           {:tempo 'microsecond
+                                                           :return 'int?
                                                            :cljay  {:xform-fn '(-> (.getNano) (/ 1000) long (mod 1000))}} {}
                                                           {:tempo 'nanosecond
+                                                           :return 'int?
                                                            :cljay  {:xform-fn '(-> (.getNano) (mod 1000))}}   {}}}}}}}]}})
 
 (def with-paths (paths graph))

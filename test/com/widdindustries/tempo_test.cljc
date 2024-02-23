@@ -108,16 +108,18 @@
   (let [a-date (t/date-now)
         period (d/period-parse "P3D")
         plus3 (t/>> a-date period)]
-    (is (= a-date (t/<< plus3 period)))))
+    (is (= a-date (t/<< plus3 period)))
+    ;todo - also compare  >=, > etc not=, hash not=
+    ))
 
 (deftest prop-test
-  (let [combos [[t/instant-now [t/nanos-property t/micros-property t/millis-property
+  (let [combos [[t/instant-now [t/nanoseconds-property t/microseconds-property t/milliseconds-property
                                 ; not days - mistakenly assumed to be 24hr in java.time
                                 ] [t/seconds-property t/hours-property]]
-                [t/zdt-now [t/nanos-property t/micros-property t/millis-property
+                [t/zdt-now [t/nanoseconds-property t/microseconds-property t/milliseconds-property
                             t/seconds-property t/hours-property
                             t/days-property t/months-property t/years-property]]
-                [t/datetime-now [t/nanos-property t/micros-property t/millis-property
+                [t/datetime-now [t/nanoseconds-property t/microseconds-property t/milliseconds-property
                                  t/seconds-property t/hours-property
                                  t/days-property t/months-property t/years-property]]
                 [t/date-now [t/days-property t/months-property t/years-property]]
@@ -184,9 +186,9 @@
                   (t/with 10 t/hours-property)
                   (t/with 55 t/minutes-property)
                   (t/with 30 t/seconds-property)
-                  (t/with 123 t/millis-property)
-                  (t/with 456 t/micros-property)
-                  (t/with 789 t/nanos-property))]
+                  (t/with 123 t/milliseconds-property)
+                  (t/with 456 t/microseconds-property)
+                  (t/with 789 t/nanoseconds-property))]
         (is (= 10 (hour y)))
         (is (= 55 (minute y)))
         (is (= 30 (second y)))
@@ -194,13 +196,16 @@
         (is (= 456 (micro y)))
         (is (= 789 (nano y)))))
     (testing (str "range errors on sub-second fields " x)
-      (doseq [prop [t/millis-property
-                    t/micros-property
-                    t/nanos-property]]
+      (doseq [prop [t/milliseconds-property
+                    t/microseconds-property
+                    t/nanoseconds-property]]
         (is (thrown? #?(:clj Throwable :cljs js/Error) (-> x (t/with 1000 prop))) (str x " " prop))
         (is (thrown? #?(:clj Throwable :cljs js/Error) (-> x (t/with -1 prop))))))))
 
-
+(deftest round-trip-legacy
+  (let [i (t/instant-parse "2020-02-02T00:00:00Z")]
+    (is (= i
+          (-> i (t/instant->legacydate) (t/legacydate->instant))))))
 
 
 t/max
