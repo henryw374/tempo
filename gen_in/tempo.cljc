@@ -51,21 +51,14 @@
 (defn zdt? [v] #?(:cljay (instance? ZonedDateTime v)
                   :cljs (instance? entities/zdt v)))
 
-;;; manipulating temporal objects
-
-(defn timezone-system-default []
-  #?(:cljay (ZoneId/systemDefault)
-     :cljs (clock/timezone)))
-
-(defn timezone-now
-  ([] (timezone-system-default))
-  ([clock] #?(:cljay (.getZone ^Clock clock)
-              :cljs (clock/timezone clock))))
-
 ;; construction of clocks
 (defn clock-fixed [instant ^String zone-str]
   #?(:cljay (Clock/fixed ^Instant instant (ZoneId/of zone-str))
-     :cljs (clock/fixed-clock instant zone-str)))
+     :cljs (clock/clock (constantly instant) zone-str)))
+
+(defn clock-with-zone [^String timezone_id]
+  #?(:cljay (Clock/system (ZoneId/of timezone_id))
+     :cljs (clock/clock js/Temporal.Now.instant timezone_id)))
 
 (defn clock-system-default-zone
   "a ticking clock having the ambient zone. "
@@ -75,7 +68,13 @@
 
 (defn clock-offset-millis [clock offset-millis]
   #?(:cljay (Clock/offset clock (Duration/ofMillis offset-millis))
-     :cljs (clock/offset-clock-millis clock offset-millis)))
+     :cljs (clock/clock
+             (fn [] (.add (.instant clock) (js-obj "milliseconds" offset-millis)))
+             (clock/timezone clock))))
+
+(defn timezone-now
+  ([clock] #?(:cljay (.getZone ^Clock clock)
+              :cljs (clock/timezone clock))))
 
 (defn legacydate->instant [d]
   #?(:cljay (.toInstant ^java.util.Date d)
@@ -332,12 +331,13 @@
 (defn with [temporal value property]
   (assert-set-months-or-years temporal property)
   #?(:cljay (.with ^Temporal temporal ^TemporalField (field property) ^long value)
-     :cljs (.with ^js temporal (js-obj (field property) value) #js{"overflow" "reject"})))
+     :cljs (.with ^js temporal (js-obj (field property) value) (js-obj "overflow" "reject"))))
 
 (defn until [v1 v2 property]
   #?(:cljay (.until ^Temporal v1 v2 (unit property))
      ;https://tc39.es/proposal-temporal/docs/instant.html#until
-     :cljs (-> (.until ^js v1 ^js v2 #js{:smallestUnit (unit-field (unit property)) :largestUnit (unit-field (unit property))})
+     :cljs (-> (.until ^js v1 ^js v2 (js-obj "smallestUnit" (unit-field (unit property))
+                                       "largestUnit" (unit-field (unit property))))
                (unit-accessor (unit property)))))
 
 (defn >>

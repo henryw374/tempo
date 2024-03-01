@@ -63,11 +63,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (str (t/timezone-system-default)))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (str (t/timezone-system-default)))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    now-clock-1
    (t/zdt-now clock-1)
    now-clock-2
@@ -84,11 +84,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (str (t/timezone-system-default)))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (str (t/timezone-system-default)))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    now-clock-1
    (t/datetime-now clock-1)
    now-clock-2
@@ -105,11 +105,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (str (t/timezone-system-default)))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (str (t/timezone-system-default)))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    now-clock-1
    (t/date-now clock-1)
    now-clock-2
@@ -126,11 +126,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (str (t/timezone-system-default)))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (str (t/timezone-system-default)))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    now-clock-1
    (t/time-now clock-1)
    now-clock-2
@@ -147,11 +147,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (str (t/timezone-system-default)))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (str (t/timezone-system-default)))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    now-clock-1
    (t/instant-now clock-1)
    now-clock-2
@@ -168,11 +168,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (str (t/timezone-system-default)))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (str (t/timezone-system-default)))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    now-clock-1
    (t/monthday-now clock-1)
    now-clock-2
@@ -189,11 +189,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (str (t/timezone-system-default)))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (str (t/timezone-system-default)))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    now-clock-1
    (t/yearmonth-now clock-1)
    now-clock-2
@@ -221,17 +221,17 @@
   nil))
 
 (deftest
- zdt->millisecond
+ datetime->microsecond
  (let
-  [now-now (t/zdt-now (t/clock-system-default-zone))]
-  (is (int? (t/zdt->millisecond now-now)))
+  [now-now (t/datetime-now (t/clock-system-default-zone))]
+  (is (int? (t/datetime->microsecond now-now)))
   (is
    (=
     now-now
     (t/with
      now-now
-     (t/zdt->millisecond now-now)
-     t/milliseconds-property)))))
+     (t/datetime->microsecond now-now)
+     t/microseconds-property)))))
 
 (deftest
  datetime->second
@@ -251,19 +251,6 @@
   nil))
 
 (deftest
- zdt->microsecond
- (let
-  [now-now (t/zdt-now (t/clock-system-default-zone))]
-  (is (int? (t/zdt->microsecond now-now)))
-  (is
-   (=
-    now-now
-    (t/with
-     now-now
-     (t/zdt->microsecond now-now)
-     t/microseconds-property)))))
-
-(deftest
  date->month
  (let
   [now-now (t/date-now (t/clock-system-default-zone))]
@@ -271,67 +258,44 @@
   nil))
 
 (deftest
- datetime->millisecond
+ datetime->day-of-month
  (let
   [now-now (t/datetime-now (t/clock-system-default-zone))]
-  (is (int? (t/datetime->millisecond now-now)))
+  (is (int? (t/datetime->day-of-month now-now)))
+  nil))
+
+(deftest
+ monthday->month
+ (let
+  [now-now (t/monthday-now (t/clock-system-default-zone))]
+  (is (int? (t/monthday->month now-now)))
+  nil))
+
+(deftest
+ zdt->millisecond
+ (let
+  [now-now (t/zdt-now (t/clock-system-default-zone))]
+  (is (int? (t/zdt->millisecond now-now)))
   (is
    (=
     now-now
     (t/with
      now-now
-     (t/datetime->millisecond now-now)
+     (t/zdt->millisecond now-now)
      t/milliseconds-property)))))
 
 (deftest
- date->year
- (let
-  [now-now (t/date-now (t/clock-system-default-zone))]
-  (is (int? (t/date->year now-now)))
-  (is
-   (=
-    now-now
-    (t/with now-now (t/date->year now-now) t/years-property)))))
-
-(deftest
- zdt->month
+ zdt->nanosecond
  (let
   [now-now (t/zdt-now (t/clock-system-default-zone))]
-  (is (int? (t/zdt->month now-now)))
-  nil))
-
-(deftest
- zdt->day-of-month
- (let
-  [now-now (t/zdt-now (t/clock-system-default-zone))]
-  (is (int? (t/zdt->day-of-month now-now)))
-  nil))
-
-(deftest
- time->nanosecond
- (let
-  [now-now (t/time-now (t/clock-system-default-zone))]
-  (is (int? (t/time->nanosecond now-now)))
+  (is (int? (t/zdt->nanosecond now-now)))
   (is
    (=
     now-now
     (t/with
      now-now
-     (t/time->nanosecond now-now)
+     (t/zdt->nanosecond now-now)
      t/nanoseconds-property)))))
-
-(deftest
- datetime->microsecond
- (let
-  [now-now (t/datetime-now (t/clock-system-default-zone))]
-  (is (int? (t/datetime->microsecond now-now)))
-  (is
-   (=
-    now-now
-    (t/with
-     now-now
-     (t/datetime->microsecond now-now)
-     t/microseconds-property)))))
 
 (deftest
  zdt->second
@@ -354,19 +318,6 @@
     (t/with now-now (t/datetime->minute now-now) t/minutes-property)))))
 
 (deftest
- zdt->nanosecond
- (let
-  [now-now (t/zdt-now (t/clock-system-default-zone))]
-  (is (int? (t/zdt->nanosecond now-now)))
-  (is
-   (=
-    now-now
-    (t/with
-     now-now
-     (t/zdt->nanosecond now-now)
-     t/nanoseconds-property)))))
-
-(deftest
  zdt->hour
  (let
   [now-now (t/zdt-now (t/clock-system-default-zone))]
@@ -375,19 +326,6 @@
    (=
     now-now
     (t/with now-now (t/zdt->hour now-now) t/hours-property)))))
-
-(deftest
- time->millisecond
- (let
-  [now-now (t/time-now (t/clock-system-default-zone))]
-  (is (int? (t/time->millisecond now-now)))
-  (is
-   (=
-    now-now
-    (t/with
-     now-now
-     (t/time->millisecond now-now)
-     t/milliseconds-property)))))
 
 (deftest
  zdt->instant
@@ -404,30 +342,47 @@
   nil))
 
 (deftest
- datetime->day-of-month
+ datetime->year
  (let
   [now-now (t/datetime-now (t/clock-system-default-zone))]
-  (is (int? (t/datetime->day-of-month now-now)))
-  nil))
-
-(deftest
- time->microsecond
- (let
-  [now-now (t/time-now (t/clock-system-default-zone))]
-  (is (int? (t/time->microsecond now-now)))
+  (is (int? (t/datetime->year now-now)))
   (is
    (=
     now-now
-    (t/with
-     now-now
-     (t/time->microsecond now-now)
-     t/microseconds-property)))))
+    (t/with now-now (t/datetime->year now-now) t/years-property)))))
 
 (deftest
  datetime->date
  (let
   [now-now (t/datetime-now (t/clock-system-default-zone))]
   (is (t/date? (t/datetime->date now-now)))
+  nil))
+
+(deftest
+ zdt->microsecond
+ (let
+  [now-now (t/zdt-now (t/clock-system-default-zone))]
+  (is (int? (t/zdt->microsecond now-now)))
+  (is
+   (=
+    now-now
+    (t/with
+     now-now
+     (t/zdt->microsecond now-now)
+     t/microseconds-property)))))
+
+(deftest
+ zdt->month
+ (let
+  [now-now (t/zdt-now (t/clock-system-default-zone))]
+  (is (int? (t/zdt->month now-now)))
+  nil))
+
+(deftest
+ zdt->day-of-month
+ (let
+  [now-now (t/zdt-now (t/clock-system-default-zone))]
+  (is (int? (t/zdt->day-of-month now-now)))
   nil))
 
 (deftest
@@ -448,37 +403,10 @@
     (t/with now-now (t/time->second now-now) t/seconds-property)))))
 
 (deftest
- yearmonth->year
+ date->day-of-month
  (let
-  [now-now (t/yearmonth-now (t/clock-system-default-zone))]
-  (is (int? (t/yearmonth->year now-now)))
-  (is
-   (=
-    now-now
-    (t/with now-now (t/yearmonth->year now-now) t/years-property)))))
-
-(deftest
- datetime->year
- (let
-  [now-now (t/datetime-now (t/clock-system-default-zone))]
-  (is (int? (t/datetime->year now-now)))
-  (is
-   (=
-    now-now
-    (t/with now-now (t/datetime->year now-now) t/years-property)))))
-
-(deftest
- monthday->day-of-month
- (let
-  [now-now (t/monthday-now (t/clock-system-default-zone))]
-  (is (int? (t/monthday->day-of-month now-now)))
-  nil))
-
-(deftest
- yearmonth->month
- (let
-  [now-now (t/yearmonth-now (t/clock-system-default-zone))]
-  (is (int? (t/yearmonth->month now-now)))
+  [now-now (t/date-now (t/clock-system-default-zone))]
+  (is (int? (t/date->day-of-month now-now)))
   nil))
 
 (deftest
@@ -505,18 +433,37 @@
     (t/with now-now (t/datetime->hour now-now) t/hours-property)))))
 
 (deftest
- date->day-of-month
- (let
-  [now-now (t/date-now (t/clock-system-default-zone))]
-  (is (int? (t/date->day-of-month now-now)))
-  nil))
-
-(deftest
  zdt->datetime
  (let
   [now-now (t/zdt-now (t/clock-system-default-zone))]
   (is (t/datetime? (t/zdt->datetime now-now)))
   nil))
+
+(deftest
+ time->microsecond
+ (let
+  [now-now (t/time-now (t/clock-system-default-zone))]
+  (is (int? (t/time->microsecond now-now)))
+  (is
+   (=
+    now-now
+    (t/with
+     now-now
+     (t/time->microsecond now-now)
+     t/microseconds-property)))))
+
+(deftest
+ time->nanosecond
+ (let
+  [now-now (t/time-now (t/clock-system-default-zone))]
+  (is (int? (t/time->nanosecond now-now)))
+  (is
+   (=
+    now-now
+    (t/with
+     now-now
+     (t/time->nanosecond now-now)
+     t/nanoseconds-property)))))
 
 (deftest
  time->minute
@@ -553,11 +500,14 @@
   nil))
 
 (deftest
- monthday->month
+ date->year
  (let
-  [now-now (t/monthday-now (t/clock-system-default-zone))]
-  (is (int? (t/monthday->month now-now)))
-  nil))
+  [now-now (t/date-now (t/clock-system-default-zone))]
+  (is (int? (t/date->year now-now)))
+  (is
+   (=
+    now-now
+    (t/with now-now (t/date->year now-now) t/years-property)))))
 
 (deftest
  date->day-of-week
@@ -577,6 +527,26 @@
     (t/with now-now (t/zdt->minute now-now) t/minutes-property)))))
 
 (deftest
+ monthday->day-of-month
+ (let
+  [now-now (t/monthday-now (t/clock-system-default-zone))]
+  (is (int? (t/monthday->day-of-month now-now)))
+  nil))
+
+(deftest
+ datetime->millisecond
+ (let
+  [now-now (t/datetime-now (t/clock-system-default-zone))]
+  (is (int? (t/datetime->millisecond now-now)))
+  (is
+   (=
+    now-now
+    (t/with
+     now-now
+     (t/datetime->millisecond now-now)
+     t/milliseconds-property)))))
+
+(deftest
  instant->legacydate
  (let
   [now-now (t/instant-now (t/clock-system-default-zone))]
@@ -589,6 +559,36 @@
   [now-now (t/instant-now (t/clock-system-default-zone))]
   (is (int? (t/instant->epochmilli now-now)))
   nil))
+
+(deftest
+ yearmonth->year
+ (let
+  [now-now (t/yearmonth-now (t/clock-system-default-zone))]
+  (is (int? (t/yearmonth->year now-now)))
+  (is
+   (=
+    now-now
+    (t/with now-now (t/yearmonth->year now-now) t/years-property)))))
+
+(deftest
+ yearmonth->month
+ (let
+  [now-now (t/yearmonth-now (t/clock-system-default-zone))]
+  (is (int? (t/yearmonth->month now-now)))
+  nil))
+
+(deftest
+ time->millisecond
+ (let
+  [now-now (t/time-now (t/clock-system-default-zone))]
+  (is (int? (t/time->millisecond now-now)))
+  (is
+   (=
+    now-now
+    (t/with
+     now-now
+     (t/time->millisecond now-now)
+     t/milliseconds-property)))))
 
 (deftest
  datetime->time

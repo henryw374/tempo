@@ -1,6 +1,5 @@
 (ns com.widdindustries.tempo.js-temporal-methods)
 
-
 (defn from [^js x thing]
   (.from x thing))
 

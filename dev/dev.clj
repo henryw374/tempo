@@ -1,6 +1,7 @@
 (ns dev
   (:require [clojure.java.io :as io]
             [com.widdindustries.tiado-cljs2 :as util]
+            [widdindustries.capture :as capt]
             [kaocha.repl :as kaocha]
             [babashka.fs :as fs]
             [clojure.tools.namespace.repl :as refresh]
@@ -52,10 +53,14 @@
   (test-watch)
   
   (refresh/clear)
-  (do
-    (require '[com.widdindustries.gen.gen.tempo] :reload)
-    (require '[com.widdindustries.gen.gen.accessors] :reload)
-    (gen/gen-after))
+  
+  (capt/capt
+    '(do
+      (require '[com.widdindustries.gen.gen.tempo] :reload)
+      (require '[com.widdindustries.gen.gen.accessors] :reload)
+      (gen/gen-after)))
+  
+  (capt/exec)
   (gen/generate-all nil)
   (run-clj-tests nil)
   ; start a cljs repl session in the test build. :cljs/quit to exit

@@ -1,6 +1,6 @@
 (ns com.widdindustries.gen.graph
   (:require [clojure.walk]
-            [com.widdindustries.tempo :as t]
+    ;[com.widdindustries.tempo :as t]
             [medley.core :as m])
   (:import (java.time ZonedDateTime MonthDay DayOfWeek YearMonth)))
 
@@ -158,13 +158,13 @@
                                                            :return 'int?}                                   {}
                                                           {:tempo  'millisecond
                                                            :return 'int?
-                                                           :cljay  {:xform-fn '(-> t-millisecond)}}         {}
+                                                           :cljay  {:xform-fn '(-> -millisecond)}}         {}
                                                           {:tempo  'microsecond
                                                            :return 'int?
-                                                           :cljay  {:xform-fn '(-> t/-microsecond)}}        {}
+                                                           :cljay  {:xform-fn '(-> -microsecond)}}        {}
                                                           {:tempo  'nanosecond
                                                            :return 'int?
-                                                           :cljay  {:xform-fn '(-> t/-nanosecond)}} {}}}}}}}]}})
+                                                           :cljay  {:xform-fn '(-> -nanosecond)}} {}}}}}}}]}})
 
 (def with-paths (paths graph))
 

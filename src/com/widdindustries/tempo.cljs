@@ -34,17 +34,15 @@
 
 (defn zdt? [v] (instance? entities/zdt v))
 
-(defn timezone-system-default [] (clock/timezone))
-
-(defn
- timezone-now
- ([] (timezone-system-default))
- ([clock] (clock/timezone clock)))
-
 (defn
  clock-fixed
  [instant ^String zone-str]
- (clock/fixed-clock instant zone-str))
+ (clock/clock (constantly instant) zone-str))
+
+(defn
+ clock-with-zone
+ [^String timezone_id]
+ (clock/clock js/Temporal.Now.instant timezone_id))
 
 (defn
  clock-system-default-zone
@@ -55,7 +53,11 @@
 (defn
  clock-offset-millis
  [clock offset-millis]
- (clock/offset-clock-millis clock offset-millis))
+ (clock/clock
+  (fn [] (.add (.instant clock) (js-obj "milliseconds" offset-millis)))
+  (clock/timezone clock)))
+
+(defn timezone-now ([clock] (clock/timezone clock)))
 
 (defn legacydate->instant [d] (.toTemporalInstant d))
 
@@ -67,7 +69,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__150644# p2__150645#] (greater p1__150644# p2__150645#))
+  (fn* [p1__36903# p2__36904#] (greater p1__36903# p2__36904#))
   arg
   args))
 
@@ -79,7 +81,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__150646# p2__150647#] (lesser p1__150646# p2__150647#))
+  (fn* [p1__36905# p2__36906#] (lesser p1__36905# p2__36906#))
   arg
   args))
 
@@ -369,7 +371,7 @@
  (.with
   ^js temporal
   (js-obj (field property) value)
-  #js {"overflow" "reject"}))
+  (js-obj "overflow" "reject")))
 
 (defn
  until
@@ -378,7 +380,11 @@
   (.until
    ^js v1
    ^js v2
-   #js {:smallestUnit (unit-field (unit property)), :largestUnit (unit-field (unit property))})
+   (js-obj
+    "smallestUnit"
+    (unit-field (unit property))
+    "largestUnit"
+    (unit-field (unit property))))
   (unit-accessor (unit property))))
 
 (defn
@@ -467,9 +473,9 @@
  (-> foo .-dayOfWeek))
 
 (defn
- zdt->millisecond
- [^js/Temporal.ZonedDateTime foo]
- (-> foo .-millisecond))
+ datetime->microsecond
+ [^js/Temporal.PlainDateTime foo]
+ (-> foo .-microsecond))
 
 (defn
  datetime->second
@@ -478,33 +484,24 @@
 
 (defn zdt->date [^js/Temporal.ZonedDateTime foo] (-> foo .toPlainDate))
 
-(defn
- zdt->microsecond
- [^js/Temporal.ZonedDateTime foo]
- (-> foo .-microsecond))
-
 (defn date->month [^js/Temporal.PlainDate foo] (-> foo .-month))
 
 (defn
- datetime->millisecond
+ datetime->day-of-month
  [^js/Temporal.PlainDateTime foo]
+ (-> foo .-day))
+
+(defn monthday->month [^js/Temporal.PlainMonthDay foo] (-> foo .-month))
+
+(defn
+ zdt->millisecond
+ [^js/Temporal.ZonedDateTime foo]
  (-> foo .-millisecond))
 
-(defn date->year [^js/Temporal.PlainDate foo] (-> foo .-year))
-
-(defn zdt->month [^js/Temporal.ZonedDateTime foo] (-> foo .-month))
-
-(defn zdt->day-of-month [^js/Temporal.ZonedDateTime foo] (-> foo .-day))
-
 (defn
- time->nanosecond
- [^js/Temporal.PlainTime foo]
+ zdt->nanosecond
+ [^js/Temporal.ZonedDateTime foo]
  (-> foo .-nanosecond))
-
-(defn
- datetime->microsecond
- [^js/Temporal.PlainDateTime foo]
- (-> foo .-microsecond))
 
 (defn zdt->second [^js/Temporal.ZonedDateTime foo] (-> foo .-second))
 
@@ -513,36 +510,27 @@
  [^js/Temporal.PlainDateTime foo]
  (-> foo .-minute))
 
-(defn
- zdt->nanosecond
- [^js/Temporal.ZonedDateTime foo]
- (-> foo .-nanosecond))
-
 (defn zdt->hour [^js/Temporal.ZonedDateTime foo] (-> foo .-hour))
-
-(defn
- time->millisecond
- [^js/Temporal.PlainTime foo]
- (-> foo .-millisecond))
 
 (defn zdt->instant [^js/Temporal.ZonedDateTime foo] (-> foo .toInstant))
 
 (defn datetime->month [^js/Temporal.PlainDateTime foo] (-> foo .-month))
 
-(defn
- datetime->day-of-month
- [^js/Temporal.PlainDateTime foo]
- (-> foo .-day))
-
-(defn
- time->microsecond
- [^js/Temporal.PlainTime foo]
- (-> foo .-microsecond))
+(defn datetime->year [^js/Temporal.PlainDateTime foo] (-> foo .-year))
 
 (defn
  datetime->date
  [^js/Temporal.PlainDateTime foo]
  (-> foo .toPlainDate))
+
+(defn
+ zdt->microsecond
+ [^js/Temporal.ZonedDateTime foo]
+ (-> foo .-microsecond))
+
+(defn zdt->month [^js/Temporal.ZonedDateTime foo] (-> foo .-month))
+
+(defn zdt->day-of-month [^js/Temporal.ZonedDateTime foo] (-> foo .-day))
 
 (defn
  zdt->day-of-week
@@ -551,19 +539,7 @@
 
 (defn time->second [^js/Temporal.PlainTime foo] (-> foo .-second))
 
-(defn yearmonth->year [^js/Temporal.PlainYearMonth foo] (-> foo .-year))
-
-(defn datetime->year [^js/Temporal.PlainDateTime foo] (-> foo .-year))
-
-(defn
- monthday->day-of-month
- [^js/Temporal.PlainMonthDay foo]
- (-> foo .-day))
-
-(defn
- yearmonth->month
- [^js/Temporal.PlainYearMonth foo]
- (-> foo .-month))
+(defn date->day-of-month [^js/Temporal.PlainDate foo] (-> foo .-day))
 
 (defn
  datetime->nanosecond
@@ -572,12 +548,20 @@
 
 (defn datetime->hour [^js/Temporal.PlainDateTime foo] (-> foo .-hour))
 
-(defn date->day-of-month [^js/Temporal.PlainDate foo] (-> foo .-day))
-
 (defn
  zdt->datetime
  [^js/Temporal.ZonedDateTime foo]
  (-> foo .toPlainDateTime))
+
+(defn
+ time->microsecond
+ [^js/Temporal.PlainTime foo]
+ (-> foo .-microsecond))
+
+(defn
+ time->nanosecond
+ [^js/Temporal.PlainTime foo]
+ (-> foo .-nanosecond))
 
 (defn time->minute [^js/Temporal.PlainTime foo] (-> foo .-minute))
 
@@ -590,7 +574,7 @@
  [^js/Temporal.ZonedDateTime foo]
  (-> foo .-timeZoneId))
 
-(defn monthday->month [^js/Temporal.PlainMonthDay foo] (-> foo .-month))
+(defn date->year [^js/Temporal.PlainDate foo] (-> foo .-year))
 
 (defn
  date->day-of-week
@@ -598,6 +582,16 @@
  (-> foo .-dayOfWeek))
 
 (defn zdt->minute [^js/Temporal.ZonedDateTime foo] (-> foo .-minute))
+
+(defn
+ monthday->day-of-month
+ [^js/Temporal.PlainMonthDay foo]
+ (-> foo .-day))
+
+(defn
+ datetime->millisecond
+ [^js/Temporal.PlainDateTime foo]
+ (-> foo .-millisecond))
 
 (defn
  instant->legacydate
@@ -608,6 +602,18 @@
  instant->epochmilli
  [^js/Temporal.Instant foo]
  (-> foo .-epochmilli))
+
+(defn yearmonth->year [^js/Temporal.PlainYearMonth foo] (-> foo .-year))
+
+(defn
+ yearmonth->month
+ [^js/Temporal.PlainYearMonth foo]
+ (-> foo .-month))
+
+(defn
+ time->millisecond
+ [^js/Temporal.PlainTime foo]
+ (-> foo .-millisecond))
 
 (defn
  datetime->time
@@ -733,11 +739,20 @@
  zdt-from
  [thing]
  (let
-  [ldt
-   (or (get thing :datetime) (datetime-from thing))
+  [instant
+   (get thing :instant)
+   ldt
+   (or
+    instant
+    (some-> (get thing :zdt) zdt->datetime)
+    (get thing :datetime)
+    (datetime-from thing))
    zone
    (get thing :timezone_id)]
-  (.toZonedDateTime ^js ldt zone)))
+  (if
+   instant
+   (.toZonedDateTimeISO ^js instant (ZoneId/of zone))
+   (.toZonedDateTime ^js ldt zone))))
 
 (defn
  instant-from

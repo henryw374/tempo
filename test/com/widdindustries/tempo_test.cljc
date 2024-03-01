@@ -4,7 +4,12 @@
             [com.widdindustries.tempo.duration-alpha :as d])
   #?(:clj (:import [java.util Date])))
 
-(require '[com.widdindustries.tempo] :reload-all)
+(comment 
+  (remove-ns (.name *ns*))
+  (remove-ns 'com.widdindustries.tempo)
+  (require '[com.widdindustries.tempo] :reload-all)
+
+  )
 
 (t/extend-all-cljs-protocols)
 ;
@@ -18,18 +23,29 @@
       )
     )
   (testing "level 1"
+    (testing "setting zone on zdt"
+      (let [timezone_id "Pacific/Honolulu"
+            zdt (t/zdt-now (t/clock-with-zone timezone_id))]
+        (testing "roundtrip same instant"
+          (is (= zdt (t/zdt-from
+                       {:timezone_id timezone_id
+                        :instant     (t/instant-from {:zdt zdt})}))))
+        (testing "keep wall time, change zone"
+          (let [zdt-2 (t/zdt-from {:zdt zdt
+                                   :timezone_id "Europe/London"})]
+            (is (= (t/zdt->datetime zdt) (t/zdt->datetime zdt-2)))
+            (is (not= (t/zdt->timezone_id zdt) (t/zdt->timezone_id zdt-2) ))))))
     (let [datetime (t/datetime-now (t/clock-system-default-zone))
-          timezone (str (t/timezone-system-default))
+          timezone (str (t/timezone-now (t/clock-system-default-zone)))
           zdt (t/zdt-from {:datetime datetime :timezone_id timezone})]
       (is (t/zdt? zdt))
-      (def zdt zdt)
-      ;(is (= datetime (t/zdt->datetime zdt)))
+      (is (= datetime (t/zdt->datetime zdt)))
       (is (= timezone (t/zdt->timezone_id zdt)))
       ))
   (testing "level 2"
     (let [date (t/date-now (t/clock-system-default-zone))
           time (t/time-now (t/clock-system-default-zone))
-          timezone (str (t/timezone-system-default))
+          timezone (str (t/timezone-now (t/clock-system-default-zone)))
           zdt (t/zdt-from {:date date :time time :timezone_id timezone})]
       (is (t/zdt? zdt))
       (is (= time (t/zdt->time zdt)))
@@ -81,8 +97,8 @@
 
 (deftest equals-hash-compare-date
   (let [middle (t/date-now (t/clock-system-default-zone))
-        earliest (t/<< middle (d/period-parse "P1D"))
-        latest (t/>> middle (d/period-parse "P1D"))]
+        earliest (t/<< middle 1 t/days-property )
+        latest (t/>> middle 1 t/days-property )]
     (is (not= middle earliest))
     (is (= middle (t/date-now (t/clock-system-default-zone))))
     ;(compare earliest middle)
@@ -105,9 +121,9 @@
 (deftest shift
   ;todo - generate for combinations of duration/period and entity
   (let [a-date (t/date-now (t/clock-system-default-zone))
-        period (d/period-parse "P3D")
-        plus3 (t/>> a-date period)]
-    (is (= a-date (t/<< plus3 period)))
+        ;period (d/period-parse "P3D")
+        plus3 (t/>> a-date 3 t/days-property)]
+    (is (= a-date (t/<< plus3 3 t/days-property)))
     ;todo - also compare  >=, > etc not=, hash not=
     ))
 
@@ -146,12 +162,12 @@
 
 ; clock tests
 (deftest clock-test
-  (let [zone (str (t/timezone-system-default))
+  (let [zone (str (t/timezone-now (t/clock-system-default-zone)))
         now (t/instant-now (t/clock-system-default-zone))
         fixed (t/clock-fixed now zone)
         offset (t/clock-offset-millis fixed 1)]
     (is (= now (t/instant-now fixed)))
-    (is (= (t/>> now (d/duration-parse "PT0.001S")) (t/instant-now offset)))
+    (is (= (t/>> now 1 t/milliseconds-property) (t/instant-now offset)))
     (is (t/> (t/instant-now (t/clock-system-default-zone)) (t/instant-now fixed)))
     (is (= (t/zdt->timezone_id (t/zdt-now fixed)) (t/zdt->timezone_id (t/zdt-now offset))))
     ))
@@ -235,7 +251,7 @@
       (t/get-field t/microseconds-property))
   )
 ;todo
-t/timezone-now
+
 t/monthday-from
 t/yearmonth-from
 t/max
