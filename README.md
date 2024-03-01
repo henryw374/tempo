@@ -251,6 +251,34 @@ aka construction a new entity from one of the same type
 (t/date? x)
 ```
 
+### Guardrails 
+
+Consider the following:
+
+```clojure
+(let [start (t/date-parse "2020-01-31")]
+  (-> start (t/>> 1 t/months-property)
+      (t/<< 1 t/months-property)))
+```
+
+If you shift a date forward by an amount, then back by that amount then you might think you'd end up with the date you started. Sometimes yes, in this case above, no. 
+
+Here's a similar example:
+
+```clojure
+(let [start (t/date-parse "2020-02-29")]
+  (-> start (t/with 2021 t/years-property)
+      (t/with 2020 t/years-property)))
+```
+
+We increment the year, then decrement it, but the output is not the same as the input.
+
+Both java.time and Temporal work this way and in my experience it is a source of bugs. For this reason, shifting `>>/<<` and `with` do not work in Tempo if the property is years or months. 
+
+As a safer alternative, I suggest getting the year-month from a temporal first, doing whatever with/shift operations you like then setting the remaining fields.
+
+If you do not wish to have this guardrail, set `t/*block-non-commutative-operations*` to false
+
 ## Dev 
 
 see dev.clj for instructions  

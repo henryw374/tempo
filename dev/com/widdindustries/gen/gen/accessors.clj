@@ -197,11 +197,9 @@
     (let [fn-name (str (:tempo subject) "-now")
           nower (case feature
                   :cljay (str (get kw->class (:tempo subject)) "/" (or (-> subject feature :parse) "now"))
-                  :cljs (str "clock/" (:tempo subject))
-                  :cljc (str (get kw->cljc-ns (:tempo subject)) "/" (or (-> subject feature :parse) "now")))]
+                  :cljs (str "clock/" (:tempo subject)))]
       (backtick/template
         (defn ~(symbol fn-name)
-          ([] (~(symbol nower)))
           ([~(with-meta 'clock {:tag java.time.Clock})]
            (~(symbol nower) clock))))
       )))
@@ -217,7 +215,7 @@
     (let [fn-name (str (:tempo subject) "-now-test")]
       (backtick/template
         (deftest ~(symbol fn-name)
-          (let [now-now (~(symbol (str "t/" (:tempo subject) "-now")))]
+          (let [now-now (~(symbol (str "t/" (:tempo subject) "-now")) (t/clock-system-default-zone))]
             (is (~(symbol (str "t/" (:tempo subject) "?")) now-now)))
           (let [clock-1 (t/clock-fixed (t/instant-parse "1955-11-01T16:46:08.017143Z") (str (t/timezone-system-default)))
                 clock-2 (t/clock-fixed (t/instant-parse "1955-12-02T17:46:08.017143Z") (str (t/timezone-system-default)))
@@ -248,7 +246,7 @@
       ;(println (get target :return))
       (backtick/template
         (deftest ~(symbol fn-name)
-          (let [now-now (~(symbol (str "t/" subject "-now")))]
+          (let [now-now (~(symbol (str "t/" subject "-now")) (t/clock-system-default-zone))]
             (is (~pred (~(symbol (str "t/" fn-name)) now-now)))
             ~(when (and 
                      (and (not= 'monthday subject) (not= 'month target-name))
@@ -291,7 +289,7 @@
             (is (= (t/timezone-system-default) (-> (t/timezone-system-default) str ~(symbol (str "t/" (:tempo subject) "-parse")))))))
         (backtick/template
           (deftest ~(symbol fn-name)
-            (let [now-now (~(symbol (str "t/" (:tempo subject) "-now")))]
+            (let [now-now (~(symbol (str "t/" (:tempo subject) "-now")) (t/clock-system-default-zone))]
               (is (= now-now (-> now-now str ~(symbol (str "t/" (:tempo subject) "-parse"))))))))))))
 
 (defn parse-tests []

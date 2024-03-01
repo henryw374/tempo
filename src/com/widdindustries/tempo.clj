@@ -26,6 +26,7 @@
    Temporal
    TemporalAmount
    TemporalUnit
+   TemporalAccessor
    ChronoUnit
    ChronoField
    ValueRange]
@@ -36,6 +37,8 @@
 (defn extend-all-cljs-protocols [])
 
 (defn legacydate? [v] (instance? java.util.Date v))
+
+(defn clock? [v] (instance? Clock v))
 
 (defn period? [v] (instance? Period v))
 
@@ -58,6 +61,11 @@
 (defn zdt? [v] (instance? ZonedDateTime v))
 
 (defn timezone-system-default [] (ZoneId/systemDefault))
+
+(defn
+ timezone-now
+ ([] (timezone-system-default))
+ ([clock] (.getZone ^Clock clock)))
 
 (defn
  clock-fixed
@@ -85,7 +93,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__115975# p2__115976#] (greater p1__115975# p2__115976#))
+  (fn* [p1__150640# p2__150641#] (greater p1__150640# p2__150641#))
   arg
   args))
 
@@ -97,7 +105,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__115977# p2__115978#] (lesser p1__115977# p2__115978#))
+  (fn* [p1__150642# p2__150643#] (lesser p1__150642# p2__150643#))
   arg
   args))
 
@@ -153,6 +161,11 @@
     (>= y (first more)))
    false)))
 
+(defn
+ coincident?
+ [start end event]
+ (and (<= start event) (>= end event)))
+
 (defprotocol
  Unit
  (unit-field [_])
@@ -162,6 +175,15 @@
 (defprotocol Property (unit [_]) (field [_]))
 
 (defprotocol HasTime (getFractional [_]) (setFractional [_ _]))
+
+(defn
+ -millisecond
+ [f]
+ (-> (getFractional f) (Duration/ofNanos) (.toMillisPart)))
+
+(defn -microsecond [f] (-> (getFractional f) (/ 1000) long (mod 1000)))
+
+(defn -nanosecond [f] (-> (getFractional f) (mod 1000)))
 
 (extend-protocol
  HasTime
@@ -183,12 +205,16 @@
 (def
  nanoseconds-property
  (reify
+  Object
+  (toString [_] "nanoseconds-property")
   Property
   (unit [_] ChronoUnit/NANOS)
   (field
    [_]
    (reify
     java.time.temporal.TemporalField
+    (rangeRefinedBy [_ _temporal] sub-second-range)
+    (getFrom [_ temporal] (-nanosecond temporal))
     (adjustInto
      [_ temporal value]
      (.checkValidValue sub-second-range value nil)
@@ -201,15 +227,25 @@
        (+ millis+micros value)]
       (-> temporal (setFractional new-fractional))))))))
 
+(defmethod
+ print-method
+ (type nanoseconds-property)
+ [_ ^java.io.Writer w]
+ (print-simple "nanoseconds-property" w))
+
 (def
  microseconds-property
  (reify
+  Object
+  (toString [_] "microseconds-property")
   Property
   (unit [_] ChronoUnit/MICROS)
   (field
    [_]
    (reify
     java.time.temporal.TemporalField
+    (rangeRefinedBy [_ _temporal] sub-second-range)
+    (getFrom [_ temporal] (-microsecond temporal))
     (adjustInto
      [_ temporal value]
      (.checkValidValue sub-second-range value nil)
@@ -224,15 +260,25 @@
        (+ millis nanos (-> value (* 1000)))]
       (-> temporal (setFractional new-fractional))))))))
 
+(defmethod
+ print-method
+ (type microseconds-property)
+ [_ ^java.io.Writer w]
+ (print-simple "microseconds-property" w))
+
 (def
  milliseconds-property
  (reify
+  Object
+  (toString [_] "milliseconds-property")
   Property
   (unit [_] ChronoUnit/MILLIS)
   (field
    [_]
    (reify
     java.time.temporal.TemporalField
+    (rangeRefinedBy [_ _temporal] sub-second-range)
+    (getFrom [_ temporal] (-millisecond temporal))
     (adjustInto
      [_ temporal value]
      (.checkValidValue sub-second-range value nil)
@@ -245,51 +291,120 @@
        temporal
        (setFractional (+ micros+nanos (-> value (* 1000000)))))))))))
 
+(defmethod
+ print-method
+ (type milliseconds-property)
+ [_ ^java.io.Writer w]
+ (print-simple "milliseconds-property" w))
+
 (def
  seconds-property
  (reify
+  Object
+  (toString [_] "seconds-property")
   Property
   (unit [_] ChronoUnit/SECONDS)
   (field [_] ChronoField/SECOND_OF_MINUTE)))
 
+(defmethod
+ print-method
+ (type seconds-property)
+ [_ ^java.io.Writer w]
+ (print-simple "seconds-property" w))
+
 (def
  minutes-property
  (reify
+  Object
+  (toString [_] "minutes-property")
   Property
   (unit [_] ChronoUnit/MINUTES)
   (field [_] ChronoField/MINUTE_OF_HOUR)))
 
+(defmethod
+ print-method
+ (type minutes-property)
+ [_ ^java.io.Writer w]
+ (print-simple "minutes-property" w))
+
 (def
  hours-property
  (reify
+  Object
+  (toString [_] "hours-property")
   Property
   (unit [_] ChronoUnit/HOURS)
   (field [_] ChronoField/HOUR_OF_DAY)))
 
+(defmethod
+ print-method
+ (type hours-property)
+ [_ ^java.io.Writer w]
+ (print-simple "hours-property" w))
+
 (def
  days-property
  (reify
+  Object
+  (toString [_] "days-property")
   Property
   (unit [_] ChronoUnit/DAYS)
   (field [_] ChronoField/DAY_OF_MONTH)))
 
+(defmethod
+ print-method
+ (type days-property)
+ [_ ^java.io.Writer w]
+ (print-simple "days-property" w))
+
 (def
  months-property
  (reify
+  Object
+  (toString [_] "months-property")
   Property
   (unit [_] ChronoUnit/MONTHS)
   (field [_] ChronoField/MONTH_OF_YEAR)))
 
+(defmethod
+ print-method
+ (type months-property)
+ [_ ^java.io.Writer w]
+ (print-simple "months-property" w))
+
 (def
  years-property
  (reify
+  Object
+  (toString [_] "years-property")
   Property
   (unit [_] ChronoUnit/YEARS)
   (field [_] ChronoField/YEAR)))
 
+(defmethod
+ print-method
+ (type years-property)
+ [_ ^java.io.Writer w]
+ (print-simple "years-property" w))
+
+(def ^{:dynamic true} *block-non-commutative-operations* true)
+
+(defn
+ assert-set-months-or-years
+ [temporal temporal-property]
+ (when
+  *block-non-commutative-operations*
+  (assert
+   (not
+    (and
+     (contains? #{months-property years-property} temporal)
+     (not (or (monthday? temporal) (yearmonth? temporal)))))
+   "shifting by years or months yields odd results depending on input. intead shift a year-month, then set non-yearmonth parts")))
+
 (defn
  with
  [temporal value property]
+ (assert-set-months-or-years temporal property)
  (.with
   ^Temporal temporal
   ^{:tag TemporalField}
@@ -300,9 +415,8 @@
 
 (defn
  >>
- ([temporal temporal-amount]
-  (.plus ^Temporal temporal ^TemporalAmount temporal-amount))
  ([temporal amount temporal-property]
+  (assert-set-months-or-years temporal temporal-property)
   (.plus
    ^Temporal temporal
    amount
@@ -311,9 +425,8 @@
 
 (defn
  <<
- ([temporal temporal-amount]
-  (.minus ^Temporal temporal ^TemporalAmount temporal-amount))
  ([temporal amount temporal-property]
+  (assert-set-months-or-years temporal temporal-property)
   (.minus
    ^Temporal temporal
    amount
@@ -351,6 +464,26 @@
   5 weekday-friday,
   6 weekday-saturday,
   7 weekday-sunday})
+
+(defprotocol JavaTruncateable (-truncate [_ unit]))
+
+(extend-protocol
+ JavaTruncateable
+ ZonedDateTime
+ (-truncate [zdt unit] (.truncatedTo zdt unit))
+ LocalDateTime
+ (-truncate [zdt unit] (.truncatedTo zdt unit))
+ LocalTime
+ (-truncate [zdt unit] (.truncatedTo zdt unit))
+ Instant
+ (-truncate [zdt unit] (.truncatedTo zdt unit)))
+
+(defn truncate [temporal property] (-truncate temporal (unit property)))
+
+(defn
+ get-field
+ [temporal property]
+ (.get ^TemporalAccessor temporal (field property)))
 
 ^{:line 31, :column 9} (comment "accessors")
 
@@ -505,40 +638,19 @@
 
 ^{:line 35, :column 9} (comment "nowers")
 
-(defn
- zdt-now
- ([] (ZonedDateTime/now))
- ([^java.time.Clock clock] (ZonedDateTime/now clock)))
+(defn zdt-now ([^java.time.Clock clock] (ZonedDateTime/now clock)))
 
-(defn
- datetime-now
- ([] (LocalDateTime/now))
- ([^java.time.Clock clock] (LocalDateTime/now clock)))
+(defn datetime-now ([^java.time.Clock clock] (LocalDateTime/now clock)))
 
-(defn
- date-now
- ([] (LocalDate/now))
- ([^java.time.Clock clock] (LocalDate/now clock)))
+(defn date-now ([^java.time.Clock clock] (LocalDate/now clock)))
 
-(defn
- time-now
- ([] (LocalTime/now))
- ([^java.time.Clock clock] (LocalTime/now clock)))
+(defn time-now ([^java.time.Clock clock] (LocalTime/now clock)))
 
-(defn
- instant-now
- ([] (Instant/now))
- ([^java.time.Clock clock] (Instant/now clock)))
+(defn instant-now ([^java.time.Clock clock] (Instant/now clock)))
 
-(defn
- monthday-now
- ([] (MonthDay/now))
- ([^java.time.Clock clock] (MonthDay/now clock)))
+(defn monthday-now ([^java.time.Clock clock] (MonthDay/now clock)))
 
-(defn
- yearmonth-now
- ([] (YearMonth/now))
- ([^java.time.Clock clock] (YearMonth/now clock)))
+(defn yearmonth-now ([^java.time.Clock clock] (YearMonth/now clock)))
 
 ^{:line 37, :column 9} (comment "constructors")
 
@@ -581,6 +693,16 @@
     (some-> (get thing :monthday) monthday->day-of-month)
     (get thing :day-of-month))]
   (LocalDate/of ^int year ^int month ^int day)))
+
+(defn
+ yearmonth-from
+ [{:keys [year month]}]
+ (YearMonth/of ^int year ^int month))
+
+(defn
+ monthday-from
+ [{:keys [month day-of-month]}]
+ (MonthDay/of ^int month ^int day-of-month))
 
 (defn
  datetime-from

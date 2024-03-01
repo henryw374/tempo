@@ -12,6 +12,8 @@
 
 (defn legacydate? [v] (instance? js/Date v))
 
+(defn clock? [v] nil)
+
 (defn period? [v] (instance? entities/duration v))
 
 (defn duration? [v] (instance? entities/duration v))
@@ -33,6 +35,11 @@
 (defn zdt? [v] (instance? entities/zdt v))
 
 (defn timezone-system-default [] (clock/timezone))
+
+(defn
+ timezone-now
+ ([] (timezone-system-default))
+ ([clock] (clock/timezone clock)))
 
 (defn
  clock-fixed
@@ -60,7 +67,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__115979# p2__115980#] (greater p1__115979# p2__115980#))
+  (fn* [p1__150644# p2__150645#] (greater p1__150644# p2__150645#))
   arg
   args))
 
@@ -72,7 +79,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__115981# p2__115982#] (lesser p1__115981# p2__115982#))
+  (fn* [p1__150646# p2__150647#] (lesser p1__150646# p2__150647#))
   arg
   args))
 
@@ -128,6 +135,11 @@
     (>= y (first more)))
    false)))
 
+(defn
+ coincident?
+ [start end event]
+ (and (<= start event) (>= end event)))
+
 (defprotocol
  Unit
  (unit-field [_])
@@ -136,28 +148,22 @@
 
 (defprotocol Property (unit [_]) (field [_]))
 
-(defprotocol HasTime (getFractional [_]) (setFractional [_ _]))
+(defn
+ -millisecond
+ [f]
+ (-> (getFractional f) (Duration/ofNanos) (.toMillisPart)))
 
-(extend-protocol
- HasTime
- ZonedDateTime
- (getFractional [x] (.getNano (.toLocalTime x)))
- (setFractional [x t] (.withNano x t))
- LocalDateTime
- (getFractional [x] (.getNano (.toLocalTime x)))
- (setFractional [x t] (.withNano x t))
- LocalTime
- (getFractional [x] (.getNano x))
- (setFractional [x t] (.withNano x t))
- Instant
- (getFractional [x] (.getNano x))
- (setFractional [x ^long t] (.with x ChronoField/NANO_OF_SECOND t)))
+(defn -microsecond [f] (-> (getFractional f) (/ 1000) long (mod 1000)))
+
+(defn -nanosecond [f] (-> (getFractional f) (mod 1000)))
 
 (def ^ValueRange sub-second-range (ValueRange/of 0 999))
 
 (def
  nanoseconds-property
  (reify
+  object
+  (toString [_] "nanoseconds-property")
   Property
   (field [_] "nanosecond")
   (unit
@@ -168,9 +174,17 @@
     (unit-field [_] "nanosecond")
     (unit-accessor [_ ^js x] (.-nanos x))))))
 
+(defmethod
+ print-method
+ (type nanoseconds-property)
+ [_ ^java.io.Writer w]
+ (print-simple "nanoseconds-property" w))
+
 (def
  microseconds-property
  (reify
+  object
+  (toString [_] "microseconds-property")
   Property
   (field [_] "microsecond")
   (unit
@@ -181,9 +195,17 @@
     (unit-field [_] "microsecond")
     (unit-accessor [_ ^js x] (.-micros x))))))
 
+(defmethod
+ print-method
+ (type microseconds-property)
+ [_ ^java.io.Writer w]
+ (print-simple "microseconds-property" w))
+
 (def
  milliseconds-property
  (reify
+  object
+  (toString [_] "milliseconds-property")
   Property
   (field [_] "millisecond")
   (unit
@@ -194,9 +216,17 @@
     (unit-field [_] "millisecond")
     (unit-accessor [_ ^js x] (.-millis x))))))
 
+(defmethod
+ print-method
+ (type milliseconds-property)
+ [_ ^java.io.Writer w]
+ (print-simple "milliseconds-property" w))
+
 (def
  seconds-property
  (reify
+  object
+  (toString [_] "seconds-property")
   Property
   (field [_] "second")
   (unit
@@ -207,9 +237,17 @@
     (unit-field [_] "second")
     (unit-accessor [_ ^js x] (.-seconds x))))))
 
+(defmethod
+ print-method
+ (type seconds-property)
+ [_ ^java.io.Writer w]
+ (print-simple "seconds-property" w))
+
 (def
  minutes-property
  (reify
+  object
+  (toString [_] "minutes-property")
   Property
   (field [_] "minute")
   (unit
@@ -220,9 +258,17 @@
     (unit-field [_] "minute")
     (unit-accessor [_ ^js x] (.-minutes x))))))
 
+(defmethod
+ print-method
+ (type minutes-property)
+ [_ ^java.io.Writer w]
+ (print-simple "minutes-property" w))
+
 (def
  hours-property
  (reify
+  object
+  (toString [_] "hours-property")
   Property
   (field [_] "hour")
   (unit
@@ -233,9 +279,17 @@
     (unit-field [_] "hour")
     (unit-accessor [_ ^js x] (.-hours x))))))
 
+(defmethod
+ print-method
+ (type hours-property)
+ [_ ^java.io.Writer w]
+ (print-simple "hours-property" w))
+
 (def
  days-property
  (reify
+  object
+  (toString [_] "days-property")
   Property
   (field [_] "day")
   (unit
@@ -246,9 +300,17 @@
     (unit-field [_] "day")
     (unit-accessor [_ ^js x] (.-days x))))))
 
+(defmethod
+ print-method
+ (type days-property)
+ [_ ^java.io.Writer w]
+ (print-simple "days-property" w))
+
 (def
  months-property
  (reify
+  object
+  (toString [_] "months-property")
   Property
   (field [_] "month")
   (unit
@@ -259,9 +321,17 @@
     (unit-field [_] "month")
     (unit-accessor [_ ^js x] (.-months x))))))
 
+(defmethod
+ print-method
+ (type months-property)
+ [_ ^java.io.Writer w]
+ (print-simple "months-property" w))
+
 (def
  years-property
  (reify
+  object
+  (toString [_] "years-property")
   Property
   (field [_] "year")
   (unit
@@ -272,9 +342,30 @@
     (unit-field [_] "year")
     (unit-accessor [_ ^js x] (.-years x))))))
 
+(defmethod
+ print-method
+ (type years-property)
+ [_ ^java.io.Writer w]
+ (print-simple "years-property" w))
+
+(def ^{:dynamic true} *block-non-commutative-operations* true)
+
+(defn
+ assert-set-months-or-years
+ [temporal temporal-property]
+ (when
+  *block-non-commutative-operations*
+  (assert
+   (not
+    (and
+     (contains? #{months-property years-property} temporal)
+     (not (or (monthday? temporal) (yearmonth? temporal)))))
+   "shifting by years or months yields odd results depending on input. intead shift a year-month, then set non-yearmonth parts")))
+
 (defn
  with
  [temporal value property]
+ (assert-set-months-or-years temporal property)
  (.with
   ^js temporal
   (js-obj (field property) value)
@@ -292,16 +383,16 @@
 
 (defn
  >>
- ([temporal temporal-amount] (.add ^js temporal temporal-amount))
  ([temporal amount temporal-property]
+  (assert-set-months-or-years temporal temporal-property)
   (.add
    ^js temporal
    (js-obj (unit-amount (unit temporal-property)) amount))))
 
 (defn
  <<
- ([temporal temporal-amount] (.subtract ^js temporal temporal-amount))
  ([temporal amount temporal-property]
+  (assert-set-months-or-years temporal temporal-property)
   (.subtract
    ^js temporal
    (js-obj (unit-amount (unit temporal-property)) amount))))
@@ -345,6 +436,26 @@
   5 weekday-friday,
   6 weekday-saturday,
   7 weekday-sunday})
+
+(defprotocol JavaTruncateable (-truncate [_ unit]))
+
+(extend-protocol
+ JavaTruncateable
+ ZonedDateTime
+ (-truncate [zdt unit] (.truncatedTo zdt unit))
+ LocalDateTime
+ (-truncate [zdt unit] (.truncatedTo zdt unit))
+ LocalTime
+ (-truncate [zdt unit] (.truncatedTo zdt unit))
+ Instant
+ (-truncate [zdt unit] (.truncatedTo zdt unit)))
+
+(defn
+ truncate
+ [temporal property]
+ (.roundTo temporal (unit-field (unit property))))
+
+(defn get-field [temporal property] (unit-accessor property temporal))
 
 ^{:line 31, :column 9} (comment "accessors")
 
@@ -547,40 +658,19 @@
 
 ^{:line 35, :column 9} (comment "nowers")
 
-(defn
- zdt-now
- ([] (clock/zdt))
- ([^java.time.Clock clock] (clock/zdt clock)))
+(defn zdt-now ([^java.time.Clock clock] (clock/zdt clock)))
 
-(defn
- datetime-now
- ([] (clock/datetime))
- ([^java.time.Clock clock] (clock/datetime clock)))
+(defn datetime-now ([^java.time.Clock clock] (clock/datetime clock)))
 
-(defn
- date-now
- ([] (clock/date))
- ([^java.time.Clock clock] (clock/date clock)))
+(defn date-now ([^java.time.Clock clock] (clock/date clock)))
 
-(defn
- time-now
- ([] (clock/time))
- ([^java.time.Clock clock] (clock/time clock)))
+(defn time-now ([^java.time.Clock clock] (clock/time clock)))
 
-(defn
- instant-now
- ([] (clock/instant))
- ([^java.time.Clock clock] (clock/instant clock)))
+(defn instant-now ([^java.time.Clock clock] (clock/instant clock)))
 
-(defn
- monthday-now
- ([] (clock/monthday))
- ([^java.time.Clock clock] (clock/monthday clock)))
+(defn monthday-now ([^java.time.Clock clock] (clock/monthday clock)))
 
-(defn
- yearmonth-now
- ([] (clock/yearmonth))
- ([^java.time.Clock clock] (clock/yearmonth clock)))
+(defn yearmonth-now ([^java.time.Clock clock] (clock/yearmonth clock)))
 
 ^{:line 37, :column 9} (comment "constructors")
 
@@ -618,6 +708,16 @@
     (some-> (get thing :monthday) monthday->day-of-month)
     (get thing :day-of-month))]
   (js/Temporal.PlainDate. ^int year ^int month ^int day)))
+
+(defn
+ yearmonth-from
+ [{:keys [year month]}]
+ (js/Temporal.YearMonth. ^int year ^int month))
+
+(defn
+ monthday-from
+ [{:keys [month day-of-month]}]
+ (js/Temporal.YearMonth. ^int month ^int day-of-month))
 
 (defn
  datetime-from

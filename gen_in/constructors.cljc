@@ -32,6 +32,14 @@
     #?(:cljay (LocalDate/of ^int year ^int month ^int day)
        :cljs (js/Temporal.PlainDate. ^int year ^int month ^int day))))
 
+(defn yearmonth-from [{:keys [year month]}]
+  #?(:cljay (YearMonth/of ^int year ^int month )
+     :cljs (js/Temporal.YearMonth. ^int year ^int month )))
+
+(defn monthday-from [{:keys [month day-of-month]}]
+  #?(:cljay (MonthDay/of ^int month ^int day-of-month )
+     :cljs (js/Temporal.YearMonth. ^int month ^int day-of-month )))
+
 (defn datetime-from [thing]
   (let [date (or (get thing :date)
                (date-from thing))
