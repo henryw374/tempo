@@ -72,7 +72,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__137960# p2__137961#] (greater p1__137960# p2__137961#))
+  (fn* [p1__144552# p2__144553#] (greater p1__144552# p2__144553#))
   arg
   args))
 
@@ -84,7 +84,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__137962# p2__137963#] (lesser p1__137962# p2__137963#))
+  (fn* [p1__144554# p2__144555#] (lesser p1__144554# p2__144555#))
   arg
   args))
 
@@ -273,21 +273,22 @@
 (def ^{:dynamic true} *block-non-commutative-operations* true)
 
 (defn
- assert-set-months-or-years
+ throw-if-set-months-or-years
  [temporal temporal-property]
  (when
-  *block-non-commutative-operations*
-  (assert
-   (not
-    (and
-     (contains? #{months-property years-property} temporal-property)
-     (not (or (monthday? temporal) (yearmonth? temporal)))))
-   "shifting by years or months yields odd results depending on input. intead shift a year-month, then set non-yearmonth parts")))
+  (and
+   *block-non-commutative-operations*
+   (contains? #{months-property years-property} temporal-property)
+   (not (or (monthday? temporal) (yearmonth? temporal))))
+  (throw
+   (ex-info
+    "shifting by years or months yields odd results depending on input. intead shift a year-month, then set non-yearmonth parts"
+    {}))))
 
 (defn
  with
  [temporal value property]
- (assert-set-months-or-years temporal property)
+ (throw-if-set-months-or-years temporal property)
  (.with
   ^js temporal
   (js-obj (field property) value)
@@ -311,7 +312,7 @@
 (defn
  >>
  ([temporal amount temporal-property]
-  (assert-set-months-or-years temporal temporal-property)
+  (throw-if-set-months-or-years temporal temporal-property)
   (.add
    ^js temporal
    (js-obj (unit-amount (unit temporal-property)) amount))))
@@ -319,7 +320,7 @@
 (defn
  <<
  ([temporal amount temporal-property]
-  (assert-set-months-or-years temporal temporal-property)
+  (throw-if-set-months-or-years temporal temporal-property)
   (.subtract
    ^js temporal
    (js-obj (unit-amount (unit temporal-property)) amount))))
@@ -403,19 +404,19 @@
 
 (defn zdt->date [^js/Temporal.ZonedDateTime foo] (-> foo .toPlainDate))
 
+(defn yearmonth->year [^js/Temporal.PlainYearMonth foo] (-> foo .-year))
+
 (defn
- zdt->month
- [^js/Temporal.ZonedDateTime foo]
- (-> foo (-> (.-monthCode) (subs 1 3) js/parseInt)))
+ monthday->day-of-month
+ [^js/Temporal.PlainMonthDay foo]
+ (-> foo .-day))
+
+(defn date->year [^js/Temporal.PlainDate foo] (-> foo .-year))
 
 (defn
  yearmonth->month
  [^js/Temporal.PlainYearMonth foo]
  (-> foo .-month))
-
-(defn yearmonth->year [^js/Temporal.PlainYearMonth foo] (-> foo .-year))
-
-(defn zdt->day-of-month [^js/Temporal.ZonedDateTime foo] (-> foo .-day))
 
 (defn
  zdt->millisecond
@@ -427,11 +428,6 @@
  [^js/Temporal.ZonedDateTime foo]
  (-> foo .-nanosecond))
 
-(defn
- monthday->month
- [^js/Temporal.PlainMonthDay foo]
- (-> foo (-> (.-monthCode) (subs 1 3) js/parseInt)))
-
 (defn zdt->second [^js/Temporal.ZonedDateTime foo] (-> foo .-second))
 
 (defn
@@ -439,19 +435,21 @@
  [^js/Temporal.PlainDateTime foo]
  (-> foo .-minute))
 
-(defn
- monthday->day-of-month
- [^js/Temporal.PlainMonthDay foo]
- (-> foo .-day))
-
 (defn zdt->hour [^js/Temporal.ZonedDateTime foo] (-> foo .-hour))
 
 (defn zdt->instant [^js/Temporal.ZonedDateTime foo] (-> foo .toInstant))
 
 (defn
+ monthday->month
+ [^js/Temporal.PlainMonthDay foo]
+ (-> foo (-> (.-monthCode) (subs 1 3) js/parseInt)))
+
+(defn
  datetime->day-of-month
  [^js/Temporal.PlainDateTime foo]
  (-> foo .-day))
+
+(defn date->month [^js/Temporal.PlainDate foo] (-> foo .-month))
 
 (defn
  datetime->date
@@ -462,6 +460,12 @@
  zdt->microsecond
  [^js/Temporal.ZonedDateTime foo]
  (-> foo .-microsecond))
+
+(defn zdt->day-of-month [^js/Temporal.ZonedDateTime foo] (-> foo .-day))
+
+(defn zdt->month [^js/Temporal.ZonedDateTime foo] (-> foo .-month))
+
+(defn datetime->year [^js/Temporal.PlainDateTime foo] (-> foo .-year))
 
 (defn
  zdt->day-of-week
@@ -475,7 +479,7 @@
  [^js/Temporal.Instant foo]
  (-> foo (-> (.-epochMilliseconds) (js/Date.))))
 
-(defn date->month [^js/Temporal.PlainDate foo] (-> foo .-month))
+(defn date->day-of-month [^js/Temporal.PlainDate foo] (-> foo .-day))
 
 (defn
  datetime->nanosecond
@@ -488,8 +492,6 @@
  (-> foo (-> (.-epochMilliseconds))))
 
 (defn datetime->hour [^js/Temporal.PlainDateTime foo] (-> foo .-hour))
-
-(defn date->day-of-month [^js/Temporal.PlainDate foo] (-> foo .-day))
 
 (defn
  zdt->datetime
@@ -506,8 +508,6 @@
  [^js/Temporal.PlainTime foo]
  (-> foo .-nanosecond))
 
-(defn datetime->year [^js/Temporal.PlainDateTime foo] (-> foo .-year))
-
 (defn time->minute [^js/Temporal.PlainTime foo] (-> foo .-minute))
 
 (defn time->hour [^js/Temporal.PlainTime foo] (-> foo .-hour))
@@ -518,8 +518,6 @@
  zdt->timezone_id
  [^js/Temporal.ZonedDateTime foo]
  (-> foo .-timeZoneId))
-
-(defn date->year [^js/Temporal.PlainDate foo] (-> foo .-year))
 
 (defn
  date->day-of-week
@@ -573,9 +571,9 @@
  (js/Temporal.PlainDate.from foo))
 
 (defn
- monthday-parse
+ time-parse
  [^java.lang.String foo]
- (js/Temporal.PlainMonthDay.from foo))
+ (js/Temporal.PlainTime.from foo))
 
 (defn
  yearmonth-parse
@@ -583,9 +581,9 @@
  (js/Temporal.PlainYearMonth.from foo))
 
 (defn
- time-parse
+ monthday-parse
  [^java.lang.String foo]
- (js/Temporal.PlainTime.from foo))
+ (js/Temporal.PlainMonthDay.from foo))
 
 ^{:line 35, :column 9} (comment "nowers")
 
@@ -595,13 +593,13 @@
 
 (defn date-now ([^java.time.Clock clock] (clock/date clock)))
 
-(defn monthday-now ([^java.time.Clock clock] (clock/monthday clock)))
-
-(defn yearmonth-now ([^java.time.Clock clock] (clock/yearmonth clock)))
-
 (defn time-now ([^java.time.Clock clock] (clock/time clock)))
 
 (defn instant-now ([^java.time.Clock clock] (clock/instant clock)))
+
+(defn yearmonth-now ([^java.time.Clock clock] (clock/yearmonth clock)))
+
+(defn monthday-now ([^java.time.Clock clock] (clock/monthday clock)))
 
 ^{:line 37, :column 9} (comment "constructors")
 

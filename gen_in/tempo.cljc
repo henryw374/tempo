@@ -329,14 +329,17 @@
 
 (def ^:dynamic *block-non-commutative-operations* true)
 
-(defn assert-set-months-or-years [temporal temporal-property]
-  (when *block-non-commutative-operations*
-    (assert (not (and (contains? #{years-property months-property} temporal-property)
-                   (not (or (monthday? temporal) (yearmonth? temporal)))))
-      "shifting by years or months yields odd results depending on input. intead shift a year-month, then set non-yearmonth parts")))
+(defn throw-if-set-months-or-years [temporal temporal-property]
+  (when
+    (and *block-non-commutative-operations* 
+      (contains? #{years-property months-property} temporal-property)
+         (not (or (monthday? temporal) (yearmonth? temporal))))
+    (throw (ex-info
+             "shifting by years or months yields odd results depending on input. intead shift a year-month, then set non-yearmonth parts"
+             {}))))
 
 (defn with [temporal value property]
-  (assert-set-months-or-years temporal property)
+  (throw-if-set-months-or-years temporal property)
   #?(:cljay (.with ^Temporal temporal ^TemporalField (field property) ^long value)
      :cljs (.with ^js temporal (js-obj (field property) value) (js-obj "overflow" "reject"))))
 
@@ -349,21 +352,21 @@
 
 (defn >>
   #_([temporal temporal-property]
-     (assert-set-months-or-years temporal temporal-amount)
+     (throw-if-set-months-or-years temporal temporal-amount)
      #?(:cljay (.plus ^Temporal temporal ^TemporalAmount temporal-amount)
         :cljs (.add ^js temporal temporal-amount)))
   ([temporal amount temporal-property]
-   (assert-set-months-or-years temporal temporal-property)
+   (throw-if-set-months-or-years temporal temporal-property)
    #?(:cljay (.plus ^Temporal temporal amount ^TemporalUnit (unit temporal-property))
       :cljs (.add ^js temporal (js-obj (unit-amount (unit temporal-property)) amount)))))
 
 (defn <<
   #_([temporal temporal-amount]
-     (assert-set-months-or-years temporal temporal-amount)
+     (throw-if-set-months-or-years temporal temporal-amount)
      #?(:cljay (.minus ^Temporal temporal ^TemporalAmount temporal-amount)
         :cljs (.subtract ^js temporal temporal-amount)))
   ([temporal amount temporal-property]
-   (assert-set-months-or-years temporal temporal-property)
+   (throw-if-set-months-or-years temporal temporal-property)
    #?(:cljay (.minus ^Temporal temporal amount ^TemporalUnit (unit temporal-property))
       :cljs (.subtract ^js temporal (js-obj (unit-amount (unit temporal-property)) amount)))))
 
