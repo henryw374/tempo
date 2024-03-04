@@ -49,7 +49,8 @@
 (def epochmilli
   {:tempo 'epochmilli
    :return 'int?
-   :cljay {:accessor 'toEpochMilli}})
+   :cljay {:accessor 'toEpochMilli}
+   :cljs  {:xform-fn '(-> (.-epochMilliseconds))}})
 
 (def epochnano
   {:ignore-accessor true ; its not in java
@@ -87,7 +88,7 @@
 (def monthday
   {:tempo           'monthday
    :ignore-accessor true
-   :needed-to-go-up {'year {}}
+   :needed-to-go-up {'year {}}    
    :cljay           {:no-getter true
                      :fn-args   ['month 'day-of-month]
                      :fn        (fn [month day]
@@ -114,7 +115,7 @@
                        {:tempo 'legacydate
                         :cljay {:xform-fn '(-> (.toEpochMilli) (java.util.Date.))}
                         :cljs  {
-                                :xform-fn '(-> (.-epochMilliseconds) (Date.))
+                                :xform-fn '(-> (.-epochMilliseconds) (js/Date.))
                                 }} {}}}
    {:tempo 'zdt
     ;todo - https://tc39.es/proposal-temporal/docs/zoneddatetime.html#startOfDay
@@ -136,10 +137,14 @@
                                                           :return 'int?} {}
                                                          month           {}}}}}
                                     {:parts
-                                     {monthday {:parts {month                       {}
+                                     {monthday {:parts {{:tempo  'month
+                                                         :return 'int?
+                                                         ;get month not gener
+                                                         :cljay {:accessor 'getMonthValue}
+                                                         :cljs   {:xform-fn '(-> (.-monthCode) (subs 1 3) js/parseInt)}} {}
                                                         {:tempo  'day-of-month
                                                          :return 'int?
-                                                         :cljs   {:accessor '-day}} {}}}}}
+                                                         :cljs   {:accessor '-day}}                                      {}}}}}
                                     {:parts
                                      {{:tempo  'year
                                        :return 'int?}             {}
@@ -151,20 +156,20 @@
                                      {day-of-week {}}}]
                                    }
                                   {:tempo 'time} {:parts {{:tempo  'hour
-                                                           :return 'int?}                                   {}
+                                                           :return 'int?}                          {}
                                                           {:tempo  'minute
-                                                           :return 'int?}                                   {}
+                                                           :return 'int?}                          {}
                                                           {:tempo  'second
-                                                           :return 'int?}                                   {}
+                                                           :return 'int?}                          {}
                                                           {:tempo  'millisecond
                                                            :return 'int?
-                                                           :cljay  {:xform-fn '(-> -millisecond)}}         {}
+                                                           :cljay  {:xform-fn '(-> -millisecond)}} {}
                                                           {:tempo  'microsecond
                                                            :return 'int?
-                                                           :cljay  {:xform-fn '(-> -microsecond)}}        {}
+                                                           :cljay  {:xform-fn '(-> -microsecond)}} {}
                                                           {:tempo  'nanosecond
                                                            :return 'int?
-                                                           :cljay  {:xform-fn '(-> -nanosecond)}} {}}}}}}}]}})
+                                                           :cljay  {:xform-fn '(-> -nanosecond)}}  {}}}}}}}]}})
 
 (def with-paths (paths graph))
 

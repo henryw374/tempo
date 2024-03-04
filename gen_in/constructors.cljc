@@ -60,7 +60,7 @@
                 (ZonedDateTime/ofInstant instant (timezone-parse zone))
                 (ZonedDateTime/of ^LocalDateTime ldt ^ZoneId (timezone-parse zone)))
        :cljs (if instant
-               (.toZonedDateTimeISO ^js instant (ZoneId/of zone))
+               (.toZonedDateTimeISO ^js instant zone)
                (.toZonedDateTime ^js ldt zone)))))
 
 (defn instant-from [thing]

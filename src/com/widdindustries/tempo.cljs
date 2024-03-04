@@ -6,7 +6,8 @@
   [com.widdindustries.tempo.cljs-protocols :as cljs-protocols]
   [com.widdindustries.tempo.js-temporal-entities :as entities]
   [com.widdindustries.tempo.js-temporal-methods :as methods]
-  [com.widdindustries.tempo.clock :as clock]))
+  [com.widdindustries.tempo.clock :as clock]
+  [goog.object]))
 
 (defn extend-all-cljs-protocols [] (cljs-protocols/extend-all))
 
@@ -54,12 +55,14 @@
  clock-offset-millis
  [clock offset-millis]
  (clock/clock
-  (fn [] (.add (.instant clock) (js-obj "milliseconds" offset-millis)))
-  (clock/timezone clock)))
+  (fn
+   []
+   (.add (.instant ^js clock) (js-obj "milliseconds" offset-millis)))
+  (clock/timezone_id clock)))
 
-(defn timezone-now ([clock] (clock/timezone clock)))
+(defn timezone-now ([clock] (clock/timezone_id clock)))
 
-(defn legacydate->instant [d] (.toTemporalInstant d))
+(defn legacydate->instant [d] (.toTemporalInstant ^js d))
 
 (defn greater [x y] (if (neg? (compare x y)) y x))
 
@@ -69,7 +72,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__36903# p2__36904#] (greater p1__36903# p2__36904#))
+  (fn* [p1__137960# p2__137961#] (greater p1__137960# p2__137961#))
   arg
   args))
 
@@ -81,7 +84,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__36905# p2__36906#] (lesser p1__36905# p2__36906#))
+  (fn* [p1__137962# p2__137963#] (lesser p1__137962# p2__137963#))
   arg
   args))
 
@@ -150,22 +153,9 @@
 
 (defprotocol Property (unit [_]) (field [_]))
 
-(defn
- -millisecond
- [f]
- (-> (getFractional f) (Duration/ofNanos) (.toMillisPart)))
-
-(defn -microsecond [f] (-> (getFractional f) (/ 1000) long (mod 1000)))
-
-(defn -nanosecond [f] (-> (getFractional f) (mod 1000)))
-
-(def ^ValueRange sub-second-range (ValueRange/of 0 999))
-
 (def
  nanoseconds-property
  (reify
-  object
-  (toString [_] "nanoseconds-property")
   Property
   (field [_] "nanosecond")
   (unit
@@ -174,19 +164,11 @@
     Unit
     (unit-amount [_] "nanoseconds")
     (unit-field [_] "nanosecond")
-    (unit-accessor [_ ^js x] (.-nanos x))))))
-
-(defmethod
- print-method
- (type nanoseconds-property)
- [_ ^java.io.Writer w]
- (print-simple "nanoseconds-property" w))
+    (unit-accessor [_ ^js x] (.-nanoseconds x))))))
 
 (def
  microseconds-property
  (reify
-  object
-  (toString [_] "microseconds-property")
   Property
   (field [_] "microsecond")
   (unit
@@ -195,19 +177,11 @@
     Unit
     (unit-amount [_] "microseconds")
     (unit-field [_] "microsecond")
-    (unit-accessor [_ ^js x] (.-micros x))))))
-
-(defmethod
- print-method
- (type microseconds-property)
- [_ ^java.io.Writer w]
- (print-simple "microseconds-property" w))
+    (unit-accessor [_ ^js x] (.-microseconds x))))))
 
 (def
  milliseconds-property
  (reify
-  object
-  (toString [_] "milliseconds-property")
   Property
   (field [_] "millisecond")
   (unit
@@ -216,19 +190,11 @@
     Unit
     (unit-amount [_] "milliseconds")
     (unit-field [_] "millisecond")
-    (unit-accessor [_ ^js x] (.-millis x))))))
-
-(defmethod
- print-method
- (type milliseconds-property)
- [_ ^java.io.Writer w]
- (print-simple "milliseconds-property" w))
+    (unit-accessor [_ ^js x] (.-milliseconds x))))))
 
 (def
  seconds-property
  (reify
-  object
-  (toString [_] "seconds-property")
   Property
   (field [_] "second")
   (unit
@@ -239,17 +205,9 @@
     (unit-field [_] "second")
     (unit-accessor [_ ^js x] (.-seconds x))))))
 
-(defmethod
- print-method
- (type seconds-property)
- [_ ^java.io.Writer w]
- (print-simple "seconds-property" w))
-
 (def
  minutes-property
  (reify
-  object
-  (toString [_] "minutes-property")
   Property
   (field [_] "minute")
   (unit
@@ -260,17 +218,9 @@
     (unit-field [_] "minute")
     (unit-accessor [_ ^js x] (.-minutes x))))))
 
-(defmethod
- print-method
- (type minutes-property)
- [_ ^java.io.Writer w]
- (print-simple "minutes-property" w))
-
 (def
  hours-property
  (reify
-  object
-  (toString [_] "hours-property")
   Property
   (field [_] "hour")
   (unit
@@ -281,17 +231,9 @@
     (unit-field [_] "hour")
     (unit-accessor [_ ^js x] (.-hours x))))))
 
-(defmethod
- print-method
- (type hours-property)
- [_ ^java.io.Writer w]
- (print-simple "hours-property" w))
-
 (def
  days-property
  (reify
-  object
-  (toString [_] "days-property")
   Property
   (field [_] "day")
   (unit
@@ -302,17 +244,9 @@
     (unit-field [_] "day")
     (unit-accessor [_ ^js x] (.-days x))))))
 
-(defmethod
- print-method
- (type days-property)
- [_ ^java.io.Writer w]
- (print-simple "days-property" w))
-
 (def
  months-property
  (reify
-  object
-  (toString [_] "months-property")
   Property
   (field [_] "month")
   (unit
@@ -323,17 +257,9 @@
     (unit-field [_] "month")
     (unit-accessor [_ ^js x] (.-months x))))))
 
-(defmethod
- print-method
- (type months-property)
- [_ ^java.io.Writer w]
- (print-simple "months-property" w))
-
 (def
  years-property
  (reify
-  object
-  (toString [_] "years-property")
   Property
   (field [_] "year")
   (unit
@@ -343,12 +269,6 @@
     (unit-amount [_] "years")
     (unit-field [_] "year")
     (unit-accessor [_ ^js x] (.-years x))))))
-
-(defmethod
- print-method
- (type years-property)
- [_ ^java.io.Writer w]
- (print-simple "years-property" w))
 
 (def ^{:dynamic true} *block-non-commutative-operations* true)
 
@@ -360,7 +280,7 @@
   (assert
    (not
     (and
-     (contains? #{months-property years-property} temporal)
+     (contains? #{months-property years-property} temporal-property)
      (not (or (monthday? temporal) (yearmonth? temporal)))))
    "shifting by years or months yields odd results depending on input. intead shift a year-month, then set non-yearmonth parts")))
 
@@ -376,16 +296,17 @@
 (defn
  until
  [v1 v2 property]
- (->
-  (.until
-   ^js v1
-   ^js v2
-   (js-obj
-    "smallestUnit"
-    (unit-field (unit property))
-    "largestUnit"
-    (unit-field (unit property))))
-  (unit-accessor (unit property))))
+ (unit-accessor
+  (unit property)
+  (->
+   (.until
+    ^js v1
+    ^js v2
+    (js-obj
+     "smallestUnit"
+     (unit-field (unit property))
+     "largestUnit"
+     (unit-field (unit property)))))))
 
 (defn
  >>
@@ -445,23 +366,21 @@
 
 (defprotocol JavaTruncateable (-truncate [_ unit]))
 
-(extend-protocol
- JavaTruncateable
- ZonedDateTime
- (-truncate [zdt unit] (.truncatedTo zdt unit))
- LocalDateTime
- (-truncate [zdt unit] (.truncatedTo zdt unit))
- LocalTime
- (-truncate [zdt unit] (.truncatedTo zdt unit))
- Instant
- (-truncate [zdt unit] (.truncatedTo zdt unit)))
-
 (defn
  truncate
  [temporal property]
- (.roundTo temporal (unit-field (unit property))))
+ (.round
+  ^js temporal
+  (js-obj
+   "smallestUnit"
+   (unit-field (unit property))
+   "roundingMode"
+   "trunc")))
 
-(defn get-field [temporal property] (unit-accessor property temporal))
+(defn
+ get-field
+ [temporal property]
+ (goog.object/get temporal (field property)))
 
 ^{:line 31, :column 9} (comment "accessors")
 
@@ -484,14 +403,19 @@
 
 (defn zdt->date [^js/Temporal.ZonedDateTime foo] (-> foo .toPlainDate))
 
-(defn date->month [^js/Temporal.PlainDate foo] (-> foo .-month))
+(defn
+ zdt->month
+ [^js/Temporal.ZonedDateTime foo]
+ (-> foo (-> (.-monthCode) (subs 1 3) js/parseInt)))
 
 (defn
- datetime->day-of-month
- [^js/Temporal.PlainDateTime foo]
- (-> foo .-day))
+ yearmonth->month
+ [^js/Temporal.PlainYearMonth foo]
+ (-> foo .-month))
 
-(defn monthday->month [^js/Temporal.PlainMonthDay foo] (-> foo .-month))
+(defn yearmonth->year [^js/Temporal.PlainYearMonth foo] (-> foo .-year))
+
+(defn zdt->day-of-month [^js/Temporal.ZonedDateTime foo] (-> foo .-day))
 
 (defn
  zdt->millisecond
@@ -503,6 +427,11 @@
  [^js/Temporal.ZonedDateTime foo]
  (-> foo .-nanosecond))
 
+(defn
+ monthday->month
+ [^js/Temporal.PlainMonthDay foo]
+ (-> foo (-> (.-monthCode) (subs 1 3) js/parseInt)))
+
 (defn zdt->second [^js/Temporal.ZonedDateTime foo] (-> foo .-second))
 
 (defn
@@ -510,13 +439,19 @@
  [^js/Temporal.PlainDateTime foo]
  (-> foo .-minute))
 
+(defn
+ monthday->day-of-month
+ [^js/Temporal.PlainMonthDay foo]
+ (-> foo .-day))
+
 (defn zdt->hour [^js/Temporal.ZonedDateTime foo] (-> foo .-hour))
 
 (defn zdt->instant [^js/Temporal.ZonedDateTime foo] (-> foo .toInstant))
 
-(defn datetime->month [^js/Temporal.PlainDateTime foo] (-> foo .-month))
-
-(defn datetime->year [^js/Temporal.PlainDateTime foo] (-> foo .-year))
+(defn
+ datetime->day-of-month
+ [^js/Temporal.PlainDateTime foo]
+ (-> foo .-day))
 
 (defn
  datetime->date
@@ -528,10 +463,6 @@
  [^js/Temporal.ZonedDateTime foo]
  (-> foo .-microsecond))
 
-(defn zdt->month [^js/Temporal.ZonedDateTime foo] (-> foo .-month))
-
-(defn zdt->day-of-month [^js/Temporal.ZonedDateTime foo] (-> foo .-day))
-
 (defn
  zdt->day-of-week
  [^js/Temporal.ZonedDateTime foo]
@@ -539,14 +470,26 @@
 
 (defn time->second [^js/Temporal.PlainTime foo] (-> foo .-second))
 
-(defn date->day-of-month [^js/Temporal.PlainDate foo] (-> foo .-day))
+(defn
+ instant->legacydate
+ [^js/Temporal.Instant foo]
+ (-> foo (-> (.-epochMilliseconds) (js/Date.))))
+
+(defn date->month [^js/Temporal.PlainDate foo] (-> foo .-month))
 
 (defn
  datetime->nanosecond
  [^js/Temporal.PlainDateTime foo]
  (-> foo .-nanosecond))
 
+(defn
+ instant->epochmilli
+ [^js/Temporal.Instant foo]
+ (-> foo (-> (.-epochMilliseconds))))
+
 (defn datetime->hour [^js/Temporal.PlainDateTime foo] (-> foo .-hour))
+
+(defn date->day-of-month [^js/Temporal.PlainDate foo] (-> foo .-day))
 
 (defn
  zdt->datetime
@@ -562,6 +505,8 @@
  time->nanosecond
  [^js/Temporal.PlainTime foo]
  (-> foo .-nanosecond))
+
+(defn datetime->year [^js/Temporal.PlainDateTime foo] (-> foo .-year))
 
 (defn time->minute [^js/Temporal.PlainTime foo] (-> foo .-minute))
 
@@ -584,31 +529,11 @@
 (defn zdt->minute [^js/Temporal.ZonedDateTime foo] (-> foo .-minute))
 
 (defn
- monthday->day-of-month
- [^js/Temporal.PlainMonthDay foo]
- (-> foo .-day))
-
-(defn
  datetime->millisecond
  [^js/Temporal.PlainDateTime foo]
  (-> foo .-millisecond))
 
-(defn
- instant->legacydate
- [^js/Temporal.Instant foo]
- (-> foo (-> (.-epochMilliseconds) (Date.))))
-
-(defn
- instant->epochmilli
- [^js/Temporal.Instant foo]
- (-> foo .-epochmilli))
-
-(defn yearmonth->year [^js/Temporal.PlainYearMonth foo] (-> foo .-year))
-
-(defn
- yearmonth->month
- [^js/Temporal.PlainYearMonth foo]
- (-> foo .-month))
+(defn datetime->month [^js/Temporal.PlainDateTime foo] (-> foo .-month))
 
 (defn
  time->millisecond
@@ -648,11 +573,6 @@
  (js/Temporal.PlainDate.from foo))
 
 (defn
- time-parse
- [^java.lang.String foo]
- (js/Temporal.PlainTime.from foo))
-
-(defn
  monthday-parse
  [^java.lang.String foo]
  (js/Temporal.PlainMonthDay.from foo))
@@ -662,6 +582,11 @@
  [^java.lang.String foo]
  (js/Temporal.PlainYearMonth.from foo))
 
+(defn
+ time-parse
+ [^java.lang.String foo]
+ (js/Temporal.PlainTime.from foo))
+
 ^{:line 35, :column 9} (comment "nowers")
 
 (defn zdt-now ([^java.time.Clock clock] (clock/zdt clock)))
@@ -670,13 +595,13 @@
 
 (defn date-now ([^java.time.Clock clock] (clock/date clock)))
 
-(defn time-now ([^java.time.Clock clock] (clock/time clock)))
-
-(defn instant-now ([^java.time.Clock clock] (clock/instant clock)))
-
 (defn monthday-now ([^java.time.Clock clock] (clock/monthday clock)))
 
 (defn yearmonth-now ([^java.time.Clock clock] (clock/yearmonth clock)))
+
+(defn time-now ([^java.time.Clock clock] (clock/time clock)))
+
+(defn instant-now ([^java.time.Clock clock] (clock/instant clock)))
 
 ^{:line 37, :column 9} (comment "constructors")
 
@@ -751,7 +676,7 @@
    (get thing :timezone_id)]
   (if
    instant
-   (.toZonedDateTimeISO ^js instant (ZoneId/of zone))
+   (.toZonedDateTimeISO ^js instant zone)
    (.toZonedDateTime ^js ldt zone))))
 
 (defn

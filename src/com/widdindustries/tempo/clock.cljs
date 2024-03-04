@@ -14,7 +14,7 @@
                           (tm/instant->plain-date-iso (instant-fn) zone))
       :plainTimeISO     (fn []
                           (tm/instant->plain-time-iso (instant-fn) zone))
-      :timeZone         (fn [] (tm/tz-from zone))
+      :timeZoneId       (fn [] zone)
       :zonedDateTimeISO (fn []
                           (tm/->zdt-iso (instant-fn) zone))})
 
@@ -36,8 +36,8 @@
 (defn time
   ([^js clock] (.plainTimeISO clock)))
 
-(defn timezone
-  ([^js clock] (.timeZone clock)))
+(defn timezone_id
+  ([^js clock] (.timeZoneId clock)))
 
 (defn zdt
   ([^js clock] (.zonedDateTimeISO clock)))

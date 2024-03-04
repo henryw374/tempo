@@ -126,70 +126,150 @@ Depend on tempo via deps.edn:
 (t/extend-cljs-protocols-to-instant)
 ```
 
-### Construction and access/get
+### Construction and access
 
-#### Clocks
+### Clocks
+
+a Clock is required to be able to get the current time/date/zone etc
 
 ```clojure
-;fixed in time and place
-(t/clock-fixed (t/instant-now) "Europe/Paris")
 
-;  ambient place, ticking clock
+;  ticking clock in ambient place
 (t/clock-system-default-zone)
+
+; ticking clock in specified place
+(t/clock-with-zone "Pacific/Honolulu")
+
+; fixed in time and place
+(t/clock-fixed (t/instant-parse "2020-02-02T00:00:00Z") "Europe/Paris")
 
 ; offset existing clock by specified millis
 (t/clock-offset clock -5)
-
 ```
 
-#### Time zones 
+a clock is then passed as arg to all `now` functions, for example:
+
+```clojure
+(t/date-now clock)
+```
+
+#### Time zones & Offsets
 
 ```clojure
 (t/timezone-parse "Europe/London")
+
+(t/timezone-now clock)
 ```
 
-Where a timezone is accessed from an object, or passed into an object, only the string representation is used, referred to as `timezone_id` 
+Where a timezone is accessed from an object, or passed into an object, only the string representation is used, referred to as `timezone_id`. Call `str` on a timezone to get its id. 
 
 ```clojure
 (t/zdt->timezone_id zdt)
-(t/zdt-from {:datetime datetime :timezone_id timezone})
+(t/zdt-from {:datetime datetime :timezone_id timezone_id})
 ```
 
-#### Temporals
+### Temporals
 
 ```clojure
 
-; Tempo construction and access is based on mnemonics
+; naming of construction and access functions is based on mnemonics
 
 ; the first word in the function is the entity name of the subject of the operation
 
 ; for example, if I want to construct a date or access its parts the function will start t/date-,
 ; similarly for a zone-date-time, it will be t/zdt-*
-(t/date-now)
 (t/date-now clock)
 (t/date-parse "2020-02-02") ;iso strings only
 (t/date-from {:year 2020 :month 2 :day 2})
 ; the -from functions accept a map of components which is sufficient to build the entity
-(t/datetime-from {:date (t/date-parse "2020-02-02") :time (t/time-now)})
+(t/datetime-from {:date (t/date-parse "2020-02-02") :time (t/time-now clock)})
 ; or equivalently
-(t/datetime-from {:year 2020 :month 2 :day 2 :time (t/time-now)})
+(t/datetime-from {:year 2020 :month 2 :day 2 :time (t/time-now clock)})
 ; with -from, you can use smaller or larger components. 
 ; larger ones take precedence. below, the :year is ignored, because the :date took precedence (being larger) 
 (t/datetime-from {:year 2021 :date (t/date-parse "2020-02-02") :time (t/time-now)})
 
 ; to get parts of an entity, start with the subject and add ->
-(t/date->yearmonth (t/date-now))
-(t/date->month (t/date-now))
-(t/zdt->nanos (t/zdt-now))
-(-> (t/instant-now) (t/instant->epochmillis))
+(t/date->yearmonth (t/date-now clock))
+(t/date->month (t/date-now clock))
+(t/zdt->nanos (t/zdt-now clock))
+(-> (t/instant-now clock) (t/instant->epochmillis))
 
+```
+
+#### Manipulation 
+
+aka construction a new temporal from one of the same type
+
+```clojure
+
+;; move date forward 3 days
+(t/>> (t/date-now clock) 3 t/days-property)
+
+;; set a particular field
+(-> (t/yearmonth-now clock) (t/with 3030 t/years-property))
+
+; set fields smaller than days (ie hours, mins etc) to zero
+(t/truncate x t/days-property)
+
+```
+
+#### Guardrails
+
+Consider the following:
+
+```clojure
+(let [start (t/date-parse "2020-01-31")]
+  (-> start (t/>> 1 t/months-property)
+      (t/<< 1 t/months-property)))
+```
+
+If you shift a date forward by an amount, then back by that amount then one might think the output would be equal to the input. In some cases that would happen, but not in the case shown above.
+
+Here's a similar example:
+
+```clojure
+(let [start (t/date-parse "2020-02-29")]
+  (-> start 
+      (t/with 2021 t/years-property)
+      (t/with 2020 t/years-property)))
+```
+
+We increment the year, then decrement it, but the output is not the same as the input.
+
+Both java.time and Temporal work this way and in my experience it is a source of bugs. For this reason, shifting `>>/<<` and `with` do not work in Tempo if the property is years or months.
+
+As a safer alternative, I suggest getting the year-month from a temporal first, doing whatever with/shift operations you like then setting the remaining fields.
+
+If you do not wish to have this guardrail, set `t/*block-non-commutative-operations*` to false
+
+### Comparison
+
+```clojure
+
+;only entities of the same type can be compared
+
+(t/>= a b)
+
+(t/max a b c)
+
+; you must specify property
+(t/until a b t/minutes-property)
+
+```
+
+#### Predicates
+
+```clojure
+
+(t/date? x)
 ```
 
 #### Temporal-amounts
 
-A temporal-amount is a quantity of time, e.g. hour, month, second.
+A temporal-amount is an entity representing a quantity of time, e.g. 3 hours and 5 seconds.
 
-Temporal-Amount entities are represented differently in java.time and Temporal, but with some overlap.
+Temporal-Amount entities are represented differently in java.time vs Temporal, but with some overlap.
 
 An `alpha` ns (groan!) exists which contains a few functions for working with temporal-amounts.
 
@@ -201,83 +281,15 @@ If not sufficient, use reader conditionals in your code to construct/manipulate 
 
 (d/duration-parse "PT0.001S")
 
-### Manipulation 
-
-aka construction a new entity from one of the same type
-
-#### Temporal-amounts
-
-```clojure
-
-(require '[com.widdindustries.tempo.duration-alpha :as d])
-(t/+ (d/duration-parse "PT3H") (d/duration-parse "PT3S"))
-
 ```
 
-#### Temporals
+In Tempo, some functions accept temporal-amounts as argument, but they are never returned from any function
+
+It is preferred to use numbers and properties for example
 
 ```clojure
-
-(require '[com.widdindustries.tempo.duration-alpha :as d])
-
-;; move date forward 3 days
-(t/>> (t/date-now) (d/period-parse "P3D"))
-
-(-> (t/date-now) (t/with 3030 t/years-property))
-
+(t/>> a-date 1 t/days-property)
 ```
-
-### Comparison
-
-#### Temporal
-```clojure
-
-;only entities of the same type can be compared
-
-(t/>= a b)
-
-
-(t/max a b c)
-
-; you must specify unit
-(t/until a b t/minutes-property)
-
-```
-
-### Predicates
-
-```clojure
-
-(t/date? x)
-```
-
-### Guardrails 
-
-Consider the following:
-
-```clojure
-(let [start (t/date-parse "2020-01-31")]
-  (-> start (t/>> 1 t/months-property)
-      (t/<< 1 t/months-property)))
-```
-
-If you shift a date forward by an amount, then back by that amount then you might think you'd end up with the date you started. Sometimes yes, in this case above, no. 
-
-Here's a similar example:
-
-```clojure
-(let [start (t/date-parse "2020-02-29")]
-  (-> start (t/with 2021 t/years-property)
-      (t/with 2020 t/years-property)))
-```
-
-We increment the year, then decrement it, but the output is not the same as the input.
-
-Both java.time and Temporal work this way and in my experience it is a source of bugs. For this reason, shifting `>>/<<` and `with` do not work in Tempo if the property is years or months. 
-
-As a safer alternative, I suggest getting the year-month from a temporal first, doing whatever with/shift operations you like then setting the remaining fields.
-
-If you do not wish to have this guardrail, set `t/*block-non-commutative-operations*` to false
 
 ## Dev 
 

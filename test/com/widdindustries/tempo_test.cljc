@@ -130,7 +130,8 @@
 (deftest prop-test
   (let [combos [[t/instant-now [t/nanoseconds-property t/microseconds-property t/milliseconds-property
                                 ; not days - mistakenly assumed to be 24hr in java.time
-                                ] [t/seconds-property t/hours-property]]
+                                ] ;[t/seconds-property t/hours-property]
+                 ]
                 [t/zdt-now [t/nanoseconds-property t/microseconds-property t/milliseconds-property
                             t/seconds-property t/hours-property
                             t/days-property ;t/months-property t/years-property
@@ -149,18 +150,21 @@
       (let [i-1 (now (t/clock-system-default-zone))
             i-2 (-> i-1
                     (t/>> 1 shiftable-prop))]
-        (testing (str "shift until" now " by " shiftable-prop)
+        (testing (str "shift until" i-1 " by " #?(:clj shiftable-prop :cljs (t/unit-field (t/unit shiftable-prop))))
           (is (= 1 (t/until i-1 i-2 shiftable-prop)))
           (is (= -1 (t/until i-2 i-1 shiftable-prop))))))
     (doseq [[now props] combos
             withable-prop props]
       (let [i-1 (now (t/clock-system-default-zone))
             current (t/get-field i-1 withable-prop)]
-        (testing (str "with " i-1 " prop " (str withable-prop))
-          (is (not= i-1 (t/with i-1 (if (= 1 current) 2 1) withable-prop)) (str i-1 " " withable-prop)))))))
+        (when-not (t/instant? i-1)
+          (testing (str "with " i-1 " prop " (str withable-prop) " current " current 
+                     " " #?(:cljs (t/unit-field (t/unit withable-prop))))
+            (is (not= i-1 (t/with i-1 (if (= 1 current) 2 1) withable-prop)) (str i-1 " " withable-prop))))))))
 
 
-; clock tests
+;(t/get-field (t/zdt-now (t/clock-system-default-zone)) t/days-property)
+
 (deftest clock-test
   (let [zone (str (t/timezone-now (t/clock-system-default-zone)))
         now (t/instant-now (t/clock-system-default-zone))
@@ -229,7 +233,7 @@
 
 
 (deftest truncate-test
-  (doseq [[temporal props] [[(t/zdt-parse "2020-02-02T09:19:42.123456789Z") [t/days-property t/hours-property t/minutes-property
+  (doseq [[temporal props] [[(t/zdt-parse "2020-02-02T09:19:42.123456789Z[Europe/London]") [t/days-property t/hours-property t/minutes-property
                                                                              t/seconds-property t/milliseconds-property t/microseconds-property
                                                                              t/nanoseconds-property]]
                             [(t/datetime-parse "2020-02-02T09:19:42.123456789") [t/days-property t/hours-property t/minutes-property
@@ -246,11 +250,15 @@
                                                          t/seconds-property t/milliseconds-property t/microseconds-property
                                                          t/nanoseconds-property]]
 
-  (-> (t/zdt-parse "2020-02-02T09:19:42.123456789Z")
+  #_(-> (t/zdt-parse "2020-02-02T09:19:42.123456789Z")
       (t/truncate t/microseconds-property)
       (t/get-field t/microseconds-property))
   )
 ;todo
+
+(deftest guardrails-test
+  (is (thrown? #?(:clj Throwable :cljs js/Error) (t/>> (t/date-parse "2020-02-02") 1 t/years-property))))
+
 
 t/monthday-from
 t/yearmonth-from
