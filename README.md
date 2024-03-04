@@ -12,36 +12,33 @@ zero-dependency, cross-platform Clojure time library
 * The underlying [Javascript platform time API](https://github.com/tc39/proposal-temporal) has semi-stabilized at ecma `stage 3` - meaning implementors
 can still suggest changes. When it has reached `stage 4`, application developers targeting the browser will need to include their own
 script to bring in a polyfill if the end-user's browser does not yet have the platform API required.
-* Not that much of the `Tempo` API exists at the moment - see `Usage` below for all ideas & plans. 
-FYI The API is planned to mostly consist of generated code.
-* Feedback welcome!
 
 ## About
 
 * Zero dependency => platform APIs only - see [comparison of java.time vs temporal](https://widdindustries.com/ecma-temporal-vs-java-time/)
-* platform+performance friendly - max DCE-ability for cljs, reflection-free on jvm. Likely means little/no polymorphism.
+* platform+performance friendly - max DCE-ability for cljs, reflection-free on jvm.
 * explicitly named conversions from type to type. no keyword arguments in functions
 * no implicit/contextual use of ambient zone or clock
 * API based on mnemonics
 * small feature set - aim for 80% of everyday date/time use cases.
-* totally ignore non-ISO8601 calendars. 
-* data-literals - same ones as [time-literals](https://github.com/henryw374/time-literals) (IOW just a new artifact from that project)
+* assume ISO8601 calendar. 
+* data-literals - same ones as [time-literals](https://github.com/henryw374/time-literals)
 
 ### java.time vs Temporal
 
-java.time and Temporal share some concepts, but both have some unshared concepts. Naming is also partially shared. [See here for a brief introduction and overview](https://widdindustries.com/blog/ecma-temporal-vs-java-time.html)
+java.time and Temporal have some shared concepts and some unshared. Naming is also partially shared. [See here for a brief introduction and overview](https://widdindustries.com/blog/ecma-temporal-vs-java-time.html)
 
-The below graph shows the entities in Temporal. If you know java.time and you squint a bit, it will look familiar to you. 
+The below graph shows the entities in Temporal. If you know java.time and you squint a bit, it will look familiar to you.
 
 ![graph of entities in Temporal](https://tc39.es/proposal-temporal/docs/object-model.svg)
 
-Tempo tries to find obvious common ground between java.time and Temporal and put it in an API. Following is some more detail:
+Tempo tries to find obvious common ground between java.time and Temporal. Following is some more detail:
 
 *just java.time*
 
-* parsing non-iso strings
-* 2 types to represent temporal amounts Duration and Period
-* clojure identity and comparison fns: =,>,>= etc all 'just work' - so these are added to Temporal objects in Tempo
+* parsing non-iso strings ([Temporal may have this in the future](https://github.com/js-temporal/proposal-temporal-v2/issues/2))
+* 2 types to represent temporal-amounts: `Duration` and `Period`
+* clojure `=` and `hash` work - so these are added to Temporal objects in Tempo
 * fixed & offset clocks - so these are added in cljs Tempo
 * OffsetDateTime, OffsetTime, Month, Year and DayOfWeek entities 
   * Tempo adds DayOfWeek to cljs, so there is e.g. `t/weekday-saturday`
@@ -58,47 +55,39 @@ Tempo tries to find obvious common ground between java.time and Temporal and put
 
 * formatting non-iso strings - this is not in Tempo (yet)
 
-## Rationale 
+## Rationale
+
+Since it was introduced in Java 8, use of the java.time API has become more and more widespread because:
+ * it improves on the legacy `java.util.Date` API 
+ * it is a platform API - developers and library authors can be confident that other developers will know the API and be happy to use it.
+
+The same benefits will apply to the Temporal API when it is widely available in browsers.
+
+Cross-platform date/time APIs for Clojure have already proven popular. It seems logical that one should exist targeting both java.time and Temporal.
+
+However, as stated above, although there is not a 1-1 correspondance between java.time and Temporal, there is sufficient overlap for a cross platform API that covers the majority of everyday use-cases.
+
+### Why not 'fill in the gaps' to make Temporal like java.time?
+
+There are some obvious benefits to be had if this were done. 
+
+However, aside from being a lot of work to do this, Temporal is a different API from java.time. The Temporal authors have designed it from scratch very deliberately and in so doing have made some different choices from java.time.
+
+Where Temporal and java.time overlap, there is obvious scope for a common API. Where they differ, application developers can decide on a case by case basis how to tackle that. 
+
+### What about Existing Cross-platform date/time APIs?
 
 [Tick](https://github.com/juxt/tick) (which I help maintain) is great for application developers who want a 
 cross-platform date-time library based on the java.time API. Tick provides much useful functionality
 on top of java.time, but users know they can always drop to [cljc.java-time](https://github.com/henryw374/cljc.java-time),
 to access the full java.time API directly when needed.
- 
-For application developers targeting Clojurescript in the browser,
-Tick comes with a cost of [additional build size](https://github.com/juxt/tick/blob/master/docs/cljs.adoc#optional-timezone--locale-data-for-reducing-build-size).
-For many use-cases, the 'cost' of that build size will be negligible, because the 
-build size will not impact significantly on user's experience of the application: ie neither load time
-or memory usage will be an issue given anticipated network and device capabilities - see [this experiment](https://widdindustries.com/blog/clojurescript-datetime-lib-comparison.html) proving that. 
 
-At the other end of the date-time spectrum, Javascript's existing platform Date object has [well documented, "won't fix" issues](https://www.youtube.com/watch?v=aVuor-VAWTI),
-which you see as either outright bugs or just a bizarre API.
-Also, since there is only one platform `Date` entity, an instance of which represents the start of a millisecond on the global timeline, there 
-are many use cases it does not serve well, such as representing a calendar date, like 2020-02-02 for example. 
+Even when Temporal is widely available, I would imagine many Clojure developers will want to keep using Tick because 
+* It is based on the same java.time API in both JVM and Javascript environments - so the full capability of java.time is available as required.
+* The additional build size of Tick in Javascript [does not degrade application performance](https://widdindustries.com/blog/clojurescript-datetime-lib-comparison.html)
+* Switching away from it will require significant time investment
 
-Fortunately,
-work is underway to build a [new platform Date-time library for Javascript](https://github.com/tc39/proposal-temporal)
-which (perhaps unsurprisingly) has a lot of overlap with Java's java.time library.
-
-For Clojure(script) application users who need the smallest possible build size, or for 
-library authors wishing to use cross-platform date-time capabilities, Tick's build size and installation 
-requirements make it not ideal at present. 
-
-It may be possible to implement Tick on the js/Temporal API, but it would be a huge amount of work to
-both: 
-
-* fill in all the parts of the java.time API missing from Temporal (bc Tick at present is sugar on top of the java.time API on both the JVM *and* Javascript) 
-* add enough testing to feel comfortable that the Clojure and Clojurescript APIs had full parity.  
-
-`Tempo` aims for a low-surprise/low-sugar API built using just the common parts of `java.time` and `Temporal`,
-so should suit both Clojure(Script) application builders who need a small cljs build size and library
-developers who need to include some date-time capability. 
-
-This means for example that custom formatting and parsing are not in this library, since there is no common
-functionality for that between java.time and js/Temporal. (But might be [in the future](https://github.com/js-temporal/proposal-temporal-v2/issues/2))
-
-It is expected that in future, a version of Tick could be built on top of `tempo` - probably as a separate Tick-lite
-artifact.
+Since `tick` is based on `java.time`, in its entirety it is incompatible with Temporal. Having said that a `tempo.tick` namespace exists which contains a subset of the functions from `tick.core` which are compatible.
 
 ## Usage
 
