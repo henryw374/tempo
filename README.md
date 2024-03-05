@@ -5,32 +5,13 @@
 <!-- [![bb compatible](https://raw.githubusercontent.com/babashka/babashka/master/logo/badge.svg)](https://babashka.org)-->
 
 
-zero-dependency, cross-platform Clojure time library
-
-*Status* - pre-alpha.
-
-* The underlying [Javascript platform time API](https://github.com/tc39/proposal-temporal) has semi-stabilized at
-  ecma `stage 3` - meaning implementors
-  can still suggest changes. When it has reached `stage 4`, application developers targeting the browser will need to
-  include their own
-  script to bring in a polyfill if the end-user's browser does not yet have the platform API required.
+Zero-dependency, cross-platform Clojure time library
 
 ## About
 
-* Zero dependency => platform APIs only -
-  see [comparison of java.time vs temporal](https://widdindustries.com/ecma-temporal-vs-java-time/)
-* platform+performance friendly - max DCE-ability for cljs, reflection-free on jvm.
-* explicitly named conversions from type to type. no keyword arguments in functions
-* no implicit/contextual use of ambient zone or clock
-* API based on mnemonics
-* small feature set - aim for 80% of everyday date/time use cases.
-* assume ISO8601 calendar.
-* data-literals - same ones as [time-literals](https://github.com/henryw374/time-literals)
-
 ### java.time vs Temporal
 
-java.time and Temporal have some shared concepts and some unshared. Naming is also partially
-shared. [See here for a brief introduction and overview](https://widdindustries.com/blog/ecma-temporal-vs-java-time.html)
+java.time and Temporal have some overlap with respect to concepts and naming. [See here for a brief introduction and overview](https://widdindustries.com/blog/ecma-temporal-vs-java-time.html)
 
 The below graph shows the entities in Temporal. If you know java.time and you squint a bit, it will look familiar to
 you.
@@ -104,7 +85,7 @@ Even when Temporal is widely available, I would imagine many Clojure developers 
 * Switching away from it will require significant time investment
 
 Since `tick` is based on `java.time`, in its entirety it is incompatible with Temporal. Having said that a `tempo.tick`
-namespace exists which contains a subset of the functions from `tick.core` which are compatible.
+namespace exists which contains a subset of the functions from `tick.core` which are compatible. This is WIP.
 
 ## Usage
 
@@ -121,6 +102,11 @@ Depend on tempo via deps.edn:
         ; to get data-literals for java.time and Temporal, also add...
         com.widdindustries/time-literals-tempo {:mvn/version "0.1.10"}}}
 ```
+
+* As of March 2024, a polyfill (e.g. [this](https://github.com/fullcalendar/temporal-polyfill)) of Temporal will be required for all javascript environments.
+* The new underlying Javascript platform time API [Temporal](https://github.com/tc39/proposal-temporal) has semi-stabilized at
+  `ecma stage 3`, meaning implementors
+  can still suggest changes - although at this point any changes will be superficial.
 
 ### Setup
 
@@ -253,7 +239,7 @@ Here's a similar example:
 We increment the year, then decrement it, but the output is not the same as the input.
 
 Both java.time and Temporal work this way and in my experience it is a source of bugs. For this reason, shifting `>>/<<`
-and `with` do not work in Tempo if the property is years or months.
+and `with` do not work in Tempo if the property is years or months and the subject is not a year-month.
 
 As a safer alternative, I suggest getting the year-month from a temporal first, doing whatever with/shift operations you
 like then setting the remaining fields.

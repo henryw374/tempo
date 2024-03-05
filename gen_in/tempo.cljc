@@ -141,14 +141,9 @@
   (and (<= start event)
     (>= end event)))
 
-(defprotocol Unit
-  (unit-field [_])
-  (unit-amount [_])
-  (unit-accessor [_ x]))
-
-(defprotocol Property
-  (unit [_])
-  (field [_]))
+#?(:cljay (defprotocol Property
+            (unit [_])
+            (field [_])))
 
 #?(:cljay
    (defprotocol HasTime
@@ -194,19 +189,8 @@
                                    millis+micros (-> fractional (/ 1000) long (* 1000))
                                    new-fractional (+ millis+micros value)]
                                (-> temporal (setFractional new-fractional)))))))
-     :cljs (reify
-             ;object (toString [_] "nanoseconds-property")
-             Property
-             (field [_] "nanosecond")
-             (unit [_]
-               (reify Unit
-                 (unit-amount [_] "nanoseconds")
-                 (unit-field [_] "nanosecond")
-                 (unit-accessor [_ ^js x] (.-nanoseconds x)))))))
+     :cljs "nanosecond"))
 
-#_(defmethod print-method (type nanoseconds-property)
-    [_, ^java.io.Writer w]
-    (print-simple "nanoseconds-property" w))
 
 (def microseconds-property #?(:cljay (reify
                                        Object (toString [_] "microseconds-property")
@@ -221,11 +205,7 @@
                                                             nanos (-> fractional (mod 1000))
                                                             new-fractional (+ millis nanos (-> value (* 1000)))]
                                                         (-> temporal (setFractional new-fractional)))))))
-                              :cljs (reify
-                                      ;object (toString [_] "microseconds-property")
-                                      Property (field [_] "microsecond")
-                                      (unit [_] (reify Unit (unit-amount [_] "microseconds") (unit-field [_] "microsecond")
-                                                  (unit-accessor [_ ^js x] (.-microseconds x)))))))
+                              :cljs "microsecond"))
 
 #_(defmethod print-method (type microseconds-property)
     [_, ^java.io.Writer w]
@@ -242,10 +222,7 @@
                                                       (let [fractional (getFractional temporal)
                                                             micros+nanos (-> fractional (mod 1000000))]
                                                         (-> temporal (setFractional (+ micros+nanos (-> value (* 1000000))))))))))
-                              :cljs (reify
-                                      ;object (toString [_] "milliseconds-property")
-                                      Property (field [_] "millisecond") (unit [_] (reify Unit (unit-amount [_] "milliseconds") (unit-field [_] "millisecond")
-                                                                                     (unit-accessor [_ ^js x] (.-milliseconds x)))))))
+                              :cljs "millisecond"))
 
 #_(defmethod print-method (type milliseconds-property)
     [_, ^java.io.Writer w]
@@ -255,9 +232,7 @@
                                   Object (toString [_] "seconds-property")
                                   Property (unit [_] ChronoUnit/SECONDS)
                                   (field [_] ChronoField/SECOND_OF_MINUTE))
-                         :cljs (reify
-                                 ;object (toString [_] "seconds-property")
-                                 Property (field [_] "second") (unit [_] (reify Unit (unit-amount [_] "seconds") (unit-field [_] "second") (unit-accessor [_ ^js x] (.-seconds x)))))))
+                         :cljs "second"))
 
 #_(defmethod print-method (type seconds-property)
     [_, ^java.io.Writer w]
@@ -267,9 +242,7 @@
                                   Object (toString [_] "minutes-property")
                                   Property (unit [_] ChronoUnit/MINUTES)
                                   (field [_] ChronoField/MINUTE_OF_HOUR))
-                         :cljs (reify
-                                 ;object (toString [_] "minutes-property")
-                                 Property (field [_] "minute") (unit [_] (reify Unit (unit-amount [_] "minutes") (unit-field [_] "minute") (unit-accessor [_ ^js x] (.-minutes x)))))))
+                         :cljs "minute"))
 
 #_(defmethod print-method (type minutes-property)
     [_, ^java.io.Writer w]
@@ -279,9 +252,7 @@
                                 Object (toString [_] "hours-property")
                                 Property (unit [_] ChronoUnit/HOURS)
                                 (field [_] ChronoField/HOUR_OF_DAY))
-                       :cljs (reify
-                               ;object (toString [_] "hours-property")
-                               Property (field [_] "hour") (unit [_] (reify Unit (unit-amount [_] "hours") (unit-field [_] "hour") (unit-accessor [_ ^js x] (.-hours x)))))))
+                       :cljs "hour"))
 
 #_(defmethod print-method (type hours-property)
     [_, ^java.io.Writer w]
@@ -291,13 +262,7 @@
                                Object (toString [_] "days-property")
                                Property (unit [_] ChronoUnit/DAYS)
                                (field [_] ChronoField/DAY_OF_MONTH))
-                      :cljs (reify
-                              ;object (toString [_] "days-property")
-                              Property 
-                              (field [_] "day") 
-                              (unit [_] (reify Unit (unit-amount [_] "days") 
-                                          (unit-field [_] "day") 
-                                          (unit-accessor [_ ^js x] (.-days x)))))))
+                      :cljs "day"))
 
 #_(defmethod print-method (type days-property)
     [_, ^java.io.Writer w]
@@ -307,9 +272,7 @@
                                  Object (toString [_] "months-property")
                                  Property (unit [_] ChronoUnit/MONTHS)
                                  (field [_] ChronoField/MONTH_OF_YEAR))
-                        :cljs (reify
-                                ;object (toString [_] "months-property")
-                                Property (field [_] "month") (unit [_] (reify Unit (unit-amount [_] "months") (unit-field [_] "month") (unit-accessor [_ ^js x] (.-months x)))))))
+                        :cljs "month"))
 
 #_(defmethod print-method (type months-property)
     [_, ^java.io.Writer w]
@@ -319,9 +282,7 @@
                                 Object (toString [_] "years-property")
                                 Property (unit [_] ChronoUnit/YEARS)
                                 (field [_] ChronoField/YEAR))
-                       :cljs (reify
-                               ;object (toString [_] "years-property")
-                               Property (field [_] "year") (unit [_] (reify Unit (unit-amount [_] "years") (unit-field [_] "year") (unit-accessor [_ ^js x] (.-years x)))))))
+                       :cljs "year"))
 
 #_(defmethod print-method (type years-property)
     [_, ^java.io.Writer w]
@@ -341,14 +302,15 @@
 (defn with [temporal value property]
   (throw-if-set-months-or-years temporal property)
   #?(:cljay (.with ^Temporal temporal ^TemporalField (field property) ^long value)
-     :cljs (.with ^js temporal (js-obj (field property) value) (js-obj "overflow" "reject"))))
+     :cljs (.with ^js temporal (js-obj property value) (js-obj "overflow" "reject"))))
 
 (defn until [v1 v2 property]
   #?(:cljay (.until ^Temporal v1 v2 (unit property))
      ;https://tc39.es/proposal-temporal/docs/instant.html#until
-     :cljs (unit-accessor (unit property)
-             (-> (.until ^js v1 ^js v2 (js-obj "smallestUnit" (unit-field (unit property))
-                                         "largestUnit" (unit-field (unit property))))))))
+     :cljs 
+     (-> (.until ^js v1 ^js v2 (js-obj "smallestUnit" property
+                                 "largestUnit" property))
+         (goog.object/get (str property "s")))))
 
 (defn >>
   #_([temporal temporal-property]
@@ -358,7 +320,7 @@
   ([temporal amount temporal-property]
    (throw-if-set-months-or-years temporal temporal-property)
    #?(:cljay (.plus ^Temporal temporal amount ^TemporalUnit (unit temporal-property))
-      :cljs (.add ^js temporal (js-obj (unit-amount (unit temporal-property)) amount)))))
+      :cljs (.add ^js temporal (js-obj (str temporal-property "s") amount)))))
 
 (defn <<
   #_([temporal temporal-amount]
@@ -368,25 +330,15 @@
   ([temporal amount temporal-property]
    (throw-if-set-months-or-years temporal temporal-property)
    #?(:cljay (.minus ^Temporal temporal amount ^TemporalUnit (unit temporal-property))
-      :cljs (.subtract ^js temporal (js-obj (unit-amount (unit temporal-property)) amount)))))
+      :cljs (.subtract ^js temporal (js-obj (str temporal-property "s") amount)))))
 
-(defprotocol WeekDay
-  (weekday-number [_])
-  (english-name [_]))
-
-#?(:cljay
-   (extend-protocol WeekDay
-     DayOfWeek
-     (weekday-number [x] (.getValue x))
-     (english-name [x] (str x))))
-
-(def weekday-monday #?(:cljay DayOfWeek/MONDAY :cljs (reify WeekDay (weekday-number [_] 1) (english-name [_] "MONDAY"))))
-(def weekday-tuesday #?(:cljay DayOfWeek/TUESDAY :cljs (reify WeekDay (weekday-number [_] 2) (english-name [_] "TUESDAY"))))
-(def weekday-wednesday #?(:cljay DayOfWeek/WEDNESDAY :cljs (reify WeekDay (weekday-number [_] 3) (english-name [_] "WEDNESDAY"))))
-(def weekday-thursday #?(:cljay DayOfWeek/THURSDAY :cljs (reify WeekDay (weekday-number [_] 4) (english-name [_] "THURSDAY"))))
-(def weekday-friday #?(:cljay DayOfWeek/FRIDAY :cljs (reify WeekDay (weekday-number [_] 5) (english-name [_] "FRIDAY"))))
-(def weekday-saturday #?(:cljay DayOfWeek/SATURDAY :cljs (reify WeekDay (weekday-number [_] 6) (english-name [_] "SATURDAY"))))
-(def weekday-sunday #?(:cljay DayOfWeek/SUNDAY :cljs (reify WeekDay (weekday-number [_] 7) (english-name [_] "SUNDAY"))))
+(def weekday-monday "MONDAY")
+(def weekday-tuesday "TUESDAY")
+(def weekday-wednesday "WEDNESDAY")
+(def weekday-thursday "THURSDAY")
+(def weekday-friday "FRIDAY")
+(def weekday-saturday "SATURDAY")
+(def weekday-sunday "SUNDAY")
 
 (def weekday-number->weekday
   {1 weekday-monday
@@ -397,8 +349,17 @@
    6 weekday-saturday
    7 weekday-sunday})
 
-(defprotocol JavaTruncateable
-  (-truncate [_ unit]))
+(def weekday->weekday-number 
+  {weekday-monday    1 
+   weekday-tuesday   2 
+   weekday-wednesday 3 
+   weekday-thursday  4 
+   weekday-friday    5 
+   weekday-saturday  6 
+   weekday-sunday    7   })
+
+#?(:clj (defprotocol JavaTruncateable
+          (-truncate [_ unit])))
 
 #?(:cljay
    (extend-protocol JavaTruncateable
@@ -410,8 +371,8 @@
 (defn truncate [temporal property]
   #?(:cljay (-truncate temporal (unit property))
      :cljs (.round ^js temporal 
-             (js-obj "smallestUnit" (unit-field (unit property)) "roundingMode" "trunc"))))
+             (js-obj "smallestUnit" property "roundingMode" "trunc"))))
 
 (defn get-field [temporal property]
   #?(:cljay (.get ^TemporalAccessor temporal (field property))
-     :cljs (goog.object/get temporal (field property))))
+     :cljs (goog.object/get temporal property)))

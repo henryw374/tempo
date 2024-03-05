@@ -167,7 +167,7 @@
       (let [i-1 (now (t/clock-system-default-zone))
             i-2 (-> i-1
                     (t/>> 1 shiftable-prop))]
-        (testing (str "shift until" i-1 " by " #?(:clj shiftable-prop :cljs (t/unit-field (t/unit shiftable-prop))))
+        (testing (str "shift until" i-1 " by " shiftable-prop)
           (is (= 1 (t/until i-1 i-2 shiftable-prop)))
           (is (= -1 (t/until i-2 i-1 shiftable-prop))))))
     (doseq [[now props] combos
@@ -176,7 +176,7 @@
             current (t/get-field i-1 withable-prop)]
         (when-not (t/instant? i-1)
           (testing (str "with " i-1 " prop " (str withable-prop) " current " current 
-                     " " #?(:cljs (t/unit-field (t/unit withable-prop))))
+                     " " withable-prop)
             (is (not= i-1 (t/with i-1 (if (= 1 current) 2 1) withable-prop)) (str i-1 " " withable-prop))))))))
 
 

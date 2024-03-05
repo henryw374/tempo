@@ -20,6 +20,7 @@
   ((get util/compile-fns compile-mode)
    (util/browser-test-config) opts)
   (.mkdirs (io/file "web-target" "public" "browser-test"))
+  ; https://esm.sh/temporal-polyfill@0.2.3
   (spit "web-target/public/browser-test/index.html"
     "<!DOCTYPE html>
     <html><head>
@@ -30,10 +31,11 @@
    
     <script>
         if(!window.Temporal){
-          document.write('<script src=\"https://tc39.es/proposal-temporal/docs/playground.js\"></script>');
+          document.write('<script src=\"https://tc39.es/proposal-temporal/docs/playground.js\"><\\/script>');
                   }
     </script>
-    
+
+   
     <script src=\"/browser-test/js/test.js\">
     </script>
     <script>kaocha.cljs2.shadow_runner.init();</script></body></html>"
@@ -73,13 +75,34 @@
   ; show what npm libs needed by cljs libs
   (util/show-npm-deps)
   
-  ; do the release build
-  (app-release)
-
-  (util/build-report (app-config) "build-report.html")
-
+ 
   ; you can stop/start etc as required
   (util/stop-server)
   (util/clean-build)
   )
 
+(defn app-config []
+  (->
+    (util/browser-app-config)
+    (merge
+      {:modules          {:main {:entries ['noodle.client-app]}}})))
+
+(defn app-release []
+  (util/prod-build
+    (-> (app-config)
+        (assoc :compiler-options {:pretty-print true
+                                  :pseudo-names true})
+        (dissoc :devtools))))
+
+(comment
+
+  ; do the release build
+  (widdindustries.capture/capt
+    '(do (app-release)
+         (-> (fs/file "web-target/public/cljs-out/main.js")
+                        (.length)
+             (- 518559))))
+
+  (util/build-report (app-config) "build-report.html")
+
+  )
