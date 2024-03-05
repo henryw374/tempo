@@ -1,19 +1,30 @@
 (ns com.widdindustries.tempo-test
   (:require [clojure.test :refer [deftest is testing]]
             [com.widdindustries.tempo :as t]
-            [com.widdindustries.tempo.duration-alpha :as d])
+            [com.widdindustries.tempo.duration-alpha :as d]
+            [time-literals.read-write])
   #?(:clj (:import [java.util Date])))
+
+(time-literals.read-write/print-time-literals-clj!)
+(time-literals.read-write/print-time-literals-cljs!)
 
 (comment 
   (remove-ns (.name *ns*))
   (remove-ns 'com.widdindustries.tempo)
   (require '[com.widdindustries.tempo] :reload-all)
+  (require '[time-literals.read-write])
+  #time/date "2020-02-02"
 
   )
 
 (t/extend-all-cljs-protocols)
 ;
 (deftest construction-from-parts-test
+  
+  (testing ""
+    t/monthday-from
+    t/yearmonth-from
+    )
   (testing "level 0"
     (let [nanos 789
           micros 456
@@ -40,8 +51,7 @@
           zdt (t/zdt-from {:datetime datetime :timezone_id timezone})]
       (is (t/zdt? zdt))
       (is (= datetime (t/zdt->datetime zdt)))
-      (is (= timezone (t/zdt->timezone_id zdt)))
-      ))
+      (is (= timezone (t/zdt->timezone_id zdt)))))
   (testing "level 2"
     (let [date (t/date-now (t/clock-system-default-zone))
           time (t/time-now (t/clock-system-default-zone))
@@ -71,7 +81,13 @@
       (let [d #?(:clj (Date.) :cljs (js/Date.))
             i (t/instant-from {:legacydate d})]
         (= (.getTime d) (t/instant->epochmilli i))
-        ))))
+        ))
+    (testing "zdt with offset"
+      (is (= "+05:50"
+            (->
+              (t/zdt-from {:instant     (t/instant-now (t/clock-system-default-zone))
+                           :timezone_id "+05:50"})
+              (t/zdt->timezone_id)))))))
 
 (deftest parsing-duration
   (is (t/duration? (d/duration-parse "PT1S"))))
@@ -111,7 +127,8 @@
   (is (not (t/period? (t/date-now (t/clock-system-default-zone))))))
 
 (deftest parsing-test
-  (is (t/timezone? (t/timezone-parse "Europe/London"))))
+  (is (t/timezone? (t/timezone-parse "Europe/London")))
+  (is (t/timezone? (t/timezone-parse "-12:15"))))
 
 (deftest equals-hash
   (is (= (t/timezone-parse "Europe/London") (t/timezone-parse "Europe/London")))
@@ -257,12 +274,16 @@
 ;todo
 
 (deftest guardrails-test
-  (is (thrown? #?(:clj Throwable :cljs js/Error) (t/>> (t/date-parse "2020-02-02") 1 t/years-property))))
+  (is (thrown? #?(:clj Throwable :cljs js/Error) (t/>> (t/date-parse "2020-02-02") 1 t/years-property)))
+  (binding [t/*block-non-commutative-operations* false]
+    (is (t/>> (t/date-parse "2020-02-02") 1 t/years-property))))
+
+(deftest comparison-test 
+  ;todo 
+  t/max
+  t/min
+  t/>=
+  t/coincident?
+  )
 
 
-t/monthday-from
-t/yearmonth-from
-t/max
-t/min
-t/>=
-t/coincident?

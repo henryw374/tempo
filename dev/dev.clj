@@ -28,7 +28,11 @@
     </head>
     <body>
    
-    <script src=\"/temporal.js\"></script>
+    <script>
+        if(!window.Temporal){
+          document.write('<script src=\"https://tc39.es/proposal-temporal/docs/playground.js\"></script>');
+                  }
+    </script>
     
     <script src=\"/browser-test/js/test.js\">
     </script>
