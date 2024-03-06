@@ -38,8 +38,6 @@
 
 (defn legacydate? [v] (instance? java.util.Date v))
 
-(defn clock? [v] (instance? Clock v))
-
 (defn period? [v] (instance? Period v))
 
 (defn duration? [v] (instance? Duration v))
@@ -93,7 +91,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__58388# p2__58389#] (greater p1__58388# p2__58389#))
+  (fn* [p1__63404# p2__63405#] (greater p1__63404# p2__63405#))
   arg
   args))
 
@@ -105,7 +103,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__58390# p2__58391#] (lesser p1__58390# p2__58391#))
+  (fn* [p1__63406# p2__63407#] (lesser p1__63406# p2__63407#))
   arg
   args))
 
@@ -428,7 +426,11 @@
  [temporal property]
  (.get ^TemporalAccessor temporal (field property)))
 
+(defn yearmonth->last-day-date [ym] (.atEndOfMonth ^YearMonth ym))
+
 ^{:line 31, :column 9} (comment "accessors")
+
+(defn monthday->day-of-month [^MonthDay foo] (-> foo .getDayOfMonth))
 
 (defn zdt->year [^ZonedDateTime foo] (-> foo .getYear))
 
@@ -436,8 +438,6 @@
  datetime->day-of-week
  [^LocalDateTime foo]
  (-> foo (-> (.getDayOfWeek) (.getValue))))
-
-(defn date->month [^LocalDate foo] (-> foo .getMonthValue))
 
 (defn
  datetime->microsecond
@@ -450,18 +450,15 @@
 
 (defn date->day-of-month [^LocalDate foo] (-> foo .getDayOfMonth))
 
-(defn
- datetime->day-of-month
- [^LocalDateTime foo]
- (-> foo .getDayOfMonth))
+(defn datetime->year [^LocalDateTime foo] (-> foo .getYear))
 
-(defn zdt->month [^ZonedDateTime foo] (-> foo .getMonthValue))
+(defn datetime->month [^LocalDateTime foo] (-> foo .getMonthValue))
 
 (defn zdt->millisecond [^ZonedDateTime foo] (-> foo (-> -millisecond)))
 
 (defn zdt->nanosecond [^ZonedDateTime foo] (-> foo (-> -nanosecond)))
 
-(defn datetime->year [^LocalDateTime foo] (-> foo .getYear))
+(defn zdt->month [^ZonedDateTime foo] (-> foo .getMonthValue))
 
 (defn zdt->second [^ZonedDateTime foo] (-> foo .getSecond))
 
@@ -469,22 +466,22 @@
 
 (defn zdt->hour [^ZonedDateTime foo] (-> foo .getHour))
 
-(defn date->year [^LocalDate foo] (-> foo .getYear))
-
 (defn zdt->instant [^ZonedDateTime foo] (-> foo .toInstant))
 
-(defn yearmonth->month [^YearMonth foo] (-> foo .getMonthValue))
-
-(defn zdt->day-of-month [^ZonedDateTime foo] (-> foo .getDayOfMonth))
+(defn date->month [^LocalDate foo] (-> foo .getMonthValue))
 
 (defn
- zdt->yearmonth
- [^ZonedDateTime foo]
- (-> foo (-> (YearMonth/from))))
+ datetime->day-of-month
+ [^LocalDateTime foo]
+ (-> foo .getDayOfMonth))
+
+(defn monthday->month [^MonthDay foo] (-> foo .getMonthValue))
 
 (defn datetime->date [^LocalDateTime foo] (-> foo .toLocalDate))
 
 (defn zdt->microsecond [^ZonedDateTime foo] (-> foo (-> -microsecond)))
+
+(defn zdt->day-of-month [^ZonedDateTime foo] (-> foo .getDayOfMonth))
 
 (defn
  zdt->day-of-week
@@ -494,23 +491,25 @@
 (defn time->second [^LocalTime foo] (-> foo .getSecond))
 
 (defn
+ zdt->yearmonth
+ [^ZonedDateTime foo]
+ (-> foo (-> (YearMonth/from))))
+
+(defn
  instant->legacydate
  [^Instant foo]
  (-> foo (-> (.toEpochMilli) (java.util.Date.))))
+
+(defn yearmonth->year [^YearMonth foo] (-> foo .getYear))
 
 (defn
  datetime->nanosecond
  [^LocalDateTime foo]
  (-> foo (-> -nanosecond)))
 
-(defn yearmonth->year [^YearMonth foo] (-> foo .getYear))
-
-(defn
- datetime->yearmonth
- [^LocalDateTime foo]
- (-> foo (-> (YearMonth/from))))
-
 (defn instant->epochmilli [^Instant foo] (-> foo .toEpochMilli))
+
+(defn date->year [^LocalDate foo] (-> foo .getYear))
 
 (defn datetime->hour [^LocalDateTime foo] (-> foo .getHour))
 
@@ -518,17 +517,13 @@
 
 (defn time->microsecond [^LocalTime foo] (-> foo (-> -microsecond)))
 
-(defn datetime->month [^LocalDateTime foo] (-> foo .getMonthValue))
-
-(defn monthday->day-of-month [^MonthDay foo] (-> foo .getDayOfMonth))
+(defn date->yearmonth [^LocalDate foo] (-> foo (-> (YearMonth/from))))
 
 (defn time->nanosecond [^LocalTime foo] (-> foo (-> -nanosecond)))
 
 (defn time->minute [^LocalTime foo] (-> foo .getMinute))
 
 (defn time->hour [^LocalTime foo] (-> foo .getHour))
-
-(defn monthday->month [^MonthDay foo] (-> foo .getMonthValue))
 
 (defn zdt->time [^ZonedDateTime foo] (-> foo .toLocalTime))
 
@@ -549,7 +544,12 @@
  [^LocalDateTime foo]
  (-> foo (-> -millisecond)))
 
-(defn date->yearmonth [^LocalDate foo] (-> foo (-> (YearMonth/from))))
+(defn yearmonth->month [^YearMonth foo] (-> foo .getMonthValue))
+
+(defn
+ datetime->yearmonth
+ [^LocalDateTime foo]
+ (-> foo (-> (YearMonth/from))))
 
 (defn time->millisecond [^LocalTime foo] (-> foo (-> -millisecond)))
 
@@ -563,17 +563,19 @@
 
 (defn zdt-parse [^java.lang.String foo] (ZonedDateTime/parse foo))
 
+(defn monthday-parse [^java.lang.String foo] (MonthDay/parse foo))
+
 (defn datetime-parse [^java.lang.String foo] (LocalDateTime/parse foo))
 
 (defn date-parse [^java.lang.String foo] (LocalDate/parse foo))
 
-(defn monthday-parse [^java.lang.String foo] (MonthDay/parse foo))
+(defn yearmonth-parse [^java.lang.String foo] (YearMonth/parse foo))
 
 (defn time-parse [^java.lang.String foo] (LocalTime/parse foo))
 
-(defn yearmonth-parse [^java.lang.String foo] (YearMonth/parse foo))
-
 ^{:line 35, :column 9} (comment "nowers")
+
+(defn monthday-now ([^java.time.Clock clock] (MonthDay/now clock)))
 
 (defn zdt-now ([^java.time.Clock clock] (ZonedDateTime/now clock)))
 
@@ -581,13 +583,11 @@
 
 (defn date-now ([^java.time.Clock clock] (LocalDate/now clock)))
 
-(defn monthday-now ([^java.time.Clock clock] (MonthDay/now clock)))
+(defn yearmonth-now ([^java.time.Clock clock] (YearMonth/now clock)))
 
 (defn time-now ([^java.time.Clock clock] (LocalTime/now clock)))
 
 (defn instant-now ([^java.time.Clock clock] (Instant/now clock)))
-
-(defn yearmonth-now ([^java.time.Clock clock] (YearMonth/now clock)))
 
 ^{:line 37, :column 9} (comment "constructors")
 

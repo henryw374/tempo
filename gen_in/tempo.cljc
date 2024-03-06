@@ -26,10 +26,7 @@
   #?(:cljs (instance? js/Date v)
      :cljay (instance? java.util.Date v)
      ))
-(defn clock? [v]
-  #?(:cljs nil ;todo ;(instance?  v)
-     :cljay (instance? Clock v)
-     ))
+;(defn clock? [v] #?(:cljs nil :cljay (instance? Clock v)))
 (defn period? [v] #?(:cljs (instance? entities/duration v)
                      :cljay (instance? Period v)
                      ))
@@ -376,3 +373,7 @@
 (defn get-field [temporal property]
   #?(:cljay (.get ^TemporalAccessor temporal (field property))
      :cljs (goog.object/get temporal property)))
+
+(defn yearmonth->last-day-date [ym]
+  #?(:cljay (.atEndOfMonth ^YearMonth ym)
+     :cljs (.toPlainDate ^js ym (js-obj "day" (.-daysInMonth ^js ym)))))

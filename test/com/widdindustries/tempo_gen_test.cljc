@@ -11,6 +11,12 @@
 ^{:line 53, :column 9} (comment "parsers")
 
 (deftest
+ monthday-parse-test
+ (let
+  [now-now (t/monthday-now (t/clock-system-default-zone))]
+  (is (= now-now (-> now-now str t/monthday-parse)))))
+
+(deftest
  zdt-parse-test
  (let
   [now-now (t/zdt-now (t/clock-system-default-zone))]
@@ -29,10 +35,10 @@
   (is (= now-now (-> now-now str t/date-parse)))))
 
 (deftest
- monthday-parse-test
+ yearmonth-parse-test
  (let
-  [now-now (t/monthday-now (t/clock-system-default-zone))]
-  (is (= now-now (-> now-now str t/monthday-parse)))))
+  [now-now (t/yearmonth-now (t/clock-system-default-zone))]
+  (is (= now-now (-> now-now str t/yearmonth-parse)))))
 
 (deftest
  time-parse-test
@@ -46,13 +52,28 @@
   [now-now (t/instant-now (t/clock-system-default-zone))]
   (is (= now-now (-> now-now str t/instant-parse)))))
 
-(deftest
- yearmonth-parse-test
- (let
-  [now-now (t/yearmonth-now (t/clock-system-default-zone))]
-  (is (= now-now (-> now-now str t/yearmonth-parse)))))
-
 ^{:line 55, :column 9} (comment "nowers")
+
+(deftest
+ monthday-now-test
+ (let
+  [now-now (t/monthday-now (t/clock-system-default-zone))]
+  (is (t/monthday? now-now)))
+ (let
+  [clock-1
+   (t/clock-fixed
+    (t/instant-parse "1955-11-01T16:46:08.017143Z")
+    (str (t/timezone-now (t/clock-system-default-zone))))
+   clock-2
+   (t/clock-fixed
+    (t/instant-parse "1955-12-02T17:46:08.017143Z")
+    (str (t/timezone-now (t/clock-system-default-zone))))
+   now-clock-1
+   (t/monthday-now clock-1)
+   now-clock-2
+   (t/monthday-now clock-2)]
+  (is (t/monthday? now-clock-1))
+  (is (t/> now-clock-2 now-clock-1))))
 
 (deftest
  zdt-now-test
@@ -118,10 +139,10 @@
   (is (t/> now-clock-2 now-clock-1))))
 
 (deftest
- monthday-now-test
+ yearmonth-now-test
  (let
-  [now-now (t/monthday-now (t/clock-system-default-zone))]
-  (is (t/monthday? now-now)))
+  [now-now (t/yearmonth-now (t/clock-system-default-zone))]
+  (is (t/yearmonth? now-now)))
  (let
   [clock-1
    (t/clock-fixed
@@ -132,10 +153,10 @@
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
     (str (t/timezone-now (t/clock-system-default-zone))))
    now-clock-1
-   (t/monthday-now clock-1)
+   (t/yearmonth-now clock-1)
    now-clock-2
-   (t/monthday-now clock-2)]
-  (is (t/monthday? now-clock-1))
+   (t/yearmonth-now clock-2)]
+  (is (t/yearmonth? now-clock-1))
   (is (t/> now-clock-2 now-clock-1))))
 
 (deftest
@@ -180,28 +201,14 @@
   (is (t/instant? now-clock-1))
   (is (t/> now-clock-2 now-clock-1))))
 
-(deftest
- yearmonth-now-test
- (let
-  [now-now (t/yearmonth-now (t/clock-system-default-zone))]
-  (is (t/yearmonth? now-now)))
- (let
-  [clock-1
-   (t/clock-fixed
-    (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (str (t/timezone-now (t/clock-system-default-zone))))
-   clock-2
-   (t/clock-fixed
-    (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (str (t/timezone-now (t/clock-system-default-zone))))
-   now-clock-1
-   (t/yearmonth-now clock-1)
-   now-clock-2
-   (t/yearmonth-now clock-2)]
-  (is (t/yearmonth? now-clock-1))
-  (is (t/> now-clock-2 now-clock-1))))
-
 ^{:line 57, :column 9} (comment "accessors")
+
+(deftest
+ monthday->day-of-month
+ (let
+  [now-now (t/monthday-now (t/clock-system-default-zone))]
+  (is (int? (t/monthday->day-of-month now-now)))
+  nil))
 
 (deftest
  zdt->year
@@ -215,13 +222,6 @@
  (let
   [now-now (t/datetime-now (t/clock-system-default-zone))]
   (is (int? (t/datetime->day-of-week now-now)))
-  nil))
-
-(deftest
- date->month
- (let
-  [now-now (t/date-now (t/clock-system-default-zone))]
-  (is (int? (t/date->month now-now)))
   nil))
 
 (deftest
@@ -262,17 +262,17 @@
   nil))
 
 (deftest
- datetime->day-of-month
+ datetime->year
  (let
   [now-now (t/datetime-now (t/clock-system-default-zone))]
-  (is (int? (t/datetime->day-of-month now-now)))
+  (is (int? (t/datetime->year now-now)))
   nil))
 
 (deftest
- zdt->month
+ datetime->month
  (let
-  [now-now (t/zdt-now (t/clock-system-default-zone))]
-  (is (int? (t/zdt->month now-now)))
+  [now-now (t/datetime-now (t/clock-system-default-zone))]
+  (is (int? (t/datetime->month now-now)))
   nil))
 
 (deftest
@@ -302,10 +302,10 @@
      t/nanoseconds-property)))))
 
 (deftest
- datetime->year
+ zdt->month
  (let
-  [now-now (t/datetime-now (t/clock-system-default-zone))]
-  (is (int? (t/datetime->year now-now)))
+  [now-now (t/zdt-now (t/clock-system-default-zone))]
+  (is (int? (t/zdt->month now-now)))
   nil))
 
 (deftest
@@ -339,13 +339,6 @@
     (t/with now-now (t/zdt->hour now-now) t/hours-property)))))
 
 (deftest
- date->year
- (let
-  [now-now (t/date-now (t/clock-system-default-zone))]
-  (is (int? (t/date->year now-now)))
-  nil))
-
-(deftest
  zdt->instant
  (let
   [now-now (t/zdt-now (t/clock-system-default-zone))]
@@ -353,24 +346,24 @@
   nil))
 
 (deftest
- yearmonth->month
+ date->month
  (let
-  [now-now (t/yearmonth-now (t/clock-system-default-zone))]
-  (is (int? (t/yearmonth->month now-now)))
+  [now-now (t/date-now (t/clock-system-default-zone))]
+  (is (int? (t/date->month now-now)))
   nil))
 
 (deftest
- zdt->day-of-month
+ datetime->day-of-month
  (let
-  [now-now (t/zdt-now (t/clock-system-default-zone))]
-  (is (int? (t/zdt->day-of-month now-now)))
+  [now-now (t/datetime-now (t/clock-system-default-zone))]
+  (is (int? (t/datetime->day-of-month now-now)))
   nil))
 
 (deftest
- zdt->yearmonth
+ monthday->month
  (let
-  [now-now (t/zdt-now (t/clock-system-default-zone))]
-  (is (t/yearmonth? (t/zdt->yearmonth now-now)))
+  [now-now (t/monthday-now (t/clock-system-default-zone))]
+  (is (int? (t/monthday->month now-now)))
   nil))
 
 (deftest
@@ -394,6 +387,13 @@
      t/microseconds-property)))))
 
 (deftest
+ zdt->day-of-month
+ (let
+  [now-now (t/zdt-now (t/clock-system-default-zone))]
+  (is (int? (t/zdt->day-of-month now-now)))
+  nil))
+
+(deftest
  zdt->day-of-week
  (let
   [now-now (t/zdt-now (t/clock-system-default-zone))]
@@ -411,10 +411,24 @@
     (t/with now-now (t/time->second now-now) t/seconds-property)))))
 
 (deftest
+ zdt->yearmonth
+ (let
+  [now-now (t/zdt-now (t/clock-system-default-zone))]
+  (is (t/yearmonth? (t/zdt->yearmonth now-now)))
+  nil))
+
+(deftest
  instant->legacydate
  (let
   [now-now (t/instant-now (t/clock-system-default-zone))]
   (is (t/legacydate? (t/instant->legacydate now-now)))
+  nil))
+
+(deftest
+ yearmonth->year
+ (let
+  [now-now (t/yearmonth-now (t/clock-system-default-zone))]
+  (is (int? (t/yearmonth->year now-now)))
   nil))
 
 (deftest
@@ -431,24 +445,17 @@
      t/nanoseconds-property)))))
 
 (deftest
- yearmonth->year
- (let
-  [now-now (t/yearmonth-now (t/clock-system-default-zone))]
-  (is (int? (t/yearmonth->year now-now)))
-  nil))
-
-(deftest
- datetime->yearmonth
- (let
-  [now-now (t/datetime-now (t/clock-system-default-zone))]
-  (is (t/yearmonth? (t/datetime->yearmonth now-now)))
-  nil))
-
-(deftest
  instant->epochmilli
  (let
   [now-now (t/instant-now (t/clock-system-default-zone))]
   (is (int? (t/instant->epochmilli now-now)))
+  nil))
+
+(deftest
+ date->year
+ (let
+  [now-now (t/date-now (t/clock-system-default-zone))]
+  (is (int? (t/date->year now-now)))
   nil))
 
 (deftest
@@ -482,17 +489,10 @@
      t/microseconds-property)))))
 
 (deftest
- datetime->month
+ date->yearmonth
  (let
-  [now-now (t/datetime-now (t/clock-system-default-zone))]
-  (is (int? (t/datetime->month now-now)))
-  nil))
-
-(deftest
- monthday->day-of-month
- (let
-  [now-now (t/monthday-now (t/clock-system-default-zone))]
-  (is (int? (t/monthday->day-of-month now-now)))
+  [now-now (t/date-now (t/clock-system-default-zone))]
+  (is (t/yearmonth? (t/date->yearmonth now-now)))
   nil))
 
 (deftest
@@ -527,13 +527,6 @@
    (=
     now-now
     (t/with now-now (t/time->hour now-now) t/hours-property)))))
-
-(deftest
- monthday->month
- (let
-  [now-now (t/monthday-now (t/clock-system-default-zone))]
-  (is (int? (t/monthday->month now-now)))
-  nil))
 
 (deftest
  zdt->time
@@ -580,10 +573,17 @@
      t/milliseconds-property)))))
 
 (deftest
- date->yearmonth
+ yearmonth->month
  (let
-  [now-now (t/date-now (t/clock-system-default-zone))]
-  (is (t/yearmonth? (t/date->yearmonth now-now)))
+  [now-now (t/yearmonth-now (t/clock-system-default-zone))]
+  (is (int? (t/yearmonth->month now-now)))
+  nil))
+
+(deftest
+ datetime->yearmonth
+ (let
+  [now-now (t/datetime-now (t/clock-system-default-zone))]
+  (is (t/yearmonth? (t/datetime->yearmonth now-now)))
   nil))
 
 (deftest

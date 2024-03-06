@@ -286,4 +286,5 @@
   t/coincident?
   )
 
-
+(deftest eom-test
+  (is (= (t/date-parse "2020-02-29") (t/yearmonth->last-day-date (t/yearmonth-parse "2020-02")))))
