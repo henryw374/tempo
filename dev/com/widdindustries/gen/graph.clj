@@ -74,11 +74,13 @@
 (def yearmonth
   {:needed-to-go-up {'day-of-month {}}
    :tempo           'yearmonth
-   :ignore-accessor true
-   :cljay           {:no-getter true
-                     :fn-args   ['year 'month]
-                     :fn        (fn [year month]
-                                  (YearMonth/of ^int year ^int month))}})
+   ;:ignore-accessor true
+   :cljs  {          :xform-fn '(-> (js/Temporal.PlainYearMonth.from))}
+   :cljay           {;:no-getter true
+                     :xform-fn '(-> (YearMonth/from))
+                     :fn-args  ['year 'month]
+                     :fn       (fn [year month]
+                                 (YearMonth/of ^int year ^int month))}})
 
 (def month
   {:tempo 'month

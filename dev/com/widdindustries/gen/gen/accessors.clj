@@ -250,6 +250,7 @@
             ~(when (and 
                      (and (not= 'monthday subject) (not= 'month target-name))
                      (not (contains? #{'day-of-week 'date 'day-of-month 'instant 'datetime 'time 'timezone_id 'legacydate
+                                       'yearmonth
                                           'epochmilli 'year 'month}
                                target-name)))
                (list 'is (list '= 'now-now (list 't/with 'now-now (list (symbol (str "t/" fn-name)) 'now-now) prop))))

@@ -248,13 +248,6 @@
     (t/with now-now (t/datetime->second now-now) t/seconds-property)))))
 
 (deftest
- yearmonth->month
- (let
-  [now-now (t/yearmonth-now (t/clock-system-default-zone))]
-  (is (int? (t/yearmonth->month now-now)))
-  nil))
-
-(deftest
  zdt->date
  (let
   [now-now (t/zdt-now (t/clock-system-default-zone))]
@@ -262,17 +255,17 @@
   nil))
 
 (deftest
- datetime->month
+ date->day-of-month
  (let
-  [now-now (t/datetime-now (t/clock-system-default-zone))]
-  (is (int? (t/datetime->month now-now)))
+  [now-now (t/date-now (t/clock-system-default-zone))]
+  (is (int? (t/date->day-of-month now-now)))
   nil))
 
 (deftest
- monthday->month
+ datetime->day-of-month
  (let
-  [now-now (t/monthday-now (t/clock-system-default-zone))]
-  (is (int? (t/monthday->month now-now)))
+  [now-now (t/datetime-now (t/clock-system-default-zone))]
+  (is (int? (t/datetime->day-of-month now-now)))
   nil))
 
 (deftest
@@ -309,10 +302,10 @@
      t/nanoseconds-property)))))
 
 (deftest
- monthday->day-of-month
+ datetime->year
  (let
-  [now-now (t/monthday-now (t/clock-system-default-zone))]
-  (is (int? (t/monthday->day-of-month now-now)))
+  [now-now (t/datetime-now (t/clock-system-default-zone))]
+  (is (int? (t/datetime->year now-now)))
   nil))
 
 (deftest
@@ -336,13 +329,6 @@
     (t/with now-now (t/datetime->minute now-now) t/minutes-property)))))
 
 (deftest
- yearmonth->year
- (let
-  [now-now (t/yearmonth-now (t/clock-system-default-zone))]
-  (is (int? (t/yearmonth->year now-now)))
-  nil))
-
-(deftest
  zdt->hour
  (let
   [now-now (t/zdt-now (t/clock-system-default-zone))]
@@ -353,6 +339,13 @@
     (t/with now-now (t/zdt->hour now-now) t/hours-property)))))
 
 (deftest
+ date->year
+ (let
+  [now-now (t/date-now (t/clock-system-default-zone))]
+  (is (int? (t/date->year now-now)))
+  nil))
+
+(deftest
  zdt->instant
  (let
   [now-now (t/zdt-now (t/clock-system-default-zone))]
@@ -360,17 +353,24 @@
   nil))
 
 (deftest
- date->day-of-month
+ yearmonth->month
  (let
-  [now-now (t/date-now (t/clock-system-default-zone))]
-  (is (int? (t/date->day-of-month now-now)))
+  [now-now (t/yearmonth-now (t/clock-system-default-zone))]
+  (is (int? (t/yearmonth->month now-now)))
   nil))
 
 (deftest
- datetime->day-of-month
+ zdt->day-of-month
  (let
-  [now-now (t/datetime-now (t/clock-system-default-zone))]
-  (is (int? (t/datetime->day-of-month now-now)))
+  [now-now (t/zdt-now (t/clock-system-default-zone))]
+  (is (int? (t/zdt->day-of-month now-now)))
+  nil))
+
+(deftest
+ zdt->yearmonth
+ (let
+  [now-now (t/zdt-now (t/clock-system-default-zone))]
+  (is (t/yearmonth? (t/zdt->yearmonth now-now)))
   nil))
 
 (deftest
@@ -392,13 +392,6 @@
      now-now
      (t/zdt->microsecond now-now)
      t/microseconds-property)))))
-
-(deftest
- zdt->day-of-month
- (let
-  [now-now (t/zdt-now (t/clock-system-default-zone))]
-  (is (int? (t/zdt->day-of-month now-now)))
-  nil))
 
 (deftest
  zdt->day-of-week
@@ -438,6 +431,20 @@
      t/nanoseconds-property)))))
 
 (deftest
+ yearmonth->year
+ (let
+  [now-now (t/yearmonth-now (t/clock-system-default-zone))]
+  (is (int? (t/yearmonth->year now-now)))
+  nil))
+
+(deftest
+ datetime->yearmonth
+ (let
+  [now-now (t/datetime-now (t/clock-system-default-zone))]
+  (is (t/yearmonth? (t/datetime->yearmonth now-now)))
+  nil))
+
+(deftest
  instant->epochmilli
  (let
   [now-now (t/instant-now (t/clock-system-default-zone))]
@@ -475,10 +482,17 @@
      t/microseconds-property)))))
 
 (deftest
- date->year
+ datetime->month
  (let
-  [now-now (t/date-now (t/clock-system-default-zone))]
-  (is (int? (t/date->year now-now)))
+  [now-now (t/datetime-now (t/clock-system-default-zone))]
+  (is (int? (t/datetime->month now-now)))
+  nil))
+
+(deftest
+ monthday->day-of-month
+ (let
+  [now-now (t/monthday-now (t/clock-system-default-zone))]
+  (is (int? (t/monthday->day-of-month now-now)))
   nil))
 
 (deftest
@@ -493,13 +507,6 @@
      now-now
      (t/time->nanosecond now-now)
      t/nanoseconds-property)))))
-
-(deftest
- datetime->year
- (let
-  [now-now (t/datetime-now (t/clock-system-default-zone))]
-  (is (int? (t/datetime->year now-now)))
-  nil))
 
 (deftest
  time->minute
@@ -520,6 +527,13 @@
    (=
     now-now
     (t/with now-now (t/time->hour now-now) t/hours-property)))))
+
+(deftest
+ monthday->month
+ (let
+  [now-now (t/monthday-now (t/clock-system-default-zone))]
+  (is (int? (t/monthday->month now-now)))
+  nil))
 
 (deftest
  zdt->time
@@ -564,6 +578,13 @@
      now-now
      (t/datetime->millisecond now-now)
      t/milliseconds-property)))))
+
+(deftest
+ date->yearmonth
+ (let
+  [now-now (t/date-now (t/clock-system-default-zone))]
+  (is (t/yearmonth? (t/date->yearmonth now-now)))
+  nil))
 
 (deftest
  time->millisecond
