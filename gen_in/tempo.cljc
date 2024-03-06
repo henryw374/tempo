@@ -374,6 +374,25 @@
   #?(:cljay (.get ^TemporalAccessor temporal (field property))
      :cljs (goog.object/get temporal property)))
 
-(defn yearmonth->last-day-date [ym]
+(defn yearmonth+day-at-end-of-month [ym]
   #?(:cljay (.atEndOfMonth ^YearMonth ym)
      :cljs (.toPlainDate ^js ym (js-obj "day" (.-daysInMonth ^js ym)))))
+
+(defn monthday+year [monthday year]
+  #?(:cljay (.atYear ^MonthDay monthday ^int year)
+     :cljs (.toPlainDate ^js monthday (js-obj "year" year))))
+
+(defn yearmonth+day [yearmonth day]
+  #?(:cljay (.atDay ^YearMonth yearmonth ^int day)
+     :cljs (.toPlainDate ^js yearmonth (js-obj "day" day))))
+
+(defn date+time [date time]
+  #?(:cljay (.atTime ^LocalDate date ^LocalTime time)
+     :cljs (.toPlainDateTime ^js date time)))
+
+(defn time+date [time date]
+  (date+time date time))
+
+(defn datetime+timezone [datetime timezone_id]
+  #?(:cljay (.atZone ^LocalDateTime datetime (ZoneId/of timezone_id))
+     :cljs (.toZonedDateTime ^js datetime timezone_id)))

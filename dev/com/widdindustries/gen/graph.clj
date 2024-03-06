@@ -78,9 +78,7 @@
    :cljs  {          :xform-fn '(-> (js/Temporal.PlainYearMonth.from))}
    :cljay           {;:no-getter true
                      :xform-fn '(-> (YearMonth/from))
-                     :fn-args  ['year 'month]
-                     :fn       (fn [year month]
-                                 (YearMonth/of ^int year ^int month))}})
+                     }})
 
 (def month
   {:tempo 'month
@@ -89,12 +87,12 @@
 
 (def monthday
   {:tempo           'monthday
-   :ignore-accessor true
-   :needed-to-go-up {'year {}}    
-   :cljay           {:no-getter true
-                     :fn-args   ['month 'day-of-month]
-                     :fn        (fn [month day]
-                                  (MonthDay/of ^int month ^int day))}})
+   ;:ignore-accessor true
+   ;:needed-to-go-up {'year {}}
+   :cljs  {          :xform-fn '(-> (js/Temporal.PlainMonthDay.from))}
+   :cljay           {;:no-getter true
+                     :xform-fn '(-> (MonthDay/from))
+                     }    })
 
 (def day-of-week
   {:tempo    'day-of-week

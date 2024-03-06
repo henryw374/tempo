@@ -180,6 +180,8 @@ to as `timezone_id`. Call `str` on a timezone to get its id.
 ; similarly for a zone-date-time, it will be t/zdt-*
 (t/date-now clock)
 (t/date-parse "2020-02-02") ;iso strings only
+
+; build from parts
 (t/date-from {:year 2020 :month 2 :day 2})
 ; the -from functions accept a map of components which is sufficient to build the entity
 (t/datetime-from {:date (t/date-parse "2020-02-02") :time (t/time-now clock)})
@@ -187,13 +189,18 @@ to as `timezone_id`. Call `str` on a timezone to get its id.
 (t/datetime-from {:year 2020 :month 2 :day 2 :time (t/time-now clock)})
 ; with -from, you can use smaller or larger components. 
 ; larger ones take precedence. below, the :year is ignored, because the :date took precedence (being larger) 
-(t/datetime-from {:year 2021 :date (t/date-parse "2020-02-02") :time (t/time-now)})
+(t/datetime-from {:year 2021 :date (t/date-parse "2020-02-02") :time (t/time-now clock)})
+
+; 'add' a field to an object to create a different type
+(t/yearmonth+day a-yearmonth 1) ; => a date
+(t/yearmonth+day-at-end-of-month a-yearmonth) ; => a date
+(t/datetime+timezone a-datetime "Pacific/Honolulu") ; => a zdt
 
 ; to get parts of an entity, start with the subject and add ->
-(t/date->yearmonth (t/date-now clock))
-(t/date->month (t/date-now clock))
-(t/zdt->nanos (t/zdt-now clock))
-(-> (t/instant-now clock) (t/instant->epochmillis))
+(t/date->yearmonth a-date)
+(t/date->month a-date)
+(t/zdt->nanosecond a-zdt)
+(t/instant->epochmillisecond an-instant)
 
 ```
 
@@ -204,10 +211,10 @@ aka construction a new temporal from one of the same type
 ```clojure
 
 ;; move date forward 3 days
-(t/>> (t/date-now clock) 3 t/days-property)
+(t/>> a-date 3 t/days-property)
 
 ;; set a particular field
-(-> (t/yearmonth-now clock) (t/with 3030 t/years-property))
+(t/with a-yearmonth 3030 t/years-property)
 
 ; set fields smaller than days (ie hours, mins etc) to zero
 (t/truncate x t/days-property)

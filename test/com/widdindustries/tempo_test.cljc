@@ -287,4 +287,21 @@
   )
 
 (deftest eom-test
-  (is (= (t/date-parse "2020-02-29") (t/yearmonth->last-day-date (t/yearmonth-parse "2020-02")))))
+  (is (= (t/date-parse "2020-02-29") (t/yearmonth+day-at-end-of-month (t/yearmonth-parse "2020-02")))))
+
+(deftest plus-test 
+  (let [clock (t/clock-system-default-zone) 
+        month-day (t/monthday-now clock)
+        year-month (t/yearmonth-now clock)]
+    (is (= month-day
+          (-> month-day
+              (t/monthday+year 2021)
+              (t/date+time (t/time-now clock))
+              (t/datetime+timezone "Pacific/Honolulu")
+              (t/zdt->monthday))))
+    (is (= year-month
+          (-> year-month
+              (t/yearmonth+day 1)
+              (t/date+time (t/time-now clock))
+              (t/datetime+timezone "Pacific/Honolulu")
+              (t/zdt->yearmonth))))))
