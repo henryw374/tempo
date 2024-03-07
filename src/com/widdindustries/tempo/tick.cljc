@@ -92,15 +92,7 @@
   ([]
    (t/timezone-now *clock*)))
 
-
-(defn zone "" ([]
-               (current-zone)) 
-  ([z] 
-   ;todo - what type is z, string, zone, or zdt
-   ))
-
-;todo
-(defn zone-offset "" ([offset]) ([hours minutes]) ([hours minutes seconds]))
+;(defn zone-offset "" ([offset]) ([hours minutes]) ([hours minutes seconds]))
 
 (def ^{:private true} unit-map
   {:nanos     t/nanoseconds-property
@@ -128,7 +120,7 @@
 ;(defn last-day-of-year "" ([]) ([t]))
 ;(defn last-in-month "" ([day-of-week]) ([t day-of-week]))
 
-;todo - weekdays
+; weekdays - could be made to work probably
 (defn next ""
   ([day-of-week]
    (get t/weekday-number->weekday
@@ -140,7 +132,7 @@
   ; )
   )
 ;(defn next-or-same "" ([day-of-week]) ([t day-of-week]))
-(defn previous "" ([day-of-week]
+#_(defn previous "" ([day-of-week]
                    (get t/weekday-number->weekday
                      (-> (t/weekday-number day-of-week)
                          (dec)) 7))
@@ -148,8 +140,8 @@
   )
 ;(defn previous-or-same "" ([day-of-week]) ([t day-of-week]))
 
-;todo
-(defn truncate "Returns a copy of x truncated to the specified unit." ([x u]))
+(defn truncate "Returns a copy of x truncated to the specified unit." ([x u]
+                                                                       (t/truncate x (get unit-map u))))
 
 (defn current-clock "" ([] *clock*))
 
@@ -164,15 +156,15 @@
 
 
 (defn >> "shift Temporal forward by n units"
-  ([t amount] (t/>> t amount))
+  ;([t amount] (t/>> t amount))
   ([t n unit]
-                                   (t/>> t n unit)))
+                                   (t/>> t n (get unit-map unit))))
 (defn << "shift Temporal backward by n units"
-  ([t amount] (t/<< t amount))
+  ;  ([t amount] (t/<< t amount))
   ([t n unit]
-                                    (t/<< t n unit)))
+                                    (t/<< t n (get unit-map unit))))
 
-; there is no single logical quanity to inc/dec 
+; not porting. IMO there is no single logical quanity to inc/dec 
 ;(defn inc "" ([t]))
 ;(defn dec "" ([t]))
 
@@ -191,6 +183,7 @@
 ;(defn end "the end of the range of ITimeSpan v or v" ([v]))
 ;(defn duration "return Duration or Period (whichever appropriate based on type) contained within the range of ITimeSpan x" ([x]))
 ;(defn backward-compatible-time-span-extensions "pre v0.7, ITimeSpan was extended as per this body. run this function to create those extensions.\n  \n  ITimeSpan is implemented by default on types with a natural beginning and end" ([]))
+;(defn interval? "true if v is a interval?" ([v]))
 
 ;dont port
 ;(defn ago "current instant shifted back by duration 'dur'" ([dur]))
@@ -199,20 +192,20 @@
 
 ;(defn clock? "true if v is a clock?" ([v] (t/clock? v)))
 ;(defn day-of-week? "true if v is a day-of-week?" ([v]))
-(defn duration? "true if v is a duration?" ([v]))
-(defn instant? "true if v is a instant?" ([v]))
-(defn date? "true if v is a date?" ([v]))
-(defn date-time? "true if v is a date-time?" ([v]))
-(defn time? "true if v is a time?" ([v]))
-(defn month? "true if v is a month?" ([v]))
-(defn offset-date-time? "true if v is a offset-date-time?" ([v]))
-(defn period? "true if v is a period?" ([v]))
-(defn year? "true if v is a year?" ([v]))
-(defn year-month? "true if v is a year-month?" ([v]))
-(defn zone? "true if v is a zone?" ([v]))
-(defn zone-offset? "true if v is a zone-offset?" ([v]))
-(defn zoned-date-time? "true if v is a zoned-date-time?" ([v]))
-(defn interval? "true if v is a interval?" ([v]))
+(defn duration? "true if v is a duration?" ([v] (t/duration? v)))
+(defn instant? "true if v is a instant?" ([v] (t/instant? v)))
+(defn date? "true if v is a date?" ([v] (t/date? v)))
+(defn date-time? "true if v is a date-time?" ([v] (t/datetime? v)))
+(defn time? "true if v is a time?" ([v] (t/time? v)))
+;(defn month? "true if v is a month?" ([v] ))
+;(defn offset-date-time? "true if v is a offset-date-time?" ([v]))
+(defn period? "true if v is a period?" ([v] (t/period? v)))
+;(defn year? "true if v is a year?" ([v]))
+(defn year-month? "true if v is a year-month?" ([v] (t/yearmonth? v)))
+(defn zone? "true if v is a zone?" ([v] (t/timezone? v)))
+;(defn zone-offset? "true if v is a zone-offset?" ([v] (t/zdt? v)))
+(defn zoned-date-time? "true if v is a zoned-date-time?" ([v] (t/zdt? v)))
+
 
 ; no single logical int/long value for temporal entities - not implementing
 ;(defn int "" ([arg]))
@@ -230,6 +223,11 @@
 (defn offset-by "Set a date-time to be offset by an amount" ([ldt offset]
                                                              (in ldt offset)))
 
+(defn zone "" ([]
+               (current-zone))
+  ([z]
+   ;todo - what type is z, string, zone, or zdt
+   ))
 (defn date "" ([]) ([v]))
 (defn inst "" ([]) ([v]))
 (defn instant "" ([]) ([v]))
