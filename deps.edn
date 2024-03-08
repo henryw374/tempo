@@ -13,10 +13,10 @@
 
                                              }
                                }
-
-           
-           :release           {:extra-deps {applied-science/deps-library {:mvn/version "RELEASE"}}
-                               :main-opts  ["-m" "applied-science.deps-library"]}
+           :build {:extra-deps {slipset/deps-deploy {:mvn/version "RELEASE"}
+                                io.github.clojure/tools.build {:git/tag "v0.8.2" :git/sha "ba1a2bf"}}
+                   :paths ["dev"]
+                   :ns-default build}
            }
 
  }

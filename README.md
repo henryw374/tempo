@@ -121,15 +121,19 @@ Depend on tempo via deps.edn:
 
 ;optional - make clojure.core fns =,sort,compare etc work for all js/Temporal entities
 (t/extend-all-cljs-protocols)
-; or just extend them to entities you are using
-(t/extend-cljs-protocols-to-instant)
+
 ```
 
-### Construction and access
+### Naming
+
+The naming of entities (ie the in the  graph further up) should be self-explanatory. The java.time `Local` prefix and the Temporal `Plain` prefix have been removed, so e.g. PlainDate/LocalDate is just date.
+
+ZonedDateTime is called `zdt` to keep it short. js/Date and java.util.Date are called `legacydate`
+
 
 ### Clocks
 
-a Clock is required to be able to get the current time/date/zone etc
+A Clock is required to be able to get the current time/date/timezone etc
 
 ```clojure
 
@@ -139,7 +143,7 @@ a Clock is required to be able to get the current time/date/zone etc
 ; ticking clock in specified place
 (t/clock-with-zone "Pacific/Honolulu")
 
-; fixed in time and place
+; clock fixed in time and place
 (t/clock-fixed (t/instant-parse "2020-02-02T00:00:00Z") "Europe/Paris")
 
 ; offset existing clock by specified millis
@@ -152,7 +156,7 @@ a clock is then passed as arg to all `now` functions, for example:
 (t/date-now clock)
 ```
 
-#### Time zones & Offsets
+### Time zones & Offsets
 
 ```clojure
 (t/timezone-parse "Europe/London")
@@ -160,7 +164,7 @@ a clock is then passed as arg to all `now` functions, for example:
 (t/timezone-now clock)
 ```
 
-Where a timezone is accessed from an object, or passed into an object, only the string representation is used, referred
+Where a timezone is accessed from an object, or passed into an object, only the string representation can be used, referred
 to as `timezone_id`. Call `str` on a timezone to get its id.
 
 ```clojure
@@ -168,7 +172,7 @@ to as `timezone_id`. Call `str` on a timezone to get its id.
 (t/zdt-from {:datetime datetime :timezone_id timezone_id})
 ```
 
-### Temporals
+### Temporal Construction & Access
 
 ```clojure
 
@@ -176,10 +180,10 @@ to as `timezone_id`. Call `str` on a timezone to get its id.
 
 ; the first word in the function is the entity name of the subject of the operation
 
-; for example, if I want to construct a date or access its parts the function will start t/date-,
-; similarly for a zone-date-time, it will be t/zdt-*
 (t/date-now clock)
 (t/date-parse "2020-02-02") ;iso strings only
+(t/zdt-now clock)
+(t/zdt-parse "2020-02-02...") ;iso strings only
 
 ; build from parts
 (t/date-from {:year 2020 :month 2 :day 2})
@@ -227,11 +231,12 @@ Consider the following:
 
 ```clojure
 (let [start (t/date-parse "2020-01-31")]
-  (-> start (t/>> 1 t/months-property)
+  (-> start 
+      (t/>> 1 t/months-property)
       (t/<< 1 t/months-property)))
 ```
 
-If you shift a date forward by an amount, then back by that amount then one might think the output would be equal to the
+If you shift a date forward by an amount, then back by the same amount then one might think that the output would be equal to the
 input. In some cases that would happen, but not in the case shown above.
 
 Here's a similar example:
@@ -291,14 +296,6 @@ If not sufficient, use reader conditionals in your code to construct/manipulate 
 
 (d/duration-parse "PT0.001S")
 
-```
-
-In Tempo, some functions accept temporal-amounts as argument, but they are never returned from any function
-
-It is preferred to use numbers and properties for example
-
-```clojure
-(t/>> a-date 1 t/days-property)
 ```
 
 ## Dev
