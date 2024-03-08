@@ -195,9 +195,20 @@
 
 (deftest adjust-test
   (testing "adjusting date"
-    ;todo
-    )
-  ;todo - instant
+    (is (= (t/date-parse "0001-01-01")
+          (binding [t/*block-non-commutative-operations* false]
+            (-> (t/date-now (t/clock-system-default-zone))
+                (t/with 1 t/days-property)
+                (t/with 1 t/months-property)
+                (t/with 1 t/years-property))))))
+  (testing "adjusting instant"
+    (let [i (-> (t/instant-now (t/clock-system-default-zone))
+                (t/with 123 t/milliseconds-property)
+                (t/with 456 t/microseconds-property)
+                (t/with 789 t/nanoseconds-property))]
+      (is (= 123 (t/get-field i t/milliseconds-property)))
+      (is (= 456 (t/get-field i t/microseconds-property)))
+      (is (= 789 (t/get-field i t/nanoseconds-property)))))
   (doseq [[x hour minute second milli micro nano] [[(t/zdt-parse "2024-02-22T00:00:00Z[Europe/London]")
                                                     t/zdt->hour
                                                     t/zdt->minute
@@ -262,28 +273,43 @@
           prop props]
     (is (= (-> (t/truncate temporal prop) (t/get-field prop))
           (t/get-field temporal prop))))
-  ;todo 
-  #_[(t/instant-parse "2020-02-02T09:19:42.123456789Z") [t/days-property t/hours-property t/minutes-property
-                                                         t/seconds-property t/milliseconds-property t/microseconds-property
-                                                         t/nanoseconds-property]]
-
-  #_(-> (t/zdt-parse "2020-02-02T09:19:42.123456789Z")
-      (t/truncate t/microseconds-property)
-      (t/get-field t/microseconds-property))
-  )
-;todo
+  (let [i (t/instant-parse "2020-02-02T09:19:42.123456789Z")]
+    (is (-> (t/truncate i t/days-property)
+            (t/instant+timezone "UTC")
+            (t/zdt->hour)
+            (zero?)))))
 
 (deftest guardrails-test
   (is (thrown? #?(:clj Throwable :cljs js/Error) (t/>> (t/date-parse "2020-02-02") 1 t/years-property)))
   (binding [t/*block-non-commutative-operations* false]
     (is (t/>> (t/date-parse "2020-02-02") 1 t/years-property))))
 
-(deftest comparison-test 
-  ;todo 
-  t/max
-  t/min
-  t/>=
-  t/coincident?
+(deftest comparison-test
+  (doseq [{:keys [startf endf]} [
+                                 {:startf #(t/instant-parse "2020-02-01T00:00:00Z") :endf #(t/instant-parse "2020-02-02T00:00:00Z")}
+                                 {:startf #(t/zdt-parse "2020-02-01T00:00Z") :endf #(t/zdt-parse "2020-02-02T00:00Z")}
+                                 {:startf #(t/datetime-parse "2020-02-01T00:00") :endf #(t/datetime-parse "2020-02-02T00:00")}
+                                 {:startf #(t/date-parse "2020-02-01") :endf #(t/date-parse "2020-02-02")}
+                                 {:startf #(t/yearmonth-parse "2020-02") :endf #(t/yearmonth-parse "2020-03")}
+                                 {:startf (constantly (t/monthday-parse "--12-01")) :endf (constantly (t/monthday-parse "--12-02"))}]]
+    (let [start (startf)
+          end (endf)]
+      (is (= end (t/max start end start end)))
+      (is (= start (t/min start end start end)))
+
+      (is (t/>= end end start))
+      (is (not (t/>= start end end start)))
+
+      (is (t/<= start end end ))
+      (is (not (t/<= end start end)))
+
+      (is (t/> end start))
+      (is (not (t/> start end)))
+
+      (is (t/< start end))
+      (is (not (t/< end start))))
+    )
+  
   )
 
 (deftest eom-test

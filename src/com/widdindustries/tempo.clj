@@ -91,7 +91,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__74845# p2__74846#] (greater p1__74845# p2__74846#))
+  (fn* [p1__81688# p2__81689#] (greater p1__81688# p2__81689#))
   arg
   args))
 
@@ -103,7 +103,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__74847# p2__74848#] (lesser p1__74847# p2__74848#))
+  (fn* [p1__81690# p2__81691#] (lesser p1__81690# p2__81691#))
   arg
   args))
 
@@ -446,6 +446,11 @@
  datetime+timezone
  [datetime timezone_id]
  (.atZone ^LocalDateTime datetime (ZoneId/of timezone_id)))
+
+(defn
+ instant+timezone
+ [instant timezone_id]
+ (.atZone ^Instant instant (ZoneId/of timezone_id)))
 
 ^{:line 31, :column 9} (comment "accessors")
 
