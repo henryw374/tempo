@@ -399,4 +399,4 @@
 
 (defn instant+timezone [instant timezone_id]
   #?(:cljay (.atZone ^Instant instant (ZoneId/of timezone_id))
-     :cljs (.toZonedDateTime ^js instant timezone_id)))
+     :cljs (.toZonedDateTimeISO ^js instant timezone_id)))

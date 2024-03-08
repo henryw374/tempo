@@ -70,7 +70,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__82010# p2__82011#] (greater p1__82010# p2__82011#))
+  (fn* [p1__112295# p2__112296#] (greater p1__112295# p2__112296#))
   arg
   args))
 
@@ -82,7 +82,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__82012# p2__82013#] (lesser p1__82012# p2__82013#))
+  (fn* [p1__112297# p2__112298#] (lesser p1__112297# p2__112298#))
   arg
   args))
 
@@ -279,7 +279,7 @@
 (defn
  instant+timezone
  [instant timezone_id]
- (.toZonedDateTime ^js instant timezone_id))
+ (.toZonedDateTimeISO ^js instant timezone_id))
 
 ^{:line 31, :column 9} (comment "accessors")
 
