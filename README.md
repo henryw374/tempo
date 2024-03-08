@@ -91,17 +91,12 @@ namespace exists which contains a subset of the functions from `tick.core` which
 
 ### Depend
 
-There is no tempo maven artifact atm.
+[![Clojars Project](https://img.shields.io/clojars/v/com.widdindustries/tempo.svg)](https://clojars.org/com.widdindustries/tempo)
 
-Depend on tempo via deps.edn:
-
-```clojure
-{:deps {com.widdindustries/tempo
-        {:git/url "https://github.com/henryw374/tempo.git"
-         :sha     "abc"}
         ; to get data-literals for java.time and Temporal, also add...
-        com.widdindustries/time-literals-tempo {:mvn/version "0.1.10"}}}
-```
+
+
+[![Clojars Project](https://img.shields.io/clojars/v/com.widdindustries/time-literals-tempo.svg)](https://clojars.org/com.widdindustries/time-literals-tempo)
 
 * As of March 2024, a polyfill (e.g. [this](https://github.com/fullcalendar/temporal-polyfill)) of Temporal will be required for all javascript environments.
 * The new underlying Javascript platform time API [Temporal](https://github.com/tc39/proposal-temporal) has semi-stabilized at

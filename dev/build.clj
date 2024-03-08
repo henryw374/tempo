@@ -19,18 +19,22 @@
   )
 
 (defn jar [_]
+  (println "jarring ")
   (b/write-pom {:src-pom "dev/src-pom.xml"
                 :class-dir class-dir
                 :lib lib
                 :version version
                 :basis basis
                 :src-dirs ["src"]})
+  (println "jarring 2")
   (b/copy-dir {:src-dirs ["src"]
                :target-dir class-dir})
+  (println "jarring 3")
   (b/jar {:class-dir class-dir
           :jar-file jar-file}))
 
 (defn install [_]
+  (println "installing ")
   (b/install {:basis      basis
               :lib        lib
               :version    version
