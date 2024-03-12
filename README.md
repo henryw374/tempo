@@ -25,7 +25,7 @@ Tempo tries to find obvious common ground between java.time and Temporal. Follow
 * parsing non-iso
   strings ([Temporal may have this in the future](https://github.com/js-temporal/proposal-temporal-v2/issues/2))
 * 2 types to represent temporal-amounts: `Duration` and `Period`
-* clojure `=` and `hash` work - so these are added to Temporal objects in Tempo
+* clojure `=`, `compare` and `hash` work - so these are added to Temporal objects in Tempo
 * fixed & offset clocks - so these are added in cljs Tempo
 * OffsetDateTime, OffsetTime, Month, Year and DayOfWeek entities
     * Tempo adds DayOfWeek to cljs, so there is e.g. `t/weekday-saturday`
@@ -202,6 +202,19 @@ to as `timezone_id`. Call `str` on a timezone to get its id.
 (t/instant->epochmillisecond an-instant)
 
 ```
+
+#### Properties
+
+Vars such as `t/hours-property` exist in Tempo. These combine the concept of `units` and `fields`, so for example
+
+```clojure
+(t/until x y t/days-property) ; how much time in unit days
+(t/with x 11 t/days-property) ; set the day of month field to 11
+```
+
+Combining the concept of unit and field is a simplification. In some cases it may be an over-simplification, for example `t/days-property` corresponds to the `day of month` field, so if `day of year` was required a new property would have to be created in user space. 
+
+However, as per the stated aim of Tempo to just cover everyday use cases, hopefully the property concept has sufficient benefit to outweigh the cost. 
 
 #### Manipulation
 

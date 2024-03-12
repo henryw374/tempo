@@ -1,7 +1,6 @@
 (ns com.widdindustries.gen.gen-in.tempo)
 
 (ns com.widdindustries.tempo
-  ""
   (:refer-clojure :exclude [min max > < >= <= >> <<])
   #?(:cljay
      (:import
@@ -18,7 +17,11 @@
 
 #?(:cljay (set! *warn-on-reflection* true))
 
-(defn extend-all-cljs-protocols []
+(defn extend-all-cljs-protocols
+  "in cljs envs, this makes `=`, `compare` and `hash` work on the value of Temporal entities.
+  It is optional, so that if this behaviour is not required, the resulting build size can be reduced. 
+  "
+  []
   #?(:cljs
      (cljs-protocols/extend-all)))
 
@@ -50,21 +53,27 @@
                   :cljs (instance? entities/zdt v)))
 
 ;; construction of clocks
-(defn clock-fixed [instant ^String zone-str]
-  #?(:cljay (Clock/fixed ^Instant instant (ZoneId/of zone-str))
-     :cljs (clock/clock (constantly instant) zone-str)))
-
-(defn clock-with-zone [^String timezone_id]
-  #?(:cljay (Clock/system (ZoneId/of timezone_id))
-     :cljs (clock/clock js/Temporal.Now.instant timezone_id)))
-
 (defn clock-system-default-zone
   "a ticking clock having the ambient zone. "
   []
   #?(:cljay (Clock/systemDefaultZone)
      :cljs js/Temporal.Now))
 
-(defn clock-offset-millis [clock offset-millis]
+(defn clock-fixed 
+  "create a stopped clock"
+  [instant ^String zone-str]
+  #?(:cljay (Clock/fixed ^Instant instant (ZoneId/of zone-str))
+     :cljs (clock/clock (constantly instant) zone-str)))
+
+(defn clock-with-zone 
+  "ticking clock in given timezone_id" 
+  [^String timezone_id]
+  #?(:cljay (Clock/system (ZoneId/of timezone_id))
+     :cljs (clock/clock js/Temporal.Now.instant timezone_id)))
+
+(defn clock-offset-millis 
+  "offset an existing clock by offset-millis"
+  [clock offset-millis]
   #?(:cljay (Clock/offset clock (Duration/ofMillis offset-millis))
      :cljs (clock/clock
              (fn [] (.add (.instant ^js clock) (js-obj "milliseconds" offset-millis)))
@@ -293,7 +302,7 @@
       (contains? #{years-property months-property} temporal-property)
          (not (or (monthday? temporal) (yearmonth? temporal))))
     (throw (ex-info
-             "shifting by years or months yields odd results depending on input. intead shift a year-month, then set non-yearmonth parts"
+             "see guardrails section at https://github.com/henryw374/tempo?tab=readme-ov-file#guardrails"
              {}))))
 
 (defn with [temporal value property]
