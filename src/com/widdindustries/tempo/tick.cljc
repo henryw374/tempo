@@ -1,39 +1,30 @@
 (ns com.widdindustries.tempo.tick
   "A partial port of tick.core, but now backed by Temporal on js runtime.
   
-  The reason that is has been ported is that it is a popular date/time library. As well as having a different basis on JS runtimes,
-  there are some philosophical differences between tick and tempo. Some people may prefer the tick approach and some
-  (myself included) may prefer the tempo approach. 
+  If a function from tick is implemented in this ns then it works the same as the tick equivalent.
   
-  What is there to choose between tempo.tick and tempo.core?
+  The reason that tick has been ported is that it is a popular date/time library. As well as having a different basis on JS runtimes,
+  there are some philosophical differences between tick and tempo. 
   
-  1. tempo.core has no zero-arg 'now' functions. Similarly, there is no implicit use of
-  the 'current' or 'ambient' zone. For this reason, there is no `with-clock` macro in tempo.core
+  What is there to choose between tempo.tick and tempo?
   
-  2. tempo.core is sometimes more verbose, but has less 'magic' - for example to get the year of an Instant for example first requires converting to a zdt by explicitly supplying a zone.
+  1. tempo has no zero-arg 'now' functions. Similarly, there are no functions that make implicit use of
+  the 'current' or 'ambient' zone. For this reason, there is no `with-clock` macro in tempo
   
-  3. tempo.core distinguishes between parsing strings and accessing properties. For example in tick `(t/date x)` will parse x if it is a string,
-  or access the date from x if it is e.g. a zdt
+  2. tempo is sometimes more verbose - for example to get the year of an Instant for example first requires converting to a zdt by explicitly supplying a zone.
   
-  4. tempo.core blocks non-commutative operations by default
+  3. in tick the same function is used for parsing strings and accessing properties. For example in tick `(t/date x)` will parse x if it is a string,
+  or access the date from x if it is e.g. a zdt.
   
-  5. tempo.tick has functions which return temporal-amount objects.     
+  4. tempo blocks non-commutative operations by default (e.g. 'adding' a month to a date)          
   
-  Where some function (or a particular arity of a function) doesnt gel with Tempo, it has not implemented.
+  Other differences:
   
-  There are no functions which have the same name+arity as juxt/tick but which work differently
-  
-  Major differences:
-  
-  unlike tick, no entity for year or month - where needed, numbers are used to repsesent those
-  
-  entities for temporal-amounts are alpha - so not included here yet
-  
-  no parsing or formatting of non-ISO strings - since this is not in Temporal
-  
-  Although there is a timezone entity, functions that would accept or return a timezone instead accept or return a string
-  
-  There is no offset-datetime
+  * Unlike tick, no entity for year or month exists in tempo - where needed, numbers are used to repsesent those
+  * Entities for temporal-amounts are alpha - so not included here yet
+  * No parsing or formatting of non-ISO strings - since this is not in Temporal
+  * Although there is a timezone entity, functions that would accept or return a timezone instead accept or return a string
+  * There are no offset-datetime or offset-time entities since they don't exist in Temporal.
   
   "
   (:refer-clojure :exclude [min-key max-key format + - inc dec max min range time int long = < <= > >= next >> << atom swap! swap-vals! compare-and-set! reset! reset-vals! second divide])
@@ -52,7 +43,7 @@
                                                                    #?(:clj Instant/EPOCH
                                                                       :cljs (js/Temporal.Instant.from 0))))
 
-; not implementing as not really important
+; not implementing as not really important?
 ;(defn midnight "" ([]) ([date]))
 ;(defn noon "" ([]) ([date]))
 
@@ -66,8 +57,8 @@
      {:hour   hour
       :minute minute
       :second second}))
-  ([hour minute second fraction]
-   ;todo
+  #_([hour minute second fraction]
+   ;todo - split the fraction into parts
    (let [[millisecond microsecond nanosecond] fraction]
      (t/time-from {:hour   hour
                    :minute minute
@@ -109,7 +100,7 @@
   ([t fld new-value]
      (t/with t new-value (get unit-map fld))))
 
-;don't port
+;not porting - but could be done
 ;(defn day-of-week-in-month "" ([ordinal day-of-week]) ([t ordinal day-of-week]))
 ;(defn first-day-of-month "" ([]) ([t]))
 ;(defn first-day-of-next-month "" ([]) ([t]))
@@ -121,7 +112,7 @@
 ;(defn last-in-month "" ([day-of-week]) ([t day-of-week]))
 
 ; weekdays - could be made to work probably
-(defn next ""
+#_(defn next ""
   ([day-of-week]
    (get t/weekday-number->weekday
      (-> (t/weekday-number day-of-week)
@@ -163,10 +154,6 @@
   ;  ([t amount] (t/<< t amount))
   ([t n unit]
                                     (t/<< t n (get unit-map unit))))
-
-; not porting. IMO there is no single logical quanity to inc/dec 
-;(defn inc "" ([t]))
-;(defn dec "" ([t]))
 
 ; superfluous
 ;(defn tomorrow "" ([]))
@@ -210,46 +197,66 @@
 ; no single logical int/long value for temporal entities - not implementing
 ;(defn int "" ([arg]))
 ;(defn long "" ([arg]))
+; not porting. IMO there is no single logical quanity to inc/dec 
+;(defn inc "" ([t]))
+;(defn dec "" ([t]))
 
-(defn on "Set time be ON a date" ([t d]
+; todo - needs to be polymorphic
+#_(defn on "Set time be ON a date" ([t d]
                                   (t/date-from {:date d :time t})))
 
-(defn at "Set date to be AT a time" ([d t]
+#_(defn at "Set date to be AT a time" ([d t]
                                      (on t d)))
 
-(defn in "Set a date-time to be in a time-zone" ([ldt z]
+#_(defn in "Set a date-time to be in a time-zone" ([ldt z]
                                                  (t/zdt-from {:datetime ldt :timezone_id z})))
 
-(defn offset-by "Set a date-time to be offset by an amount" ([ldt offset]
+#_(defn offset-by "Set a date-time to be offset by an amount" ([ldt offset]
                                                              (in ldt offset)))
 
 (defn zone "" ([]
                (current-zone))
-  ([z]
+  #_([z]
    ;todo - what type is z, string, zone, or zdt
    ))
-(defn date "" ([]) ([v]))
-(defn inst "" ([]) ([v]))
-(defn instant "" ([]) ([v]))
-(defn date-time "" ([]) ([v]))
-(defn offset-date-time "" ([]) ([v]))
-(defn zoned-date-time "" ([]) ([v]))
-(defn nanosecond "extract nanosecond from t" ([t]))
-(defn microsecond "extract microsecond from t" ([t]))
-(defn millisecond "extract millisecond from t" ([t]))
-(defn second "extract second from t" ([t]))
-(defn minute "extract minute from t" ([t]))
-(defn hour "extract hour from t" ([t]))
-(defn time "extract time from v" ([]) ([v]))
-(defn day-of-week "extract day-of-week from v" ([]) ([v]))
-(defn day-of-month "extract day-of-month from v" ([]) ([v]))
-(defn month "extract month from v" ([]) ([v]))
-(defn year "extract year from v" ([]) ([v]))
-(defn year-month "extract year-month from v" ([]) ([v]))
-(defn clock "return i as a clock" ([]
-                                   (t/clock-system-default-zone))
-  ;([i] )
-  )
+
+(defn date "" ([]
+               (t/date-now *clock*)) 
+   ([v]
+    (cond 
+      (string? v) (t/date-parse v)
+      (t/datetime? v) (t/datetime->date v)
+      (t/zdt? v) (t/zdt->date v)
+      (t/instant? v) (-> v (t/instant+timezone (zone))
+                         (date))
+      :else (throw (ex-info "don't know how to make a date" {:from v})))))
+
+(defn inst "" ([]
+               (-> (t/instant-now *clock*) (t/instant->legacydate)))
+  ;todo 
+  #_([v] (inst (instant v))))
+
+
+;todo
+
+;(defn instant "" ([]) ([v]))
+;(defn date-time "" ([]) ([v]))
+;(defn offset-date-time "" ([]) ([v]))
+;(defn zoned-date-time "" ([]) ([v]))
+;(defn nanosecond "extract nanosecond from t" ([t]))
+;(defn microsecond "extract microsecond from t" ([t]))
+;(defn millisecond "extract millisecond from t" ([t]))
+;(defn second "extract second from t" ([t]))
+;(defn minute "extract minute from t" ([t]))
+;(defn hour "extract hour from t" ([t]))
+;(defn time "extract time from v" ([]) ([v]))
+;(defn day-of-week "extract day-of-week from v" ([]) ([v]))
+;(defn day-of-month "extract day-of-month from v" ([]) ([v]))
+;(defn month "extract month from v" ([]) ([v]))
+;(defn year "extract year from v" ([]) ([v]))
+;(defn year-month "extract year-month from v" ([]) ([v]))
+;(defn clock "return i as a clock" ([] (t/clock-system-default-zone))
+  ;([i] ) )
 
 
 #_(defn = "Same as clojure.core/=, but works on dates, rather than numbers.\n  can compare different types, e.g. Instant vs ZonedDateTime\n  " 
@@ -272,8 +279,10 @@
                                       (t/lesser x y)))
 (defn min "Find the earliest of the given arguments. Callers should ensure that no\n  argument is nil." 
   ([arg & args] (apply t/min arg args)))
-(defn max-key "Same as clojure.core/max-key, but works on dates, rather than numbers" ([_k x]) ([k x y]) ([k x y & more]))
-(defn min-key "Same as clojure.core/min-key, but works on dates, rather than numbers" ([_k x]) ([k x y]) ([k x y & more]))
+
+;todo 
+;(defn max-key "Same as clojure.core/max-key, but works on dates, rather than numbers" ([_k x]) ([k x y]) ([k x y & more]))
+;(defn min-key "Same as clojure.core/min-key, but works on dates, rather than numbers" ([_k x]) ([k x y]) ([k x y & more]))
 
 ;todo - tick alpha ns?
 ;temporal-amount stuff
