@@ -6,7 +6,7 @@
   "
   #?(:clj (:import [java.time Duration Period])))
 
-#?(:clj (set! *default-data-reader-fn* tagged-literal))
+;#?(:clj (set! *default-data-reader-fn* tagged-literal))
 
 (defn duration-parse [p]
   #?(:cljs (js/Temporal.Duration.from p)
@@ -16,13 +16,13 @@
   #?(:cljs (js/Temporal.Duration.from p)
      :clj (. Period parse p)))
 
-(defn duration->negated [d]
+#_(defn duration->negated [d]
   #?(:cljs (.negated ^js d)
      :clj (.negated ^Duration d)))
 
 ;(def duraion-zero (duration-parse "PT0S"))
 
-(defn duration-negative? [d]
+#_(defn duration-negative? [d]
   #?(:cljay(.isNegative ^Duration d)
      :cljs (neg? (.-sign ^js d))))
 

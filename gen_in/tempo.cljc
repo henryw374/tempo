@@ -61,9 +61,12 @@
 
 (defn clock-fixed 
   "create a stopped clock"
-  [instant ^String zone-str]
-  #?(:cljay (Clock/fixed ^Instant instant (ZoneId/of zone-str))
-     :cljs (clock/clock (constantly instant) zone-str)))
+  ([^ZonedDateTime zdt]
+   #?(:cljay (Clock/fixed (.toInstant zdt)   (.getZone zdt))
+      :cljs (clock/clock (constantly (.toInstant zdt)) (.-timeZoneId zdt))))
+  ([^Instant instant ^String zone-str]
+   #?(:cljay (Clock/fixed instant (ZoneId/of zone-str))
+      :cljs (clock/clock (constantly instant) zone-str))))
 
 (defn clock-with-zone 
   "ticking clock in given timezone_id" 
@@ -305,6 +308,21 @@
              "see guardrails section at https://github.com/henryw374/tempo?tab=readme-ov-file#guardrails"
              {}))))
 
+(defn throw-if-months-or-years-in-amount [temporal temporal-amount]
+  (when
+    (and *block-non-commutative-operations*
+      (not (or (monthday? temporal) (yearmonth? temporal)))
+      #?(:cljay (and (instance? Period temporal-amount)
+                  (or
+                    (not (zero? (.getYears ^Period temporal-amount)))
+                    (not (zero? (.getMonths ^Period temporal-amount)))))
+         :cljs (or
+                 (not (zero? (.-years ^js temporal-amount)))
+                 (not (zero? (.-months ^js temporal-amount))))))
+    (throw (ex-info
+             "see guardrails section at https://github.com/henryw374/tempo?tab=readme-ov-file#guardrails"
+             {}))))
+
 (defn with [temporal value property]
   (throw-if-set-months-or-years temporal property)
   #?(:cljay (.with ^Temporal temporal ^TemporalField (field property) ^long value)
@@ -319,8 +337,8 @@
          (goog.object/get (str property "s")))))
 
 (defn >>
-  #_([temporal temporal-property]
-     (throw-if-set-months-or-years temporal temporal-amount)
+  ([temporal temporal-amount]
+     (throw-if-months-or-years-in-amount temporal temporal-amount)
      #?(:cljay (.plus ^Temporal temporal ^TemporalAmount temporal-amount)
         :cljs (.add ^js temporal temporal-amount)))
   ([temporal amount temporal-property]
@@ -329,8 +347,8 @@
       :cljs (.add ^js temporal (js-obj (str temporal-property "s") amount)))))
 
 (defn <<
-  #_([temporal temporal-amount]
-     (throw-if-set-months-or-years temporal temporal-amount)
+  ([temporal temporal-amount]
+     (throw-if-months-or-years-in-amount temporal temporal-amount)
      #?(:cljay (.minus ^Temporal temporal ^TemporalAmount temporal-amount)
         :cljs (.subtract ^js temporal temporal-amount)))
   ([temporal amount temporal-property]

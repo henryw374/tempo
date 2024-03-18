@@ -1,6 +1,5 @@
 (ns
  com.widdindustries.tempo
- ""
  (:refer-clojure :exclude [min max > < >= <= >> <<])
  (:import
   [java.time
@@ -34,7 +33,10 @@
 
 (set! *warn-on-reflection* true)
 
-(defn extend-all-cljs-protocols [])
+(defn
+ extend-all-cljs-protocols
+ "in cljs envs, this makes `=`, `compare` and `hash` work on the value of Temporal entities.\r\n  It is optional, so that if this behaviour is not required, the resulting build size can be reduced. \r\n  "
+ [])
 
 (defn legacydate? [v] (instance? java.util.Date v))
 
@@ -59,23 +61,27 @@
 (defn zdt? [v] (instance? ZonedDateTime v))
 
 (defn
- clock-fixed
- [instant ^String zone-str]
- (Clock/fixed ^Instant instant (ZoneId/of zone-str)))
-
-(defn
- clock-with-zone
- [^String timezone_id]
- (Clock/system (ZoneId/of timezone_id)))
-
-(defn
  clock-system-default-zone
  "a ticking clock having the ambient zone. "
  []
  (Clock/systemDefaultZone))
 
 (defn
+ clock-fixed
+ "create a stopped clock"
+ ([^ZonedDateTime zdt] (Clock/fixed (.toInstant zdt) (.getZone zdt)))
+ ([^Instant instant ^String zone-str]
+  (Clock/fixed instant (ZoneId/of zone-str))))
+
+(defn
+ clock-with-zone
+ "ticking clock in given timezone_id"
+ [^String timezone_id]
+ (Clock/system (ZoneId/of timezone_id)))
+
+(defn
  clock-offset-millis
+ "offset an existing clock by offset-millis"
  [clock offset-millis]
  (Clock/offset clock (Duration/ofMillis offset-millis)))
 
@@ -91,7 +97,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__112291# p2__112292#] (greater p1__112291# p2__112292#))
+  (fn* [p1__36691# p2__36692#] (greater p1__36691# p2__36692#))
   arg
   args))
 
@@ -103,7 +109,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__112293# p2__112294#] (lesser p1__112293# p2__112294#))
+  (fn* [p1__36693# p2__36694#] (lesser p1__36693# p2__36694#))
   arg
   args))
 
@@ -337,7 +343,24 @@
    (not (or (monthday? temporal) (yearmonth? temporal))))
   (throw
    (ex-info
-    "shifting by years or months yields odd results depending on input. intead shift a year-month, then set non-yearmonth parts"
+    "see guardrails section at https://github.com/henryw374/tempo?tab=readme-ov-file#guardrails"
+    {}))))
+
+(defn
+ throw-if-months-or-years-in-amount
+ [temporal temporal-amount]
+ (when
+  (and
+   *block-non-commutative-operations*
+   (not (or (monthday? temporal) (yearmonth? temporal)))
+   (and
+    (instance? Period temporal-amount)
+    (or
+     (not (zero? (.getYears ^Period temporal-amount)))
+     (not (zero? (.getMonths ^Period temporal-amount))))))
+  (throw
+   (ex-info
+    "see guardrails section at https://github.com/henryw374/tempo?tab=readme-ov-file#guardrails"
     {}))))
 
 (defn
@@ -354,6 +377,9 @@
 
 (defn
  >>
+ ([temporal temporal-amount]
+  (throw-if-months-or-years-in-amount temporal temporal-amount)
+  (.plus ^Temporal temporal ^TemporalAmount temporal-amount))
  ([temporal amount temporal-property]
   (throw-if-set-months-or-years temporal temporal-property)
   (.plus
@@ -364,6 +390,9 @@
 
 (defn
  <<
+ ([temporal temporal-amount]
+  (throw-if-months-or-years-in-amount temporal temporal-amount)
+  (.minus ^Temporal temporal ^TemporalAmount temporal-amount))
  ([temporal amount temporal-property]
   (throw-if-set-months-or-years temporal temporal-property)
   (.minus

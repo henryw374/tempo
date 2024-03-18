@@ -70,7 +70,7 @@ can decide on a case by case basis how to tackle that.
 
 ### What about Existing Cross-platform date/time APIs?
 
-[Tick](https://github.com/juxt/tick) (which I help maintain) is great for application developers who want a
+[Tick](https://github.com/juxt/tick) is great for application developers who want a
 cross-platform date-time library based on the java.time API. Tick provides much useful functionality
 on top of java.time, but users know they can always drop
 to [cljc.java-time](https://github.com/henryw374/cljc.java-time),
@@ -224,6 +224,7 @@ aka construction a new temporal from one of the same type
 
 ;; move date forward 3 days
 (t/>> a-date 3 t/days-property)
+(t/>> a-date 3 a-temporal-amount)
 
 ;; set a particular field
 (t/with a-yearmonth 3030 t/years-property)

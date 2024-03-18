@@ -1,6 +1,5 @@
 (ns
  com.widdindustries.tempo
- ""
  (:refer-clojure :exclude [min max > < >= <= >> <<])
  (:require
   [com.widdindustries.tempo.cljs-protocols :as cljs-protocols]
@@ -9,7 +8,11 @@
   [com.widdindustries.tempo.clock :as clock]
   [goog.object]))
 
-(defn extend-all-cljs-protocols [] (cljs-protocols/extend-all))
+(defn
+ extend-all-cljs-protocols
+ "in cljs envs, this makes `=`, `compare` and `hash` work on the value of Temporal entities.\r\n  It is optional, so that if this behaviour is not required, the resulting build size can be reduced. \r\n  "
+ []
+ (cljs-protocols/extend-all))
 
 (defn legacydate? [v] (instance? js/Date v))
 
@@ -34,23 +37,28 @@
 (defn zdt? [v] (instance? entities/zdt v))
 
 (defn
- clock-fixed
- [instant ^String zone-str]
- (clock/clock (constantly instant) zone-str))
-
-(defn
- clock-with-zone
- [^String timezone_id]
- (clock/clock js/Temporal.Now.instant timezone_id))
-
-(defn
  clock-system-default-zone
  "a ticking clock having the ambient zone. "
  []
  js/Temporal.Now)
 
 (defn
+ clock-fixed
+ "create a stopped clock"
+ ([^ZonedDateTime zdt]
+  (clock/clock (constantly (.toInstant zdt)) (.-timeZoneId zdt)))
+ ([^Instant instant ^String zone-str]
+  (clock/clock (constantly instant) zone-str)))
+
+(defn
+ clock-with-zone
+ "ticking clock in given timezone_id"
+ [^String timezone_id]
+ (clock/clock js/Temporal.Now.instant timezone_id))
+
+(defn
  clock-offset-millis
+ "offset an existing clock by offset-millis"
  [clock offset-millis]
  (clock/clock
   (fn
@@ -70,7 +78,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__112295# p2__112296#] (greater p1__112295# p2__112296#))
+  (fn* [p1__36695# p2__36696#] (greater p1__36695# p2__36696#))
   arg
   args))
 
@@ -82,7 +90,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__112297# p2__112298#] (lesser p1__112297# p2__112298#))
+  (fn* [p1__36697# p2__36698#] (lesser p1__36697# p2__36698#))
   arg
   args))
 
@@ -173,7 +181,22 @@
    (not (or (monthday? temporal) (yearmonth? temporal))))
   (throw
    (ex-info
-    "shifting by years or months yields odd results depending on input. intead shift a year-month, then set non-yearmonth parts"
+    "see guardrails section at https://github.com/henryw374/tempo?tab=readme-ov-file#guardrails"
+    {}))))
+
+(defn
+ throw-if-months-or-years-in-amount
+ [temporal temporal-amount]
+ (when
+  (and
+   *block-non-commutative-operations*
+   (not (or (monthday? temporal) (yearmonth? temporal)))
+   (or
+    (not (zero? (.-years ^js temporal-amount)))
+    (not (zero? (.-months ^js temporal-amount)))))
+  (throw
+   (ex-info
+    "see guardrails section at https://github.com/henryw374/tempo?tab=readme-ov-file#guardrails"
     {}))))
 
 (defn
@@ -197,12 +220,18 @@
 
 (defn
  >>
+ ([temporal temporal-amount]
+  (throw-if-months-or-years-in-amount temporal temporal-amount)
+  (.add ^js temporal temporal-amount))
  ([temporal amount temporal-property]
   (throw-if-set-months-or-years temporal temporal-property)
   (.add ^js temporal (js-obj (str temporal-property "s") amount))))
 
 (defn
  <<
+ ([temporal temporal-amount]
+  (throw-if-months-or-years-in-amount temporal temporal-amount)
+  (.subtract ^js temporal temporal-amount))
  ([temporal amount temporal-property]
   (throw-if-set-months-or-years temporal temporal-property)
   (.subtract ^js temporal (js-obj (str temporal-property "s") amount))))

@@ -95,7 +95,7 @@
 (deftest equals-hash-compare-duration
   (let [make-middle #(d/duration-parse "PT1S")
         middle (make-middle)
-        smallest (d/duration->negated (d/duration-parse "PT1S"))
+        smallest (d/duration-parse "PT0S")
         largest (d/duration-parse "PT2S")]
     (is (not= middle smallest))
     (is (= middle (make-middle)))
@@ -138,11 +138,11 @@
 (deftest shift
   ;todo - generate for combinations of duration/period and entity
   (let [a-date (t/date-now (t/clock-system-default-zone))
-        ;period (d/period-parse "P3D")
-        plus3 (t/>> a-date 3 t/days-property)]
-    (is (= a-date (t/<< plus3 3 t/days-property)))
-    ;todo - also compare  >=, > etc not=, hash not=
-    ))
+        period (d/period-parse "P3D")]
+    (is (= a-date (-> (t/>> a-date 3 t/days-property) 
+                      (t/<<  3 t/days-property))))
+    (is (= a-date (-> (t/>> a-date period)
+                      (t/<<  period))))))
 
 (deftest prop-test
   (let [combos [[t/instant-now [t/nanoseconds-property t/microseconds-property t/milliseconds-property
@@ -283,8 +283,12 @@
 
 (deftest guardrails-test
   (is (thrown? #?(:clj Throwable :cljs js/Error) (t/>> (t/date-parse "2020-02-02") 1 t/years-property)))
+  (is (thrown? #?(:clj Throwable :cljs js/Error) (t/>> (t/date-parse "2020-02-02") (d/period-parse "P1Y"))))
   (binding [t/*block-non-commutative-operations* false]
-    (is (t/>> (t/date-parse "2020-02-02") 1 t/years-property))))
+    (is (t/>> (t/date-parse "2020-02-02") 1 t/years-property))
+    (is (t/>> (t/date-parse "2020-02-02") (d/period-parse "P1Y")))
+    
+    ))
 
 (deftest comparison-test
   (doseq [{:keys [startf endf]} [
