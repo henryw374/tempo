@@ -3,12 +3,11 @@
 
 (defn constructor-fns [feature]
   (rest (gen/read-cond-forms "gen_in/constructors.cljc"
-          feature)))
+          #{feature})))
 
 (comment
-  (constructor-fns #{:cljc})
-  (constructor-fns #{:cljay})
-  (constructor-fns #{:cljs})
+  (constructor-fns :cljay)
+  (constructor-fns :cljs)
   
 
   )

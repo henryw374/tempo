@@ -345,5 +345,7 @@
     (is (= start (t/date-prev-or-same-weekday start 2)))
     (is (= (t/<< start 1 t/days-property) (t/date-prev-or-same-weekday start 1)))))
 
+;(remove-ns (.name *ns*))
+
 
 

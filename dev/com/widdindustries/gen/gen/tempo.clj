@@ -8,26 +8,26 @@
             [clojure.java.io :as io]
             [clojure.set :as set]))
 
-(defn non-graph [features]
-  (rest (gen/read-cond-forms "gen_in/tempo.cljc"
-          features)))
+(defn non-graph [feature]
+  (let [forms (rest (gen/read-cond-forms "gen_in/tempo.cljc"
+                      #{feature}))
+        per-graph (->> forms
+                       (take-while #(not= '(comment "after-graph") %)))]
+    [per-graph (drop (count per-graph) forms)]))
 
-(defn feature->ext [features]
-  (condp set/subset? features
-    #{:cljay} ".clj"
-    #{:cljs} ".cljs"
-    #{:cljcc} ".clj"
-    #{:cljcs} ".cljs"
-    ))
+(defn feature->ext [feature]
+  (case feature
+    :cljay ".clj"
+     :cljs ".cljs"))
 
 ;(feature->ext #{:cljcs :cljc})
 
-(defn gen-tempo [target features main-feature]
-  (let [[decl pre & manuals] (non-graph features)]
+(defn gen-tempo [  main-feature]
+  (let [[pre-graph post-graph] (non-graph main-feature)]
     (gen/gen (str "src/com/widdindustries/tempo"
-               (feature->ext features))
+               (feature->ext main-feature))
       (concat
-        [decl pre]
+        pre-graph
         ['(comment "accessors")]
         (accessors/accessor-forms main-feature)
         ['(comment "parsers")]
@@ -35,9 +35,9 @@
         ['(comment "nowers")]
         (accessors/now-forms main-feature)
         ['(comment "constructors")]
-        (constructors/constructor-fns features)
+        (constructors/constructor-fns main-feature)
         ['(comment "other")]
-        manuals
+        post-graph
         )))
 
   )
@@ -62,8 +62,8 @@
       )))
 
 (defn gen-after []
-  (gen-tempo "no-deps" #{:cljay} :cljay)
-  (gen-tempo "no-deps" #{:cljs} :cljs)
+  (gen-tempo :cljay)
+  (gen-tempo :cljs)
   (cljs-protocols/gen-protocols)
   (generate-test))
 

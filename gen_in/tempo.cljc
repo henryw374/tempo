@@ -15,8 +15,21 @@
   ;(:require [com.widdindustries.tempo.js-temporal-entities :as entities])
   )
 
-#?(:cljay (set! *warn-on-reflection* true)
-   :cljs nil)
+#?(:cljay (set! *warn-on-reflection* true))
+
+#?(:cljay
+   (defprotocol HasTime
+     (getFractional [_])
+     (setFractional [_ _])))
+
+#?(:cljay (defn -millisecond [f]
+            (-> (getFractional f) (Duration/ofNanos) (.toMillisPart))))
+#?(:cljay (defn -microsecond [f]
+            (-> (getFractional f) (/ 1000) long (mod 1000))))
+#?(:cljay (defn -nanosecond [f]
+            (-> (getFractional f) (mod 1000))))
+
+(comment "after-graph")
 
 (defn extend-all-cljs-protocols
   "in cljs envs, this makes `=`, `compare` and `hash` work on the value of Temporal entities.
@@ -154,18 +167,6 @@
 #?(:cljay (defprotocol Property
             (unit [_])
             (field [_])))
-
-#?(:cljay
-   (defprotocol HasTime
-     (getFractional [_])
-     (setFractional [_ _])))
-
-#?(:cljay (defn -millisecond [f]
-            (-> (getFractional f) (Duration/ofNanos) (.toMillisPart))))
-#?(:cljay (defn -microsecond [f]
-            (-> (getFractional f) (/ 1000) long (mod 1000))))
-#?(:cljay (defn -nanosecond [f]
-            (-> (getFractional f) (mod 1000))))
 
 #?(:cljay
    (extend-protocol HasTime

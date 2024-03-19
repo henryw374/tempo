@@ -33,6 +33,17 @@
 
 (set! *warn-on-reflection* true)
 
+(defprotocol HasTime (getFractional [_]) (setFractional [_ _]))
+
+(defn
+ -millisecond
+ [f]
+ (-> (getFractional f) (Duration/ofNanos) (.toMillisPart)))
+
+(defn -microsecond [f] (-> (getFractional f) (/ 1000) long (mod 1000)))
+
+(defn -nanosecond [f] (-> (getFractional f) (mod 1000)))
+
 ^{:line 31, :column 11} (comment "accessors")
 
 (defn zdt->year [^ZonedDateTime foo] (-> foo .getYear))
@@ -297,6 +308,8 @@
 
 ^{:line 39, :column 11} (comment "other")
 
+(comment "after-graph")
+
 (defn
  extend-all-cljs-protocols
  "in cljs envs, this makes `=`, `compare` and `hash` work on the value of Temporal entities.\r\n  It is optional, so that if this behaviour is not required, the resulting build size can be reduced. \r\n  "
@@ -361,7 +374,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__38304# p2__38305#] (greater p1__38304# p2__38305#))
+  (fn* [p1__40846# p2__40847#] (greater p1__40846# p2__40847#))
   arg
   args))
 
@@ -373,7 +386,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__38306# p2__38307#] (lesser p1__38306# p2__38307#))
+  (fn* [p1__40848# p2__40849#] (lesser p1__40848# p2__40849#))
   arg
   args))
 
@@ -435,17 +448,6 @@
  (and (<= start event) (>= end event)))
 
 (defprotocol Property (unit [_]) (field [_]))
-
-(defprotocol HasTime (getFractional [_]) (setFractional [_ _]))
-
-(defn
- -millisecond
- [f]
- (-> (getFractional f) (Duration/ofNanos) (.toMillisPart)))
-
-(defn -microsecond [f] (-> (getFractional f) (/ 1000) long (mod 1000)))
-
-(defn -nanosecond [f] (-> (getFractional f) (mod 1000)))
 
 (extend-protocol
  HasTime
