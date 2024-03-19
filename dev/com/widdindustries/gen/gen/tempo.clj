@@ -8,7 +8,7 @@
             [clojure.java.io :as io]
             [clojure.set :as set]))
 
-(defn ns-decl [features]
+(defn non-graph [features]
   (rest (gen/read-cond-forms "gen_in/tempo.cljc"
           features)))
 
@@ -23,21 +23,23 @@
 ;(feature->ext #{:cljcs :cljc})
 
 (defn gen-tempo [target features main-feature]
-  (gen/gen (str  "src/com/widdindustries/tempo" (when (= "cljc.java-time-dep" target)
-                                                   "/cljc-java-time-dep")
-             
-             (feature->ext features))
-    (concat (ns-decl features)
-      ['(comment "accessors")]
-      (accessors/accessor-forms main-feature)
-      ['(comment "parsers")]
-      (accessors/parse-forms main-feature)
-      ['(comment "nowers")]
-      (accessors/now-forms main-feature)
-      ['(comment "constructors")]
-      (constructors/constructor-fns features)
-      ))
-  
+  (let [[decl pre & manuals] (non-graph features)]
+    (gen/gen (str "src/com/widdindustries/tempo"
+               (feature->ext features))
+      (concat
+        [decl pre]
+        ['(comment "accessors")]
+        (accessors/accessor-forms main-feature)
+        ['(comment "parsers")]
+        (accessors/parse-forms main-feature)
+        ['(comment "nowers")]
+        (accessors/now-forms main-feature)
+        ['(comment "constructors")]
+        (constructors/constructor-fns features)
+        ['(comment "other")]
+        manuals
+        )))
+
   )
 
 (defn generate-test []

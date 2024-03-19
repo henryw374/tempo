@@ -1,14 +1,14 @@
-^{:line 46, :column 15}
+^{:line 48, :column 15}
 (ns
  com.widdindustries.tempo-gen-test
- ^{:line 47, :column 17}
+ ^{:line 49, :column 17}
  (:require
   [clojure.test :refer [deftest is testing]]
   [com.widdindustries.tempo :as t]))
 
-^{:line 51, :column 9} (comment "accessors")
+^{:line 53, :column 9} (comment "accessors")
 
-^{:line 53, :column 9} (comment "parsers")
+^{:line 55, :column 9} (comment "parsers")
 
 (deftest
  zdt-parse-test
@@ -52,7 +52,7 @@
   [now-now (t/yearmonth-now (t/clock-system-default-zone))]
   (is (= now-now (-> now-now str t/yearmonth-parse)))))
 
-^{:line 55, :column 9} (comment "nowers")
+^{:line 57, :column 9} (comment "nowers")
 
 (deftest
  zdt-now-test
@@ -201,7 +201,7 @@
   (is (t/yearmonth? now-clock-1))
   (is (t/> now-clock-2 now-clock-1))))
 
-^{:line 57, :column 9} (comment "accessors")
+^{:line 59, :column 9} (comment "accessors")
 
 (deftest
  zdt->year

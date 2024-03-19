@@ -15,7 +15,8 @@
   ;(:require [com.widdindustries.tempo.js-temporal-entities :as entities])
   )
 
-#?(:cljay (set! *warn-on-reflection* true))
+#?(:cljay (set! *warn-on-reflection* true)
+   :cljs nil)
 
 (defn extend-all-cljs-protocols
   "in cljs envs, this makes `=`, `compare` and `hash` work on the value of Temporal entities.
@@ -427,3 +428,17 @@
 (defn instant+timezone [instant timezone_id]
   #?(:cljay (.atZone ^Instant instant (ZoneId/of timezone_id))
      :cljs (.toZonedDateTimeISO ^js instant timezone_id)))
+
+(defn date-next-or-same-weekday [date desired-dow-number]
+  (let [curr-day-of-week (date->day-of-week date)]
+    (>> date
+      (-> (abs (- curr-day-of-week (+ 7 desired-dow-number)))
+          (mod 7))
+      days-property)))
+
+(defn date-prev-or-same-weekday [date desired-dow-number]
+  (let [curr-day-of-week (date->day-of-week date)]
+    (<< date
+      (-> (abs (- (+ 7 curr-day-of-week) desired-dow-number))
+          (mod 7))
+      days-property)))

@@ -337,3 +337,13 @@
               (t/date+time (t/time-now clock))
               (t/datetime+timezone "Pacific/Honolulu")
               (t/zdt->yearmonth))))))
+
+(deftest or-same-test
+  (let [start (t/date-parse "2024-03-19")]
+    (is (= start (t/date-next-or-same-weekday start 2)))
+    (is (= (t/>> start 6 t/days-property) (t/date-next-or-same-weekday start 1)))
+    (is (= start (t/date-prev-or-same-weekday start 2)))
+    (is (= (t/<< start 1 t/days-property) (t/date-prev-or-same-weekday start 1)))))
+
+
+
