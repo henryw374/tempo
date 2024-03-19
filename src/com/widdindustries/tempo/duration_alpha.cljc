@@ -32,11 +32,11 @@
 (comment
 
   (-> (duration-parse "PT2h30m")
-      (.total #js{:unit "minute"})
-      (.total #js{:unit "year"}))
+      (.total :unit "minute")
+      (.total :unit "year"))
 
   (-> (period-parse "P1Y")
-      (.total #js{:unit "year" :relativeTo (com.widdindustries.tempo/zdt-now)}))
+      (.total :unit "year" :relativeTo (com.widdindustries.tempo/zdt-now)))
   )
 
 ;(defn duration->as-years ([d]) ([d ref]))
