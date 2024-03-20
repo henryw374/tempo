@@ -80,9 +80,12 @@
         (is (= i (t/instant-from {:epochmilli (t/instant->epochmilli i)}))))
       (let [d #?(:clj (Date.) :cljs (js/Date.))
             i (t/instant-from {:legacydate d})]
-        (= (.getTime d) (t/instant->epochmilli i))
-        (is (= (.getTime d) (->  (.getTime d) (t/epochmilli->instant) (t/instant->epochmilli))))
-        ))
+        (is (= (.getTime d) (t/instant->epochmilli i)))
+        (is (= i (-> i (t/instant->legacydate) (t/legacydate->instant))))
+        (is (= (.getTime d) (->  (.getTime d) (t/epochmilli->instant) (t/instant->epochmilli))))))
+    (testing "zdt-instant"
+      (let [i (t/instant-parse "2024-01-16T12:43:44.196000Z")]
+        (is (= i (-> i (t/instant->zdt-in-UTC) (t/zdt->instant))))))
     (testing "zdt with offset"
       (is (= "+05:50"
             (->

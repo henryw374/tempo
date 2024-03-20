@@ -104,6 +104,10 @@
   #?(:cljay (.toInstant ^java.util.Date d)
      :cljs (.toTemporalInstant ^js d)))
 
+(defn instant->zdt-in-UTC [instant]
+  #?(:cljay (ZonedDateTime/ofInstant instant (ZoneId/of "UTC"))
+     :cljs (.toZonedDateTimeISO ^js instant "UTC")))
+
 (defn greater [x y]
   (if (neg? (compare x y)) y x))
 

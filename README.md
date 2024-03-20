@@ -98,10 +98,21 @@ namespace exists which contains a subset of the functions from `tick.core` which
 
 [![Clojars Project](https://img.shields.io/clojars/v/com.widdindustries/time-literals-tempo.svg)](https://clojars.org/com.widdindustries/time-literals-tempo)
 
-* As of March 2024, a polyfill (e.g. [this](https://github.com/fullcalendar/temporal-polyfill)) of Temporal will be required for all javascript environments.
-* The new underlying Javascript platform time API [Temporal](https://github.com/tc39/proposal-temporal) has semi-stabilized at
+As of March 2024
+
+* [Temporal](https://github.com/tc39/proposal-temporal) has semi-stabilized at
   `ecma stage 3`, meaning implementors
-  can still suggest changes - although at this point any changes will be superficial.
+  can still suggest changes - although at this point any changes will be superficial. 
+* a polyfill (e.g. [this](https://github.com/fullcalendar/temporal-polyfill)) of Temporal will be required for all javascript environments.
+
+```html
+    <script>
+        if(!window.Temporal){
+          document.write('<script src="https://cdn.jsdelivr.net/npm/temporal-polyfill@0.2.3/global.min.js"><\/script>');         
+                  }
+    </script>
+```
+
 
 ### Setup
 
@@ -195,11 +206,14 @@ to as `timezone_id`. Call `str` on a timezone to get its id.
 (t/yearmonth+day-at-end-of-month a-yearmonth) ; => a date
 (t/datetime+timezone a-datetime "Pacific/Honolulu") ; => a zdt
 
-; to get parts of an entity, start with the subject and add ->
+; to get parts of an entity, the function name will start with the type of the entity, then add -> then put the target type. For example:
 (t/date->yearmonth a-date)
 (t/date->month a-date)
 (t/zdt->nanosecond a-zdt)
 (t/instant->epochmillisecond an-instant)
+(t/epochmilli->instant 123)
+(t/legacydate->instant d)
+; & etc
 
 ```
 
