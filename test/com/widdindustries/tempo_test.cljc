@@ -81,6 +81,7 @@
       (let [d #?(:clj (Date.) :cljs (js/Date.))
             i (t/instant-from {:legacydate d})]
         (= (.getTime d) (t/instant->epochmilli i))
+        (is (= (.getTime d) (->  (.getTime d) (t/epochmilli->instant) (t/instant->epochmilli))))
         ))
     (testing "zdt with offset"
       (is (= "+05:50"

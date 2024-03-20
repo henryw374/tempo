@@ -430,6 +430,10 @@
   #?(:cljay (.atZone ^Instant instant (ZoneId/of timezone_id))
      :cljs (.toZonedDateTimeISO ^js instant timezone_id)))
 
+(defn epochmilli->instant [milli]
+  #?(:cljay (Instant/ofEpochMilli milli)
+     :cljs (js/Temporal.Instant.fromEpochMilliseconds milli)))
+
 (defn date-next-or-same-weekday [date desired-dow-number]
   (let [curr-day-of-week (date->day-of-week date)]
     (>> date

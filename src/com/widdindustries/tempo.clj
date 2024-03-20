@@ -374,7 +374,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__40846# p2__40847#] (greater p1__40846# p2__40847#))
+  (fn* [p1__43218# p2__43219#] (greater p1__43218# p2__43219#))
   arg
   args))
 
@@ -386,7 +386,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__40848# p2__40849#] (lesser p1__40848# p2__40849#))
+  (fn* [p1__43220# p2__43221#] (lesser p1__43220# p2__43221#))
   arg
   args))
 
@@ -746,6 +746,8 @@
  instant+timezone
  [instant timezone_id]
  (.atZone ^Instant instant (ZoneId/of timezone_id)))
+
+(defn epochmilli->instant [milli] (Instant/ofEpochMilli milli))
 
 (defn
  date-next-or-same-weekday

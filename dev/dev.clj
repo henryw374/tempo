@@ -31,7 +31,7 @@
    
     <script>
         if(!window.Temporal){
-          document.write('<script src=\"https://tc39.es/proposal-temporal/docs/playground.js\"><\\/script>');
+          document.write('<script src=\"https://cdn.jsdelivr.net/npm/temporal-polyfill@0.2.3/global.min.js\"><\\/script>');         
                   }
     </script>
 
@@ -54,7 +54,7 @@
       (System/exit 1))))
 
 (comment
-  
+  (util/stop-server)
   ; start up live-compilation of tests
   (test-watch)
   

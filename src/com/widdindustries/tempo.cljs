@@ -8,8 +8,6 @@
   [com.widdindustries.tempo.clock :as clock]
   [goog.object]))
 
-nil
-
 ^{:line 31, :column 11} (comment "accessors")
 
 (defn zdt->year [^js/Temporal.ZonedDateTime foo] (-> foo .-year))
@@ -352,6 +350,8 @@ nil
 
 ^{:line 39, :column 11} (comment "other")
 
+(comment "after-graph")
+
 (defn
  extend-all-cljs-protocols
  "in cljs envs, this makes `=`, `compare` and `hash` work on the value of Temporal entities.\r\n  It is optional, so that if this behaviour is not required, the resulting build size can be reduced. \r\n  "
@@ -422,7 +422,7 @@ nil
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__38308# p2__38309#] (greater p1__38308# p2__38309#))
+  (fn* [p1__43222# p2__43223#] (greater p1__43222# p2__43223#))
   arg
   args))
 
@@ -434,7 +434,7 @@ nil
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__38310# p2__38311#] (lesser p1__38310# p2__38311#))
+  (fn* [p1__43224# p2__43225#] (lesser p1__43224# p2__43225#))
   arg
   args))
 
@@ -653,6 +653,11 @@ nil
  instant+timezone
  [instant timezone_id]
  (.toZonedDateTimeISO ^js instant timezone_id))
+
+(defn
+ epochmilli->instant
+ [milli]
+ (js/Temporal.Instant.fromEpochMilliseconds milli))
 
 (defn
  date-next-or-same-weekday
