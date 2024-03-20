@@ -238,7 +238,8 @@ aka construction a new temporal from one of the same type
 
 ;; move date forward 3 days
 (t/>> a-date 3 t/days-property)
-(t/>> a-date 3 a-temporal-amount)
+;; move forward by some amount
+(t/>> a-date a-temporal-amount)
 
 (t/date-next-or-same-weekday a-date 2) ; move date to next-or-same tuesday
 (t/date-prev-or-same-weekday a-date 7) ; move date to prev-or-same sunday

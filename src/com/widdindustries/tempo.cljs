@@ -414,6 +414,11 @@
 
 (defn legacydate->instant [d] (.toTemporalInstant ^js d))
 
+(defn
+ instant->zdt-in-UTC
+ [instant]
+ (.toZonedDateTimeISO ^js instant "UTC"))
+
 (defn greater [x y] (if (neg? (compare x y)) y x))
 
 (defn
@@ -422,7 +427,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__43222# p2__43223#] (greater p1__43222# p2__43223#))
+  (fn* [p1__31212# p2__31213#] (greater p1__31212# p2__31213#))
   arg
   args))
 
@@ -434,7 +439,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__43224# p2__43225#] (lesser p1__43224# p2__43225#))
+  (fn* [p1__31214# p2__31215#] (lesser p1__31214# p2__31215#))
   arg
   args))
 

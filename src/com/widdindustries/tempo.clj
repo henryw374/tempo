@@ -366,6 +366,11 @@
 
 (defn legacydate->instant [d] (.toInstant ^java.util.Date d))
 
+(defn
+ instant->zdt-in-UTC
+ [instant]
+ (ZonedDateTime/ofInstant instant (ZoneId/of "UTC")))
+
 (defn greater [x y] (if (neg? (compare x y)) y x))
 
 (defn
@@ -374,7 +379,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__43218# p2__43219#] (greater p1__43218# p2__43219#))
+  (fn* [p1__31208# p2__31209#] (greater p1__31208# p2__31209#))
   arg
   args))
 
@@ -386,7 +391,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__43220# p2__43221#] (lesser p1__43220# p2__43221#))
+  (fn* [p1__31210# p2__31211#] (lesser p1__31210# p2__31211#))
   arg
   args))
 

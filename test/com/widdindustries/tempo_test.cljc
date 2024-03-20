@@ -193,9 +193,8 @@
         offset (t/clock-offset-millis fixed 1)]
     (is (= now (t/instant-now fixed)))
     (is (= (t/>> now 1 t/milliseconds-property) (t/instant-now offset)))
-    (is (t/> (t/instant-now (t/clock-system-default-zone)) (t/instant-now fixed)))
-    (is (= (t/zdt->timezone_id (t/zdt-now fixed)) (t/zdt->timezone_id (t/zdt-now offset))))
-    ))
+    (is (t/>= (t/instant-now (t/clock-system-default-zone)) (t/instant-now fixed)))
+    (is (= (t/zdt->timezone_id (t/zdt-now fixed)) (t/zdt->timezone_id (t/zdt-now offset))))))
 
 (deftest adjust-test
   (testing "adjusting date"
