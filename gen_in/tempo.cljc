@@ -10,7 +10,7 @@
      :cljs (:require [com.widdindustries.tempo.cljs-protocols :as cljs-protocols]
              [com.widdindustries.tempo.js-temporal-entities :as entities]
              [com.widdindustries.tempo.js-temporal-methods :as methods]
-             [com.widdindustries.tempo.clock :as clock]
+             [com.widdindustries.tempo.clock :refer [clock] :as clock]
              [goog.object]))
   ;(:require [com.widdindustries.tempo.js-temporal-entities :as entities])
   )
@@ -28,6 +28,10 @@
             (-> (getFractional f) (/ 1000) long (mod 1000))))
 #?(:cljay (defn -nanosecond [f]
             (-> (getFractional f) (mod 1000))))
+
+#?(:cljay
+   (defn timezone-parse [x]
+     (ZoneId/of x)))
 
 (comment "after-graph")
 
@@ -61,10 +65,16 @@
                        :cljs (instance? entities/monthday v)))
 (defn yearmonth? [v] #?(:cljay (instance? YearMonth v)
                         :cljs (instance? entities/yearmonth v)))
-(defn timezone? [v] #?(:cljay (instance? ZoneId v)
+#_(defn timezone? [v] #?(:cljay (instance? ZoneId v)
                        :cljs (instance? entities/timezone v)))
 (defn zdt? [v] #?(:cljay (instance? ZonedDateTime v)
                   :cljs (instance? entities/zdt v)))
+
+#?(:cljay
+   (defn clock [instant-fn timezone_id-fn]
+     (proxy [java.time.Clock] []
+       (getZone [] (java.time.ZoneId/of (timezone_id-fn)))
+       (instant [] (instant-fn)))))
 
 ;; construction of clocks
 (defn clock-system-default-zone
@@ -77,27 +87,40 @@
   "create a stopped clock"
   ([^ZonedDateTime zdt]
    #?(:cljay (Clock/fixed (.toInstant zdt)   (.getZone zdt))
-      :cljs (clock/clock (constantly (.toInstant zdt)) (.-timeZoneId zdt))))
+      :cljs (clock (constantly (.toInstant zdt)) (constantly (.-timeZoneId zdt)))))
   ([^Instant instant ^String zone-str]
    #?(:cljay (Clock/fixed instant (ZoneId/of zone-str))
-      :cljs (clock/clock (constantly instant) zone-str))))
+      :cljs (clock (constantly instant) (constantly zone-str)))))
 
 (defn clock-with-zone 
   "ticking clock in given timezone_id" 
   [^String timezone_id]
   #?(:cljay (Clock/system (ZoneId/of timezone_id))
-     :cljs (clock/clock js/Temporal.Now.instant timezone_id)))
+     :cljs (clock js/Temporal.Now.instant (constantly timezone_id))))
 
 (defn clock-offset-millis 
   "offset an existing clock by offset-millis"
   [clock offset-millis]
   #?(:cljay (Clock/offset clock (Duration/ofMillis offset-millis))
-     :cljs (clock/clock
+     :cljs (clock
              (fn [] (.add (.instant ^js clock) (js-obj "milliseconds" offset-millis)))
-             (clock/timezone_id clock))))
+             (constantly (clock/timezone_id clock)))))
+
+(defn clock-zdt-atom
+  "create a clock which will dereference the zdt-atom.
+  
+  The caller must first construct the atom and by keeping a reference to it,
+   may change its value and therefore the value of the clock.
+  "
+  [zdt-atom]
+  (clock
+    (fn get-instant []
+      (zdt->instant @zdt-atom))
+    (fn get-zone []
+      (zdt->timezone_id @zdt-atom))))
 
 (defn timezone-now
-  ([clock] #?(:cljay (.getZone ^Clock clock)
+  ([clock] #?(:cljay (str (.getZone ^Clock clock))
               :cljs (clock/timezone_id clock))))
 
 (defn legacydate->instant [d]

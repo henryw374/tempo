@@ -5,7 +5,7 @@
   [com.widdindustries.tempo.cljs-protocols :as cljs-protocols]
   [com.widdindustries.tempo.js-temporal-entities :as entities]
   [com.widdindustries.tempo.js-temporal-methods :as methods]
-  [com.widdindustries.tempo.clock :as clock]
+  [com.widdindustries.tempo.clock :refer [clock] :as clock]
   [goog.object]))
 
 ^{:line 31, :column 11} (comment "accessors")
@@ -15,7 +15,15 @@
 (defn
  datetime->month
  [^js/Temporal.PlainDateTime foo]
- (-> foo (-> (.-monthCode) (subs 1 3) js/parseInt)))
+ (->
+  foo
+  ^{:line 144, :column 78}
+  (->
+   ^{:line 144, :column 82}
+   (.-monthCode)
+   ^{:line 144, :column 96}
+   (subs 1 3)
+   js/parseInt)))
 
 (defn
  datetime->day-of-week
@@ -37,12 +45,18 @@
 (defn
  datetime->monthday
  [^js/Temporal.PlainDateTime foo]
- (-> foo (-> (js/Temporal.PlainMonthDay.from))))
+ (->
+  foo
+  ^{:line 92, :column 33}
+  (-> ^{:line 92, :column 37} (js/Temporal.PlainMonthDay.from))))
 
 (defn
  datetime->yearmonth
  [^js/Temporal.PlainDateTime foo]
- (-> foo (-> (js/Temporal.PlainYearMonth.from))))
+ (->
+  foo
+  ^{:line 78, :column 33}
+  (-> ^{:line 78, :column 37} (js/Temporal.PlainYearMonth.from))))
 
 (defn yearmonth->year [^js/Temporal.PlainYearMonth foo] (-> foo .-year))
 
@@ -75,17 +89,36 @@
 (defn
  zdt->month
  [^js/Temporal.ZonedDateTime foo]
- (-> foo (-> (.-monthCode) (subs 1 3) js/parseInt)))
+ (->
+  foo
+  ^{:line 144, :column 78}
+  (->
+   ^{:line 144, :column 82}
+   (.-monthCode)
+   ^{:line 144, :column 96}
+   (subs 1 3)
+   js/parseInt)))
 
 (defn
  zdt->monthday
  [^js/Temporal.ZonedDateTime foo]
- (-> foo (-> (js/Temporal.PlainMonthDay.from))))
+ (->
+  foo
+  ^{:line 92, :column 33}
+  (-> ^{:line 92, :column 37} (js/Temporal.PlainMonthDay.from))))
 
 (defn
  monthday->month
  [^js/Temporal.PlainMonthDay foo]
- (-> foo (-> (.-monthCode) (subs 1 3) js/parseInt)))
+ (->
+  foo
+  ^{:line 144, :column 78}
+  (->
+   ^{:line 144, :column 82}
+   (.-monthCode)
+   ^{:line 144, :column 96}
+   (subs 1 3)
+   js/parseInt)))
 
 (defn
  datetime->date
@@ -102,7 +135,10 @@
 (defn
  date->monthday
  [^js/Temporal.PlainDate foo]
- (-> foo (-> (js/Temporal.PlainMonthDay.from))))
+ (->
+  foo
+  ^{:line 92, :column 33}
+  (-> ^{:line 92, :column 37} (js/Temporal.PlainMonthDay.from))))
 
 (defn
  zdt->day-of-week
@@ -116,7 +152,14 @@
 (defn
  instant->legacydate
  [^js/Temporal.Instant foo]
- (-> foo (-> (.-epochMilliseconds) (js/Date.))))
+ (->
+  foo
+  ^{:line 118, :column 44}
+  (->
+   ^{:line 118, :column 48}
+   (.-epochMilliseconds)
+   ^{:line 118, :column 70}
+   (js/Date.))))
 
 (defn date->year [^js/Temporal.PlainDate foo] (-> foo .-year))
 
@@ -130,7 +173,10 @@
 (defn
  instant->epochmilli
  [^js/Temporal.Instant foo]
- (-> foo (-> (.-epochMilliseconds))))
+ (->
+  foo
+  ^{:line 53, :column 23}
+  (-> ^{:line 53, :column 27} (.-epochMilliseconds))))
 
 (defn datetime->hour [^js/Temporal.PlainDateTime foo] (-> foo .-hour))
 
@@ -182,7 +228,10 @@
 (defn
  zdt->yearmonth
  [^js/Temporal.ZonedDateTime foo]
- (-> foo (-> (js/Temporal.PlainYearMonth.from))))
+ (->
+  foo
+  ^{:line 78, :column 33}
+  (-> ^{:line 78, :column 37} (js/Temporal.PlainYearMonth.from))))
 
 (defn
  yearmonth->month
@@ -202,14 +251,12 @@
 (defn
  date->yearmonth
  [^js/Temporal.PlainDate foo]
- (-> foo (-> (js/Temporal.PlainYearMonth.from))))
+ (->
+  foo
+  ^{:line 78, :column 33}
+  (-> ^{:line 78, :column 37} (js/Temporal.PlainYearMonth.from))))
 
 ^{:line 33, :column 11} (comment "parsers")
-
-(defn
- timezone-parse
- [^java.lang.String foo]
- (js/Temporal.TimeZone.from foo))
 
 (defn
  instant-parse
@@ -354,7 +401,7 @@
 
 (defn
  extend-all-cljs-protocols
- "in cljs envs, this makes `=`, `compare` and `hash` work on the value of Temporal entities.\r\n  It is optional, so that if this behaviour is not required, the resulting build size can be reduced. \r\n  "
+ "in cljs envs, this makes `=`, `compare` and `hash` work on the value of Temporal entities.\n  It is optional, so that if this behaviour is not required, the resulting build size can be reduced. \n  "
  []
  (cljs-protocols/extend-all))
 
@@ -376,8 +423,6 @@
 
 (defn yearmonth? [v] (instance? entities/yearmonth v))
 
-(defn timezone? [v] (instance? entities/timezone v))
-
 (defn zdt? [v] (instance? entities/zdt v))
 
 (defn
@@ -390,25 +435,35 @@
  clock-fixed
  "create a stopped clock"
  ([^ZonedDateTime zdt]
-  (clock/clock (constantly (.toInstant zdt)) (.-timeZoneId zdt)))
+  (clock
+   (constantly (.toInstant zdt))
+   (constantly (.-timeZoneId zdt))))
  ([^Instant instant ^String zone-str]
-  (clock/clock (constantly instant) zone-str)))
+  (clock (constantly instant) (constantly zone-str))))
 
 (defn
  clock-with-zone
  "ticking clock in given timezone_id"
  [^String timezone_id]
- (clock/clock js/Temporal.Now.instant timezone_id))
+ (clock js/Temporal.Now.instant (constantly timezone_id)))
 
 (defn
  clock-offset-millis
  "offset an existing clock by offset-millis"
- [clock offset-millis]
- (clock/clock
+ [prev-clock offset-millis]
+ (clock
   (fn
    []
-   (.add (.instant ^js clock) (js-obj "milliseconds" offset-millis)))
-  (clock/timezone_id clock)))
+   (.add (.instant ^js prev-clock) (js-obj "milliseconds" offset-millis)))
+  (constantly (clock/timezone_id prev-clock))))
+
+(defn
+ clock-zdt-atom
+ "create a clock which will dereference the zdt-atom.\n  \n  The caller must first construct the atom and by keeping a reference to it,\n   may change its value and therefore the value of the clock.\n  "
+ [zdt-atom]
+ (clock
+  (fn get-instant [] (zdt->instant @zdt-atom))
+  (fn get-zone [] (zdt->timezone_id @zdt-atom))))
 
 (defn timezone-now ([clock] (clock/timezone_id clock)))
 
@@ -423,11 +478,11 @@
 
 (defn
  max
- "Find the latest of the given arguments. Callers should ensure that no\r\n  argument is nil."
+ "Find the latest of the given arguments. Callers should ensure that no\n  argument is nil."
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__31212# p2__31213#] (greater p1__31212# p2__31213#))
+  (fn* [p1__53007# p2__53008#] (greater p1__53007# p2__53008#))
   arg
   args))
 
@@ -435,11 +490,11 @@
 
 (defn
  min
- "Find the earliest of the given arguments. Callers should ensure that no\r\n  argument is nil."
+ "Find the earliest of the given arguments. Callers should ensure that no\n  argument is nil."
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__31214# p2__31215#] (lesser p1__31214# p2__31215#))
+  (fn* [p1__53009# p2__53010#] (lesser p1__53009# p2__53010#))
   arg
   args))
 

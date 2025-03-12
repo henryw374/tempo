@@ -31,7 +31,7 @@
    
     <script>
         if(!window.Temporal){
-          document.write('<script src=\"https://cdn.jsdelivr.net/npm/temporal-polyfill@0.2.3/global.min.js\"><\\/script>');         
+          document.write('<script src=\"https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.0-beta.1/global.min.js\"><\\/script>');         
                   }
     </script>
 

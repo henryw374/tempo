@@ -48,6 +48,7 @@
     (concat ['(ns com.widdindustries.tempo-gen-test
                 (:require [clojure.test :refer [deftest is testing]]
                           [com.widdindustries.tempo :as t]))]
+      ['(t/extend-all-cljs-protocols)]
       ;['(comment "constructors")]
       ;(constructors/constructor-tests features)
       ['(comment "accessors")]

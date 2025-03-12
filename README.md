@@ -166,13 +166,12 @@ a clock is then passed as arg to all `now` functions, for example:
 ### Time zones & Offsets
 
 ```clojure
-(t/timezone-parse "Europe/London")
 
 (t/timezone-now clock)
 ```
 
 Where a timezone is accessed from an object, or passed into an object, only the string representation can be used, referred
-to as `timezone_id`. Call `str` on a timezone to get its id.
+to as `timezone_id`. This is because there is no timezone object in temporal
 
 ```clojure
 (t/zdt->timezone_id zdt)

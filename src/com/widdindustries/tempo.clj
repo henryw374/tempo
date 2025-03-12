@@ -44,6 +44,8 @@
 
 (defn -nanosecond [f] (-> (getFractional f) (mod 1000)))
 
+(defn timezone-parse [x] (ZoneId/of x))
+
 ^{:line 31, :column 11} (comment "accessors")
 
 (defn zdt->year [^ZonedDateTime foo] (-> foo .getYear))
@@ -53,12 +55,19 @@
 (defn
  datetime->day-of-week
  [^LocalDateTime foo]
- (-> foo (-> (.getDayOfWeek) (.getValue))))
+ (->
+  foo
+  ^{:line 104, :column 26}
+  (->
+   ^{:line 104, :column 30}
+   (.getDayOfWeek)
+   ^{:line 104, :column 46}
+   (.getValue))))
 
 (defn
  datetime->microsecond
  [^LocalDateTime foo]
- (-> foo (-> -microsecond)))
+ (-> foo ^{:line 169, :column 80} (-> -microsecond)))
 
 (defn datetime->second [^LocalDateTime foo] (-> foo .getSecond))
 
@@ -67,18 +76,30 @@
 (defn
  datetime->monthday
  [^LocalDateTime foo]
- (-> foo (-> (MonthDay/from))))
+ (->
+  foo
+  ^{:line 94, :column 33}
+  (-> ^{:line 94, :column 37} (MonthDay/from))))
 
 (defn
  datetime->yearmonth
  [^LocalDateTime foo]
- (-> foo (-> (YearMonth/from))))
+ (->
+  foo
+  ^{:line 80, :column 33}
+  (-> ^{:line 80, :column 37} (YearMonth/from))))
 
 (defn yearmonth->year [^YearMonth foo] (-> foo .getYear))
 
-(defn zdt->millisecond [^ZonedDateTime foo] (-> foo (-> -millisecond)))
+(defn
+ zdt->millisecond
+ [^ZonedDateTime foo]
+ (-> foo ^{:line 166, :column 80} (-> -millisecond)))
 
-(defn zdt->nanosecond [^ZonedDateTime foo] (-> foo (-> -nanosecond)))
+(defn
+ zdt->nanosecond
+ [^ZonedDateTime foo]
+ (-> foo ^{:line 172, :column 80} (-> -nanosecond)))
 
 (defn zdt->second [^ZonedDateTime foo] (-> foo .getSecond))
 
@@ -95,22 +116,44 @@
 
 (defn zdt->month [^ZonedDateTime foo] (-> foo .getMonthValue))
 
-(defn zdt->monthday [^ZonedDateTime foo] (-> foo (-> (MonthDay/from))))
+(defn
+ zdt->monthday
+ [^ZonedDateTime foo]
+ (->
+  foo
+  ^{:line 94, :column 33}
+  (-> ^{:line 94, :column 37} (MonthDay/from))))
 
 (defn monthday->month [^MonthDay foo] (-> foo .getMonthValue))
 
 (defn datetime->date [^LocalDateTime foo] (-> foo .toLocalDate))
 
-(defn zdt->microsecond [^ZonedDateTime foo] (-> foo (-> -microsecond)))
+(defn
+ zdt->microsecond
+ [^ZonedDateTime foo]
+ (-> foo ^{:line 169, :column 80} (-> -microsecond)))
 
 (defn zdt->day-of-month [^ZonedDateTime foo] (-> foo .getDayOfMonth))
 
-(defn date->monthday [^LocalDate foo] (-> foo (-> (MonthDay/from))))
+(defn
+ date->monthday
+ [^LocalDate foo]
+ (->
+  foo
+  ^{:line 94, :column 33}
+  (-> ^{:line 94, :column 37} (MonthDay/from))))
 
 (defn
  zdt->day-of-week
  [^ZonedDateTime foo]
- (-> foo (-> (.getDayOfWeek) (.getValue))))
+ (->
+  foo
+  ^{:line 104, :column 26}
+  (->
+   ^{:line 104, :column 30}
+   (.getDayOfWeek)
+   ^{:line 104, :column 46}
+   (.getValue))))
 
 (defn time->second [^LocalTime foo] (-> foo .getSecond))
 
@@ -119,14 +162,21 @@
 (defn
  instant->legacydate
  [^Instant foo]
- (-> foo (-> (.toEpochMilli) (java.util.Date.))))
+ (->
+  foo
+  ^{:line 116, :column 44}
+  (->
+   ^{:line 116, :column 48}
+   (.toEpochMilli)
+   ^{:line 116, :column 64}
+   (java.util.Date.))))
 
 (defn date->year [^LocalDate foo] (-> foo .getYear))
 
 (defn
  datetime->nanosecond
  [^LocalDateTime foo]
- (-> foo (-> -nanosecond)))
+ (-> foo ^{:line 172, :column 80} (-> -nanosecond)))
 
 (defn datetime->year [^LocalDateTime foo] (-> foo .getYear))
 
@@ -138,9 +188,15 @@
 
 (defn zdt->datetime [^ZonedDateTime foo] (-> foo .toLocalDateTime))
 
-(defn time->microsecond [^LocalTime foo] (-> foo (-> -microsecond)))
+(defn
+ time->microsecond
+ [^LocalTime foo]
+ (-> foo ^{:line 169, :column 80} (-> -microsecond)))
 
-(defn time->nanosecond [^LocalTime foo] (-> foo (-> -nanosecond)))
+(defn
+ time->nanosecond
+ [^LocalTime foo]
+ (-> foo ^{:line 172, :column 80} (-> -nanosecond)))
 
 (defn time->minute [^LocalTime foo] (-> foo .getMinute))
 
@@ -151,38 +207,62 @@
 (defn
  zdt->timezone_id
  [^ZonedDateTime foo]
- (-> foo (-> (.getZone) (.getId))))
+ (->
+  foo
+  ^{:line 65, :column 24}
+  (->
+   ^{:line 65, :column 28}
+   (.getZone)
+   ^{:line 65, :column 39}
+   (.getId))))
 
 (defn monthday->day-of-month [^MonthDay foo] (-> foo .getDayOfMonth))
 
 (defn
  date->day-of-week
  [^LocalDate foo]
- (-> foo (-> (.getDayOfWeek) (.getValue))))
+ (->
+  foo
+  ^{:line 104, :column 26}
+  (->
+   ^{:line 104, :column 30}
+   (.getDayOfWeek)
+   ^{:line 104, :column 46}
+   (.getValue))))
 
 (defn zdt->minute [^ZonedDateTime foo] (-> foo .getMinute))
 
 (defn
  datetime->millisecond
  [^LocalDateTime foo]
- (-> foo (-> -millisecond)))
+ (-> foo ^{:line 166, :column 80} (-> -millisecond)))
 
 (defn
  zdt->yearmonth
  [^ZonedDateTime foo]
- (-> foo (-> (YearMonth/from))))
+ (->
+  foo
+  ^{:line 80, :column 33}
+  (-> ^{:line 80, :column 37} (YearMonth/from))))
 
 (defn yearmonth->month [^YearMonth foo] (-> foo .getMonthValue))
 
-(defn time->millisecond [^LocalTime foo] (-> foo (-> -millisecond)))
+(defn
+ time->millisecond
+ [^LocalTime foo]
+ (-> foo ^{:line 166, :column 80} (-> -millisecond)))
 
 (defn datetime->time [^LocalDateTime foo] (-> foo .toLocalTime))
 
-(defn date->yearmonth [^LocalDate foo] (-> foo (-> (YearMonth/from))))
+(defn
+ date->yearmonth
+ [^LocalDate foo]
+ (->
+  foo
+  ^{:line 80, :column 33}
+  (-> ^{:line 80, :column 37} (YearMonth/from))))
 
 ^{:line 33, :column 11} (comment "parsers")
-
-(defn timezone-parse [^java.lang.String foo] (ZoneId/of foo))
 
 (defn instant-parse [^java.lang.String foo] (Instant/parse foo))
 
@@ -312,7 +392,7 @@
 
 (defn
  extend-all-cljs-protocols
- "in cljs envs, this makes `=`, `compare` and `hash` work on the value of Temporal entities.\r\n  It is optional, so that if this behaviour is not required, the resulting build size can be reduced. \r\n  "
+ "in cljs envs, this makes `=`, `compare` and `hash` work on the value of Temporal entities.\n  It is optional, so that if this behaviour is not required, the resulting build size can be reduced. \n  "
  [])
 
 (defn legacydate? [v] (instance? java.util.Date v))
@@ -333,9 +413,16 @@
 
 (defn yearmonth? [v] (instance? YearMonth v))
 
-(defn timezone? [v] (instance? ZoneId v))
-
 (defn zdt? [v] (instance? ZonedDateTime v))
+
+(defn
+ clock
+ [instant-fn timezone_id-fn]
+ (proxy
+  [java.time.Clock]
+  []
+  (getZone [] (java.time.ZoneId/of (timezone_id-fn)))
+  (instant [] (instant-fn))))
 
 (defn
  clock-system-default-zone
@@ -362,7 +449,15 @@
  [clock offset-millis]
  (Clock/offset clock (Duration/ofMillis offset-millis)))
 
-(defn timezone-now ([clock] (.getZone ^Clock clock)))
+(defn
+ clock-zdt-atom
+ "create a clock which will dereference the zdt-atom.\n  \n  The caller must first construct the atom and by keeping a reference to it,\n   may change its value and therefore the value of the clock.\n  "
+ [zdt-atom]
+ (clock
+  (fn get-instant [] (zdt->instant @zdt-atom))
+  (fn get-zone [] (zdt->timezone_id @zdt-atom))))
+
+(defn timezone-now ([clock] (str (.getZone ^Clock clock))))
 
 (defn legacydate->instant [d] (.toInstant ^java.util.Date d))
 
@@ -375,11 +470,11 @@
 
 (defn
  max
- "Find the latest of the given arguments. Callers should ensure that no\r\n  argument is nil."
+ "Find the latest of the given arguments. Callers should ensure that no\n  argument is nil."
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__31208# p2__31209#] (greater p1__31208# p2__31209#))
+  (fn* [p1__53003# p2__53004#] (greater p1__53003# p2__53004#))
   arg
   args))
 
@@ -387,11 +482,11 @@
 
 (defn
  min
- "Find the earliest of the given arguments. Callers should ensure that no\r\n  argument is nil."
+ "Find the earliest of the given arguments. Callers should ensure that no\n  argument is nil."
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__31210# p2__31211#] (lesser p1__31210# p2__31211#))
+  (fn* [p1__53005# p2__53006#] (lesser p1__53005# p2__53006#))
   arg
   args))
 

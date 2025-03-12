@@ -8,7 +8,7 @@
 (time-literals.read-write/print-time-literals-clj!)
 (time-literals.read-write/print-time-literals-cljs!)
 
-(comment 
+(comment
   (remove-ns (.name *ns*))
   (remove-ns 'com.widdindustries.tempo)
   (require '[com.widdindustries.tempo] :reload-all)
@@ -17,10 +17,10 @@
 
   )
 
-(t/extend-all-cljs-protocols)
+(t/extend-all-cljs-protocols) ;
 ;
-(deftest construction-from-parts-test
-  
+(deftest construction-from-parts-test ;
+
   (testing ""
     t/monthday-from
     t/yearmonth-from
@@ -42,10 +42,10 @@
                        {:timezone_id timezone_id
                         :instant     (t/instant-from {:zdt zdt})}))))
         (testing "keep wall time, change zone"
-          (let [zdt-2 (t/zdt-from {:zdt zdt
+          (let [zdt-2 (t/zdt-from {:zdt         zdt
                                    :timezone_id "Europe/London"})]
             (is (= (t/zdt->datetime zdt) (t/zdt->datetime zdt-2)))
-            (is (not= (t/zdt->timezone_id zdt) (t/zdt->timezone_id zdt-2) ))))))
+            (is (not= (t/zdt->timezone_id zdt) (t/zdt->timezone_id zdt-2)))))))
     (let [datetime (t/datetime-now (t/clock-system-default-zone))
           timezone (str (t/timezone-now (t/clock-system-default-zone)))
           zdt (t/zdt-from {:datetime datetime :timezone_id timezone})]
@@ -64,7 +64,7 @@
     )
   (testing "level 3"
     (let [ym (t/yearmonth-parse "2020-02")
-          timezone (str (t/timezone-parse "Pacific/Honolulu"))
+          timezone  "Pacific/Honolulu"
           zdt (t/zdt-from {:yearmonth   ym :day-of-month 1
                            :hour        1
                            :timezone_id timezone})]
@@ -82,7 +82,7 @@
             i (t/instant-from {:legacydate d})]
         (is (= (.getTime d) (t/instant->epochmilli i)))
         (is (= i (-> i (t/instant->legacydate) (t/legacydate->instant))))
-        (is (= (.getTime d) (->  (.getTime d) (t/epochmilli->instant) (t/instant->epochmilli))))))
+        (is (= (.getTime d) (-> (.getTime d) (t/epochmilli->instant) (t/instant->epochmilli))))))
     (testing "zdt-instant"
       (let [i (t/instant-parse "2024-01-16T12:43:44.196000Z")]
         (is (= i (-> i (t/instant->zdt-in-UTC) (t/zdt->instant))))))
@@ -117,8 +117,8 @@
 
 (deftest equals-hash-compare-date
   (let [middle (t/date-now (t/clock-system-default-zone))
-        earliest (t/<< middle 1 t/days-property )
-        latest (t/>> middle 1 t/days-property )]
+        earliest (t/<< middle 1 t/days-property)
+        latest (t/>> middle 1 t/days-property)]
     (is (not= middle earliest))
     (is (= middle (t/date-now (t/clock-system-default-zone))))
     ;(compare earliest middle)
@@ -131,22 +131,20 @@
   (is (not (t/period? (t/date-now (t/clock-system-default-zone))))))
 
 (deftest parsing-test
-  (is (t/timezone? (t/timezone-parse "Europe/London")))
-  (is (t/timezone? (t/timezone-parse "-12:15"))))
+  (is (t/date? (t/date-parse "2020-02-02"))))
 
 (deftest equals-hash
-  (is (= (t/timezone-parse "Europe/London") (t/timezone-parse "Europe/London")))
-  (is (not= (t/timezone-parse "Europe/London") (t/timezone-parse "Europe/Paris")))
-  (is (= 1 (get {(t/timezone-parse "Europe/London") 1} (t/timezone-parse "Europe/London")))))
+  (is (= (t/date-parse "2020-02-02") (t/date-parse "2020-02-02")))
+  (is (= 1 (get {(t/date-parse "2020-02-02") 1} (t/date-parse "2020-02-02")))))
 
 (deftest shift
   ;todo - generate for combinations of duration/period and entity
   (let [a-date (t/date-now (t/clock-system-default-zone))
         period (d/period-parse "P3D")]
-    (is (= a-date (-> (t/>> a-date 3 t/days-property) 
-                      (t/<<  3 t/days-property))))
+    (is (= a-date (-> (t/>> a-date 3 t/days-property)
+                      (t/<< 3 t/days-property))))
     (is (= a-date (-> (t/>> a-date period)
-                      (t/<<  period))))))
+                      (t/<< period))))))
 
 (deftest prop-test
   (let [combos [[t/instant-now [t/nanoseconds-property t/microseconds-property t/milliseconds-property
@@ -179,7 +177,7 @@
       (let [i-1 (now (t/clock-system-default-zone))
             current (t/get-field i-1 withable-prop)]
         (when-not (t/instant? i-1)
-          (testing (str "with " i-1 " prop " (str withable-prop) " current " current 
+          (testing (str "with " i-1 " prop " (str withable-prop) " current " current
                      " " withable-prop)
             (is (not= i-1 (t/with i-1 (if (= 1 current) 2 1) withable-prop)) (str i-1 " " withable-prop))))))))
 
@@ -187,14 +185,22 @@
 ;(t/get-field (t/zdt-now (t/clock-system-default-zone)) t/days-property)
 
 (deftest clock-test
-  (let [zone (str (t/timezone-now (t/clock-system-default-zone)))
+  (let [zone (t/timezone-now (t/clock-system-default-zone))
         now (t/instant-now (t/clock-system-default-zone))
         fixed (t/clock-fixed now zone)
         offset (t/clock-offset-millis fixed 1)]
+    ;(.add (.instant fixed) (js-obj "milliseconds" 1))
+    ;(com.widdindustries.tempo.clock/timezone_id fixed)
     (is (= now (t/instant-now fixed)))
     (is (= (t/>> now 1 t/milliseconds-property) (t/instant-now offset)))
     (is (t/>= (t/instant-now (t/clock-system-default-zone)) (t/instant-now fixed)))
     (is (= (t/zdt->timezone_id (t/zdt-now fixed)) (t/zdt->timezone_id (t/zdt-now offset))))))
+
+(comment
+  (def now (t/instant-now (t/clock-system-default-zone)))
+  (def fixed (t/clock-fixed now "Europe/London"))
+  
+  )
 
 (deftest adjust-test
   (testing "adjusting date"
@@ -206,13 +212,13 @@
                 (t/with 1 t/years-property))))))
   #_(testing "adjusting instant"
       ; seems pointless and doesnt work in js as-is
-    (let [i (-> (t/instant-now (t/clock-system-default-zone))
-                (t/with 123 t/milliseconds-property)
-                (t/with 456 t/microseconds-property)
-                (t/with 789 t/nanoseconds-property))]
-      (is (= 123 (t/get-field i t/milliseconds-property)))
-      (is (= 456 (t/get-field i t/microseconds-property)))
-      (is (= 789 (t/get-field i t/nanoseconds-property)))))
+      (let [i (-> (t/instant-now (t/clock-system-default-zone))
+                  (t/with 123 t/milliseconds-property)
+                  (t/with 456 t/microseconds-property)
+                  (t/with 789 t/nanoseconds-property))]
+        (is (= 123 (t/get-field i t/milliseconds-property)))
+        (is (= 456 (t/get-field i t/microseconds-property)))
+        (is (= 789 (t/get-field i t/nanoseconds-property)))))
   (doseq [[x hour minute second milli micro nano] [[(t/zdt-parse "2024-02-22T00:00:00Z[Europe/London]")
                                                     t/zdt->hour
                                                     t/zdt->minute
@@ -281,7 +287,7 @@
     (is (-> (t/truncate i t/hours-property) ; fyi hours is biggest
             (t/instant+timezone "Europe/London")
             (t/zdt->minute)
-            (zero?)))) 
+            (zero?))))
   )
 
 (deftest guardrails-test
@@ -290,7 +296,7 @@
   (binding [t/*block-non-commutative-operations* false]
     (is (t/>> (t/date-parse "2020-02-02") 1 t/years-property))
     (is (t/>> (t/date-parse "2020-02-02") (d/period-parse "P1Y")))
-    
+
     ))
 
 (deftest comparison-test
@@ -309,7 +315,7 @@
       (is (t/>= end end start))
       (is (not (t/>= start end end start)))
 
-      (is (t/<= start end end ))
+      (is (t/<= start end end))
       (is (not (t/<= end start end)))
 
       (is (t/> end start))
@@ -318,14 +324,14 @@
       (is (t/< start end))
       (is (not (t/< end start))))
     )
-  
+
   )
 
 (deftest eom-test
   (is (= (t/date-parse "2020-02-29") (t/yearmonth+day-at-end-of-month (t/yearmonth-parse "2020-02")))))
 
-(deftest plus-test 
-  (let [clock (t/clock-system-default-zone) 
+(deftest plus-test
+  (let [clock (t/clock-system-default-zone)
         month-day (t/monthday-now clock)
         year-month (t/yearmonth-now clock)]
     (is (= month-day

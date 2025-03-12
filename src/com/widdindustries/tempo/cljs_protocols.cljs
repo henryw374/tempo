@@ -22,18 +22,6 @@
   (-compare [x y] (js/Temporal.Duration.compare ^js x y))))
 
 (defn
- timezone
- []
- (extend-protocol
-  IEquiv
-  js/Temporal.TimeZone
-  (-equiv [o other] (= (.-id ^js o) (.-id ^js other))))
- (extend-protocol
-  IHash
-  js/Temporal.TimeZone
-  (-hash [o] (hash (.-id ^js o)))))
-
-(defn
  instant
  []
  (extend-protocol
@@ -138,6 +126,5 @@
  (time)
  (monthday)
  (yearmonth)
- (timezone)
  (duration))
 

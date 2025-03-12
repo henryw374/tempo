@@ -2,21 +2,17 @@
   (:refer-clojure :exclude [time])
   (:require [com.widdindustries.tempo.js-temporal-methods :as tm]))
 
-(defn clock [instant-fn zone]
+(defn clock [instant-fn timezone_id-fn]
   #js{:instant          instant-fn
-      :plainDateTime    (fn [calendar]
-                          (tm/instant->plain-datetime-calendar (instant-fn) zone calendar)),
       :plainDateTimeISO (fn []
-                          (tm/instant->plain-datetime-iso (instant-fn) zone))
-      :plainDate        (fn [calendar]
-                          (tm/instant->plain-date-calendar (instant-fn) zone calendar))
+                          (tm/instant->plain-datetime-iso (instant-fn) (timezone_id-fn)))
       :plainDateISO     (fn []
-                          (tm/instant->plain-date-iso (instant-fn) zone))
+                          (tm/instant->plain-date-iso (instant-fn) (timezone_id-fn)))
       :plainTimeISO     (fn []
-                          (tm/instant->plain-time-iso (instant-fn) zone))
-      :timeZoneId       (fn [] zone)
+                          (tm/instant->plain-time-iso (instant-fn) (timezone_id-fn)))
+      :timeZoneId       (fn [] (timezone_id-fn))
       :zonedDateTimeISO (fn []
-                          (tm/->zdt-iso (instant-fn) zone))})
+                          (tm/->zdt-iso (instant-fn) (timezone_id-fn)))})
 
 (defn instant
   ([^js clock] (.instant clock)))

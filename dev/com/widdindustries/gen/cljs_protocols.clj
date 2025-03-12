@@ -28,7 +28,7 @@
           js/Temporal.Duration
           (-compare [x y] (js/Temporal.Duration.compare ^js x y))))
 
-      (defn timezone []
+      #_(defn timezone []
         (extend-protocol IEquiv
           js/Temporal.TimeZone
           (-equiv [o other] (= (.-id ^js o) (.-id ^js other))))

@@ -66,7 +66,7 @@
    :cljs   {:accessor '-timeZoneId}
    :tempo  'timezone_id})
 
-(def timezone 
+#_(def timezone 
   {:tempo  'timezone
    :no-now true 
    :cljay {:parse    'of}})
@@ -108,7 +108,7 @@
               }})
 
 (def graph
-  {timezone          {:parts {}}
+  { ;timezone          {:parts {}}
    {:tempo 'instant} {:parts
                       {epochmilli  {}
                        epochnano   {}

@@ -9,14 +9,16 @@
                                              com.widdindustries/tiado-cljs2      {:git/url "https://github.com/henryw374/tiado-cljs2.git" :git/sha "3229283d825a393008a1f1c408603dff775e87c2"}
                                              org.clojure/tools.namespace         {:mvn/version "1.4.4"}
                                              babashka/fs                         {:mvn/version "0.5.20"}
-                                             com.widdindustries/time-literals-tempo {:mvn/version "0.1.10"}
+                                             com.widdindustries/time-literals-tempo { ;:local/root "../time-literals/tempo"
+                                                                                     :mvn/version "0.1.11"
+                                                                                     }
 
                                              }
                                }
-           :build {:extra-deps {slipset/deps-deploy {:mvn/version "RELEASE"}
-                                io.github.clojure/tools.build {:git/tag "v0.8.2" :git/sha "ba1a2bf"}}
-                   :paths ["dev"]
-                   :ns-default build}
+           :build             {:extra-deps  {slipset/deps-deploy           {:mvn/version "RELEASE"}
+                                             io.github.clojure/tools.build {:mvn/version "0.10.5"}}
+                               :extra-paths ["dev"]
+                               :ns-default  build}
            }
 
  }
