@@ -5,7 +5,7 @@
         <name>Widd Industries Ltd</name>
         <url>http://widdindustries.com</url>
     </organization>
-    <description>Provides the full java-time API to Clojure and Clojurescript</description>
+    <description>Zero-dependency Clojure(Script) API to java.time on the JVM and Temporal on JS runtimes</description>
     <url>https://github.com/henryw374/tempo</url>
     <licenses>
         <license>

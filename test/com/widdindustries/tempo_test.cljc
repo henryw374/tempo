@@ -25,6 +25,7 @@
     t/monthday-from
     t/yearmonth-from
     )
+  ;todo
   (testing "level 0"
     (let [nanos 789
           micros 456
@@ -188,13 +189,16 @@
   (let [zone (t/timezone-now (t/clock-system-default-zone))
         now (t/instant-now (t/clock-system-default-zone))
         fixed (t/clock-fixed now zone)
-        offset (t/clock-offset-millis fixed 1)]
-    ;(.add (.instant fixed) (js-obj "milliseconds" 1))
-    ;(com.widdindustries.tempo.clock/timezone_id fixed)
+        offset (t/clock-offset-millis fixed 1)
+        zdt-atom (atom (t/zdt-parse "2024-02-22T00:00:00Z[Europe/London]"))
+        clock-zdt-atom (t/clock-zdt-atom zdt-atom)]
     (is (= now (t/instant-now fixed)))
     (is (= (t/>> now 1 t/milliseconds-property) (t/instant-now offset)))
     (is (t/>= (t/instant-now (t/clock-system-default-zone)) (t/instant-now fixed)))
-    (is (= (t/zdt->timezone_id (t/zdt-now fixed)) (t/zdt->timezone_id (t/zdt-now offset))))))
+    (is (= (t/zdt->timezone_id (t/zdt-now fixed)) (t/zdt->timezone_id (t/zdt-now offset))))
+    (is (= @zdt-atom (t/zdt-now clock-zdt-atom)))
+    (swap! zdt-atom t/>> 1 t/hours-property)
+    (is (= @zdt-atom (t/zdt-now clock-zdt-atom)))))
 
 (comment
   (def now (t/instant-now (t/clock-system-default-zone)))

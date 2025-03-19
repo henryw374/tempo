@@ -4,8 +4,7 @@
 [![Tests build](https://github.com/henryw374/tempo/actions/workflows/tests.yaml/badge.svg)](https://github.com/henryw374/tempo/actions/workflows/tests.yaml)
 <!-- [![bb compatible](https://raw.githubusercontent.com/babashka/babashka/master/logo/badge.svg)](https://babashka.org)-->
 
-
-Zero-dependency, cross-platform Clojure time library
+Zero-dependency Clojure(Script) API to java.time on the JVM and Temporal on JS runtimes
 
 ## About
 
@@ -109,7 +108,7 @@ As of June 2024
 ```html
     <script>
         if(!window.Temporal){
-          document.write('<script src="https://cdn.jsdelivr.net/npm/temporal-polyfill@0.2.3/global.min.js"><\/script>');         
+          document.write('<script src="https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.0-beta.1/global.min.js"><\/script>');         
                   }
     </script>
 ```
