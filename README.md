@@ -91,13 +91,13 @@ namespace exists which contains a subset of the functions from `tick.core` which
 
 [![Clojars Project](https://img.shields.io/clojars/v/com.widdindustries/time-literals-tempo.svg)](https://clojars.org/com.widdindustries/time-literals-tempo)
 
-As of June 2024
+As of March 2025
 
 * [Temporal](https://github.com/tc39/proposal-temporal) has semi-stabilized at
   `ecma stage 3`, meaning implementors
-  can still suggest changes
-* Changes [have been suggested](https://docs.google.com/presentation/d/1PPMAxVnVjFwRPuJwOvVsw9nZLQ6jDM8Hd5PNO0Grp4I/edit#slide=id.p) - and Tempo will need some changes if those are accepted. It shouldn't affect Tempo API though.    
-* a polyfill (e.g. [this](https://github.com/fullcalendar/temporal-polyfill)) of Temporal will be required for all javascript environments.
+  can still suggest changes 
+* See [current browser support on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal)
+* Until widely available in browsers, a polyfill (e.g. [this](https://github.com/fullcalendar/temporal-polyfill)) of Temporal can be used.
 
 ```html
     <script>
