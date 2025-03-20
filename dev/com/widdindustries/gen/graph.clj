@@ -58,7 +58,7 @@
    :tempo 'epochnano})
 
 (def timezone_id
-  {:no-now true
+  { :no-now true
    :return 'string?
    :cljay  {
             ;:accessor 'getZone

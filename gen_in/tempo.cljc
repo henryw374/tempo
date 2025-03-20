@@ -92,7 +92,7 @@
    #?(:cljay (Clock/fixed instant (ZoneId/of zone-str))
       :cljs (clock (constantly instant) (constantly zone-str)))))
 
-(defn clock-with-zone 
+(defn clock-with-timezone_id 
   "ticking clock in given timezone_id" 
   [^String timezone_id]
   #?(:cljay (Clock/system (ZoneId/of timezone_id))
@@ -119,7 +119,7 @@
     (fn get-zone []
       (zdt->timezone_id @zdt-atom))))
 
-(defn timezone-now
+(defn timezone_id-now
   ([clock] #?(:cljay (str (.getZone ^Clock clock))
               :cljs (clock/timezone_id clock))))
 
@@ -449,11 +449,11 @@
 (defn time+date [time date]
   (date+time date time))
 
-(defn datetime+timezone [datetime timezone_id]
+(defn datetime+timezone_id [datetime timezone_id]
   #?(:cljay (.atZone ^LocalDateTime datetime (ZoneId/of timezone_id))
      :cljs (.toZonedDateTime ^js datetime timezone_id)))
 
-(defn instant+timezone [instant timezone_id]
+(defn instant+timezone_id [instant timezone_id]
   #?(:cljay (.atZone ^Instant instant (ZoneId/of timezone_id))
      :cljs (.toZonedDateTimeISO ^js instant timezone_id)))
 

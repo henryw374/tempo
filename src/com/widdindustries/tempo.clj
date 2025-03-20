@@ -438,7 +438,7 @@
   (Clock/fixed instant (ZoneId/of zone-str))))
 
 (defn
- clock-with-zone
+ clock-with-timezone_id
  "ticking clock in given timezone_id"
  [^String timezone_id]
  (Clock/system (ZoneId/of timezone_id)))
@@ -457,7 +457,7 @@
   (fn get-instant [] (zdt->instant @zdt-atom))
   (fn get-zone [] (zdt->timezone_id @zdt-atom))))
 
-(defn timezone-now ([clock] (str (.getZone ^Clock clock))))
+(defn timezone_id-now ([clock] (str (.getZone ^Clock clock))))
 
 (defn legacydate->instant [d] (.toInstant ^java.util.Date d))
 
@@ -474,7 +474,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__53003# p2__53004#] (greater p1__53003# p2__53004#))
+  (fn* [p1__31249# p2__31250#] (greater p1__31249# p2__31250#))
   arg
   args))
 
@@ -486,7 +486,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__53005# p2__53006#] (lesser p1__53005# p2__53006#))
+  (fn* [p1__31251# p2__31252#] (lesser p1__31251# p2__31252#))
   arg
   args))
 
@@ -838,12 +838,12 @@
 (defn time+date [time date] (date+time date time))
 
 (defn
- datetime+timezone
+ datetime+timezone_id
  [datetime timezone_id]
  (.atZone ^LocalDateTime datetime (ZoneId/of timezone_id)))
 
 (defn
- instant+timezone
+ instant+timezone_id
  [instant timezone_id]
  (.atZone ^Instant instant (ZoneId/of timezone_id)))
 

@@ -81,7 +81,7 @@
 
 (defn current-zone "Return the current zone, which can be overridden by the *clock* dynamic var" 
   ([]
-   (t/timezone-now *clock*)))
+   (t/timezone_id-now *clock*)))
 
 ;(defn zone-offset "" ([offset]) ([hours minutes]) ([hours minutes seconds]))
 
@@ -227,7 +227,7 @@
       (string? v) (t/date-parse v)
       (t/datetime? v) (t/datetime->date v)
       (t/zdt? v) (t/zdt->date v)
-      (t/instant? v) (-> v (t/instant+timezone (zone))
+      (t/instant? v) (-> v (t/instant+timezone_id (zone))
                          (date))
       :else (throw (ex-info "don't know how to make a date" {:from v})))))
 

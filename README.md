@@ -144,7 +144,7 @@ In both java.time and Temporal it is possible to use the ambient Clock, for exam
 (t/clock-system-default-zone)
 
 ; ticking clock in specified place
-(t/clock-with-zone "Pacific/Honolulu")
+(t/clock-with-timezone_id "Pacific/Honolulu")
 
 ; clock fixed in time and place
 (t/clock-fixed (t/instant-parse "2020-02-02T00:00:00Z") "Europe/Paris")
@@ -173,7 +173,7 @@ a clock is passed as arg to all `now` functions, for example:
 
 ```clojure
 
-(t/timezone-now clock)
+(t/timezone_id-now clock)
 ```
 
 Timezone identifiers in `tempo` are just strings.
@@ -209,7 +209,7 @@ Timezone identifiers in `tempo` are just strings.
 ; 'add' a field to an object to create a different type
 (t/yearmonth+day a-yearmonth 1) ; => a date
 (t/yearmonth+day-at-end-of-month a-yearmonth) ; => a date
-(t/datetime+timezone a-datetime "Pacific/Honolulu") ; => a zdt
+(t/datetime+timezone_id a-datetime "Pacific/Honolulu") ; => a zdt
 
 ; to get parts of an entity, the function name will start with the type of the entity, then add -> then put the target type. For example:
 (t/date->yearmonth a-date)

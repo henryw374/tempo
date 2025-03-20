@@ -442,7 +442,7 @@
   (clock (constantly instant) (constantly zone-str))))
 
 (defn
- clock-with-zone
+ clock-with-timezone_id
  "ticking clock in given timezone_id"
  [^String timezone_id]
  (clock js/Temporal.Now.instant (constantly timezone_id)))
@@ -450,12 +450,12 @@
 (defn
  clock-offset-millis
  "offset an existing clock by offset-millis"
- [prev-clock offset-millis]
+ [clock offset-millis]
  (clock
   (fn
    []
-   (.add (.instant ^js prev-clock) (js-obj "milliseconds" offset-millis)))
-  (constantly (clock/timezone_id prev-clock))))
+   (.add (.instant ^js clock) (js-obj "milliseconds" offset-millis)))
+  (constantly (clock/timezone_id clock))))
 
 (defn
  clock-zdt-atom
@@ -465,7 +465,7 @@
   (fn get-instant [] (zdt->instant @zdt-atom))
   (fn get-zone [] (zdt->timezone_id @zdt-atom))))
 
-(defn timezone-now ([clock] (clock/timezone_id clock)))
+(defn timezone_id-now ([clock] (clock/timezone_id clock)))
 
 (defn legacydate->instant [d] (.toTemporalInstant ^js d))
 
@@ -482,7 +482,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__53007# p2__53008#] (greater p1__53007# p2__53008#))
+  (fn* [p1__31253# p2__31254#] (greater p1__31253# p2__31254#))
   arg
   args))
 
@@ -494,7 +494,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__53009# p2__53010#] (lesser p1__53009# p2__53010#))
+  (fn* [p1__31255# p2__31256#] (lesser p1__31255# p2__31256#))
   arg
   args))
 
@@ -705,12 +705,12 @@
 (defn time+date [time date] (date+time date time))
 
 (defn
- datetime+timezone
+ datetime+timezone_id
  [datetime timezone_id]
  (.toZonedDateTime ^js datetime timezone_id))
 
 (defn
- instant+timezone
+ instant+timezone_id
  [instant timezone_id]
  (.toZonedDateTimeISO ^js instant timezone_id))
 

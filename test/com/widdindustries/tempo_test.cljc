@@ -37,7 +37,7 @@
   (testing "level 1"
     (testing "setting zone on zdt"
       (let [timezone_id "Pacific/Honolulu"
-            zdt (t/zdt-now (t/clock-with-zone timezone_id))]
+            zdt (t/zdt-now (t/clock-with-timezone_id timezone_id))]
         (testing "roundtrip same instant"
           (is (= zdt (t/zdt-from
                        {:timezone_id timezone_id
@@ -48,7 +48,7 @@
             (is (= (t/zdt->datetime zdt) (t/zdt->datetime zdt-2)))
             (is (not= (t/zdt->timezone_id zdt) (t/zdt->timezone_id zdt-2)))))))
     (let [datetime (t/datetime-now (t/clock-system-default-zone))
-          timezone (str (t/timezone-now (t/clock-system-default-zone)))
+          timezone (str (t/timezone_id-now (t/clock-system-default-zone)))
           zdt (t/zdt-from {:datetime datetime :timezone_id timezone})]
       (is (t/zdt? zdt))
       (is (= datetime (t/zdt->datetime zdt)))
@@ -56,7 +56,7 @@
   (testing "level 2"
     (let [date (t/date-now (t/clock-system-default-zone))
           time (t/time-now (t/clock-system-default-zone))
-          timezone (str (t/timezone-now (t/clock-system-default-zone)))
+          timezone (str (t/timezone_id-now (t/clock-system-default-zone)))
           zdt (t/zdt-from {:date date :time time :timezone_id timezone})]
       (is (t/zdt? zdt))
       (is (= time (t/zdt->time zdt)))
@@ -186,7 +186,7 @@
 ;(t/get-field (t/zdt-now (t/clock-system-default-zone)) t/days-property)
 
 (deftest clock-test
-  (let [zone (t/timezone-now (t/clock-system-default-zone))
+  (let [zone (t/timezone_id-now (t/clock-system-default-zone))
         now (t/instant-now (t/clock-system-default-zone))
         fixed (t/clock-fixed now zone)
         offset (t/clock-offset-millis fixed 1)
@@ -273,7 +273,6 @@
     (is (= i
           (-> i (t/instant->legacydate) (t/legacydate->instant))))))
 
-
 (deftest truncate-test
   (doseq [[temporal props] [[(t/zdt-parse "2020-02-02T09:19:42.123456789Z[Europe/London]") [t/days-property t/hours-property t/minutes-property
                                                                                             t/seconds-property t/milliseconds-property t/microseconds-property
@@ -289,7 +288,7 @@
           (t/get-field temporal prop))))
   (let [i (t/instant-parse "2020-02-02T09:19:42.123456789Z")]
     (is (-> (t/truncate i t/hours-property) ; fyi hours is biggest
-            (t/instant+timezone "Europe/London")
+            (t/instant+timezone_id "Europe/London")
             (t/zdt->minute)
             (zero?))))
   )
@@ -342,13 +341,13 @@
           (-> month-day
               (t/monthday+year 2021)
               (t/date+time (t/time-now clock))
-              (t/datetime+timezone "Pacific/Honolulu")
+              (t/datetime+timezone_id "Pacific/Honolulu")
               (t/zdt->monthday))))
     (is (= year-month
           (-> year-month
               (t/yearmonth+day 1)
               (t/date+time (t/time-now clock))
-              (t/datetime+timezone "Pacific/Honolulu")
+              (t/datetime+timezone_id "Pacific/Honolulu")
               (t/zdt->yearmonth))))))
 
 (deftest or-same-test
