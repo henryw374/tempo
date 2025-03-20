@@ -17,29 +17,23 @@ you.
 
 ![graph of entities in Temporal](https://tc39.es/proposal-temporal/docs/object-model.svg)
 
-Tempo tries to find obvious common ground between java.time and Temporal. Following is some more detail:
+Tempo leverages common ground between java.time and Temporal to create an API is that should cover the vast majority of use cases and should leave users rarely needing to drop to the platform APIs. Following is some more detail:
 
-*just java.time*
+*features of only java.time*
 
 * parsing non-iso
   strings ([Temporal may have this in the future](https://github.com/js-temporal/proposal-temporal-v2/issues/2))
 * 2 types to represent temporal-amounts: `Duration` and `Period`
-* clojure `=`, `compare` and `hash` work - so these are added to Temporal objects in Tempo
-* fixed & offset clocks - so these are added in cljs Tempo
 * OffsetDateTime, OffsetTime, Month, Year and DayOfWeek entities
-    * Tempo adds DayOfWeek to cljs, so there is e.g. `t/weekday-saturday`
+    * Tempo adds a cljs version of DayOfWeek, so there is e.g. `t/weekday-saturday`
     * OffsetDateTime & OffsetTime are not in Tempo
     * Month and Year are just represented by integers in Tempo
 
-*just temporal*
+*features of only temporal*
 
 * Duration type matching ISO spec
-* user-controllable rounding and conflict resolution - Tempo doesnt expose this and chooses same behaviour as java.time
+* user-controllable rounding and conflict resolution - Tempo doesn't expose this and chooses same behaviour as java.time
 * first-class support for non-ISO calendars
-
-*both*
-
-* formatting non-iso strings - this is not in Tempo (yet)
 
 ## Rationale
 
@@ -141,6 +135,9 @@ ZonedDateTime is called `zdt` to keep it short. js/Date and java.util.Date are c
 
 A Clock is required to be able to get the current time/date/timezone etc
 
+In both java.time and Temporal it is possible to use the ambient Clock, for example
+`(java.time.Instant/now)`, but this is not good functional programming practice and so has no equivalent in Tempo.
+
 ```clojure
 
 ;  ticking clock in ambient place
@@ -154,9 +151,19 @@ A Clock is required to be able to get the current time/date/timezone etc
 
 ; offset existing clock by specified millis
 (t/clock-offset clock -5)
+
+; mutable, non-ticking clock - simply change the value in the atom as required
+(def zdt-atom (atom (t/zdt-parse "2024-02-22T00:00:00Z[Europe/London]")))
+(def clock-zdt-atom (t/clock-zdt-atom zdt-atom))
+
+; if you have other requirements for a clock, it is easy to create your own
+(t/clock
+  (fn get-instant [] do-whatever)
+  (fn get-zone [] do-whatever))
+
 ```
 
-a clock is then passed as arg to all `now` functions, for example:
+a clock is passed as arg to all `now` functions, for example:
 
 ```clojure
 (t/date-now clock)
@@ -169,8 +176,7 @@ a clock is then passed as arg to all `now` functions, for example:
 (t/timezone-now clock)
 ```
 
-Where a timezone is accessed from an object, or passed into an object, only the string representation can be used, referred
-to as `timezone_id`. This is because there is no timezone object in temporal
+Timezone identifiers in `tempo` are just strings.
 
 ```clojure
 (t/zdt->timezone_id zdt)
@@ -323,6 +329,10 @@ If not sufficient, use reader conditionals in your code to construct/manipulate 
 (d/duration-parse "PT0.001S")
 
 ```
+
+### Formatting 
+
+* formatting non-iso strings is not a feature in Tempo
 
 ## Dev
 
