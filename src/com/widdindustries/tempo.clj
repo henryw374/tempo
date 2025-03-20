@@ -474,7 +474,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__31249# p2__31250#] (greater p1__31249# p2__31250#))
+  (fn* [p1__47832# p2__47833#] (greater p1__47832# p2__47833#))
   arg
   args))
 
@@ -486,7 +486,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__31251# p2__31252#] (lesser p1__31251# p2__31252#))
+  (fn* [p1__47834# p2__47835#] (lesser p1__47834# p2__47835#))
   arg
   args))
 

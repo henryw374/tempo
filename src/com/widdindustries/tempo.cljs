@@ -450,12 +450,12 @@
 (defn
  clock-offset-millis
  "offset an existing clock by offset-millis"
- [clock offset-millis]
+ [a-clock offset-millis]
  (clock
   (fn
    []
-   (.add (.instant ^js clock) (js-obj "milliseconds" offset-millis)))
-  (constantly (clock/timezone_id clock))))
+   (.add (.instant ^js a-clock) (js-obj "milliseconds" offset-millis)))
+  (constantly (clock/timezone_id a-clock))))
 
 (defn
  clock-zdt-atom
@@ -482,7 +482,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__31253# p2__31254#] (greater p1__31253# p2__31254#))
+  (fn* [p1__47836# p2__47837#] (greater p1__47836# p2__47837#))
   arg
   args))
 
@@ -494,7 +494,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__31255# p2__31256#] (lesser p1__31255# p2__31256#))
+  (fn* [p1__47838# p2__47839#] (lesser p1__47838# p2__47839#))
   arg
   args))
 
