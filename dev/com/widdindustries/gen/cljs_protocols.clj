@@ -81,4 +81,4 @@
       (non-temporals)
       (for [tt graph/temporal-types]
         (temporal-fn-gen (str tt) (get overrides tt)))
-      [(extend-all (concat graph/temporal-types ['timezone 'duration]))])))
+      [(extend-all (concat graph/temporal-types ['duration]))])))

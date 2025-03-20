@@ -446,8 +446,8 @@
 (defn
  clock-offset-millis
  "offset an existing clock by offset-millis"
- [clock offset-millis]
- (Clock/offset clock (Duration/ofMillis offset-millis)))
+ [a-clock offset-millis]
+ (Clock/offset a-clock (Duration/ofMillis offset-millis)))
 
 (defn
  clock-zdt-atom

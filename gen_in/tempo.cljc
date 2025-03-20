@@ -100,11 +100,11 @@
 
 (defn clock-offset-millis 
   "offset an existing clock by offset-millis"
-  [clock offset-millis]
-  #?(:cljay (Clock/offset clock (Duration/ofMillis offset-millis))
+  [a-clock offset-millis]
+  #?(:cljay (Clock/offset a-clock (Duration/ofMillis offset-millis))
      :cljs (clock
-             (fn [] (.add (.instant ^js clock) (js-obj "milliseconds" offset-millis)))
-             (constantly (clock/timezone_id clock)))))
+             (fn [] (.add (.instant ^js a-clock) (js-obj "milliseconds" offset-millis)))
+             (constantly (clock/timezone_id a-clock)))))
 
 (defn clock-zdt-atom
   "create a clock which will dereference the zdt-atom.
