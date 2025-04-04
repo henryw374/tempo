@@ -1,0 +1,3 @@
+[submodule "tempo-docs"]
+	path = tempo-docs
+	url = git@github.com:henryw374/tempo-docs.git
