@@ -10,10 +10,8 @@
      :cljs (:require [com.widdindustries.tempo.cljs-protocols :as cljs-protocols]
              [com.widdindustries.tempo.js-temporal-entities :as entities]
              [com.widdindustries.tempo.js-temporal-methods :as methods]
-             [com.widdindustries.tempo.clock :refer [clock] :as clock]
-             [goog.object]))
-  ;(:require [com.widdindustries.tempo.js-temporal-entities :as entities])
-  )
+             [com.widdindustries.tempo.clock :as clock]
+             [goog.object])))
 
 #?(:cljay (set! *warn-on-reflection* true))
 
@@ -47,7 +45,7 @@
   #?(:cljs (instance? js/Date v)
      :cljay (instance? java.util.Date v)
      ))
-;(defn clock? [v] #?(:cljs nil :cljay (instance? Clock v)))
+
 (defn period? [v] #?(:cljs (instance? entities/duration v)
                      :cljay (instance? Period v)
                      ))
@@ -71,7 +69,9 @@
                   :cljs (instance? entities/zdt v)))
 
 #?(:cljay
-   (defn clock [instant-fn timezone_id-fn]
+   (defn- java-time-clock 
+     "returns a partial implementation of java.time.Clock sufficient for all the java.time 'now' methods"
+     [instant-fn timezone_id-fn]
      (proxy [java.time.Clock] []
        (getZone [] (java.time.ZoneId/of (timezone_id-fn)))
        (instant [] (instant-fn)))))
@@ -87,24 +87,28 @@
   "create a stopped clock"
   ([^ZonedDateTime zdt]
    #?(:cljay (Clock/fixed (.toInstant zdt)   (.getZone zdt))
-      :cljs (clock (constantly (.toInstant zdt)) (constantly (.-timeZoneId zdt)))))
+      :cljs (clock/clock (constantly (.toInstant zdt)) (constantly (.-timeZoneId zdt)))))
   ([^Instant instant ^String zone-str]
    #?(:cljay (Clock/fixed instant (ZoneId/of zone-str))
-      :cljs (clock (constantly instant) (constantly zone-str)))))
+      :cljs (clock/clock (constantly instant) (constantly zone-str)))))
 
 (defn clock-with-timezone_id 
   "ticking clock in given timezone_id" 
   [^String timezone_id]
   #?(:cljay (Clock/system (ZoneId/of timezone_id))
-     :cljs (clock js/Temporal.Now.instant (constantly timezone_id))))
+     :cljs (clock/clock js/Temporal.Now.instant (constantly timezone_id))))
 
 (defn clock-offset-millis 
   "offset an existing clock by offset-millis"
   [a-clock offset-millis]
   #?(:cljay (Clock/offset a-clock (Duration/ofMillis offset-millis))
-     :cljs (clock
+     :cljs (clock/clock
              (fn [] (.add (.instant ^js a-clock) (js-obj "milliseconds" offset-millis)))
              (constantly (clock/timezone_id a-clock)))))
+
+(defn clock [instant-fn timezone_id-fn]
+  #?(:cljay (java-time-clock instant-fn timezone_id-fn)
+     :cljs (clock/clock instant-fn timezone_id-fn)))
 
 (defn clock-zdt-atom
   "create a clock which will dereference the zdt-atom.
@@ -131,7 +135,7 @@
   #?(:cljay (ZonedDateTime/ofInstant instant (ZoneId/of "UTC"))
      :cljs (.toZonedDateTimeISO ^js instant "UTC")))
 
-(defn greater [x y]
+(defn- greater [x y]
   (if (neg? (compare x y)) y x))
 
 (defn max
@@ -141,7 +145,7 @@
   (assert (every? some? (cons arg args)))
   (reduce #(greater %1 %2) arg args))
 
-(defn lesser [x y]
+(defn- lesser [x y]
   (if (neg? (compare x y)) x y))
 
 (defn min
@@ -352,7 +356,10 @@
              "see guardrails section at https://github.com/henryw374/tempo?tab=readme-ov-file#guardrails"
              {}))))
 
-(defn with [temporal value property]
+(defn with 
+  "from temporal arg, derive a new temporal object with property field set to value
+  (t/with date 3 t/days-property) "
+  [temporal value property]
   (throw-if-set-months-or-years temporal property)
   #?(:cljay (.with ^Temporal temporal ^TemporalField (field property) ^long value)
      :cljs (.with ^js temporal (js-obj property value) (js-obj "overflow" "reject"))))
@@ -366,6 +373,7 @@
          (goog.object/get (str property "s")))))
 
 (defn >>
+  "move a temporal forward by an amount"
   ([temporal temporal-amount]
      (throw-if-months-or-years-in-amount temporal temporal-amount)
      #?(:cljay (.plus ^Temporal temporal ^TemporalAmount temporal-amount)
@@ -376,6 +384,7 @@
       :cljs (.add ^js temporal (js-obj (str temporal-property "s") amount)))))
 
 (defn <<
+  "move a temporal backward by an amount"
   ([temporal temporal-amount]
      (throw-if-months-or-years-in-amount temporal temporal-amount)
      #?(:cljay (.minus ^Temporal temporal ^TemporalAmount temporal-amount)
@@ -421,7 +430,9 @@
      LocalTime (-truncate [zdt unit] (.truncatedTo zdt unit))
      Instant (-truncate [zdt unit] (.truncatedTo zdt unit))))
 
-(defn truncate [temporal property]
+(defn truncate 
+  "zero property field and below of temporal"
+  [temporal property]
   #?(:cljay (-truncate temporal (unit property))
      :cljs (.round ^js temporal 
              (js-obj "smallestUnit" property "roundingMode" "trunc"))))
@@ -430,30 +441,42 @@
   #?(:cljay (.get ^TemporalAccessor temporal (field property))
      :cljs (goog.object/get temporal property)))
 
-(defn yearmonth+day-at-end-of-month [ym]
+(defn yearmonth+day-at-end-of-month 
+  "create a date having last day of month" 
+  [ym]
   #?(:cljay (.atEndOfMonth ^YearMonth ym)
      :cljs (.toPlainDate ^js ym (js-obj "day" (.-daysInMonth ^js ym)))))
 
-(defn monthday+year [monthday year]
+(defn monthday+year 
+  "create a date"
+  [monthday year]
   #?(:cljay (.atYear ^MonthDay monthday ^int year)
      :cljs (.toPlainDate ^js monthday (js-obj "year" year))))
 
-(defn yearmonth+day [yearmonth day]
+(defn yearmonth+day
+  "create a date"
+  [yearmonth day]
   #?(:cljay (.atDay ^YearMonth yearmonth ^int day)
      :cljs (.toPlainDate ^js yearmonth (js-obj "day" day))))
 
-(defn date+time [date time]
+(defn date+time
+  "create a datetime"
+  [date time]
   #?(:cljay (.atTime ^LocalDate date ^LocalTime time)
      :cljs (.toPlainDateTime ^js date time)))
 
-(defn time+date [time date]
+(defn time+date
+  "create a datetime" [time date]
   (date+time date time))
 
-(defn datetime+timezone_id [datetime timezone_id]
+(defn datetime+timezone_id
+  "create a zdt"
+  [datetime timezone_id]
   #?(:cljay (.atZone ^LocalDateTime datetime (ZoneId/of timezone_id))
      :cljs (.toZonedDateTime ^js datetime timezone_id)))
 
-(defn instant+timezone_id [instant timezone_id]
+(defn instant+timezone_id
+  "create a zdt" [instant timezone_id]
   #?(:cljay (.atZone ^Instant instant (ZoneId/of timezone_id))
      :cljs (.toZonedDateTimeISO ^js instant timezone_id)))
 

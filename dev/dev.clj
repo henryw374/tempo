@@ -10,11 +10,11 @@
 (defn refresh []
   (refresh/refresh-all))
 
-(defn x []
+(defn run-clj-tests* []
   (kaocha/run 'com.widdindustries.tempo-test))
 
 (defn run-clj-tests [_]
-  (refresh/refresh-all :after 'dev/x))
+  (refresh/refresh-all :after 'dev/run-clj-tests*))
 
 (defn browser-test-build [compile-mode opts]
   ((get util/compile-fns compile-mode)
@@ -28,11 +28,14 @@
     <meta charset=\"utf-8\">
     </head>
     <body>
-   
+    <script src=\"https://cdn.jsdelivr.net/npm/@js-temporal/polyfill@0.5.0/dist/index.umd.js\"></script>   
     <script>
         if(!window.Temporal){
-          document.write('<script src=\"https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.0-beta.1/global.min.js\"><\\/script>');         
-                  }
+          window.Temporal = window.temporal.Temporal;
+          window.Intl = window.temporal.Intl;
+          Date.prototype.toTemporalInstant = window.temporal.toTemporalInstant;
+          //document.write('<script src=\"https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.0-beta.1/global.min.js\"><\\/script>');                   
+        }
     </script>
 
    
@@ -81,7 +84,9 @@
   (util/clean-build)
   )
 
-(defn app-config []
+(defn app-config 
+  "investigate dead code elimination with a pretend client ns that uses tempo"
+  []
   (->
     (util/browser-app-config)
     (merge

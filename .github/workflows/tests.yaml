@@ -27,4 +27,11 @@ jobs:
         run: make test-clj        
         
       - name: Run cljs tests  
-        run: make test-cljs              
+        run: make test-cljs      
+
+# doesnt work in babashka bc its missing temporalunit          
+#      - name: Install babashka master
+#        run: bash <(curl -s https://raw.githubusercontent.com/babashka/babashka/master/install)
+
+#      - name: Run bb tests
+#        run: bb test             
