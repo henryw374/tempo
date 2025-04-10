@@ -114,7 +114,7 @@
 ; weekdays - could be made to work probably
 #_(defn next ""
   ([day-of-week]
-   (get t/weekday-number->weekday
+   (get t/weekday->weekday-name
      (-> (t/weekday-number day-of-week)
          (inc)
          (mod 7))))
@@ -124,7 +124,7 @@
   )
 ;(defn next-or-same "" ([day-of-week]) ([t day-of-week]))
 #_(defn previous "" ([day-of-week]
-                   (get t/weekday-number->weekday
+                   (get t/weekday->weekday-name
                      (-> (t/weekday-number day-of-week)
                          (dec)) 7))
   ;([t day-of-week])

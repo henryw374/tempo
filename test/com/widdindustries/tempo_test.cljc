@@ -72,7 +72,7 @@
       (is (t/zdt? zdt))
       (is (= (t/yearmonth->year ym) (t/zdt->year zdt)))
       (is (= 1 (t/zdt->day-of-month zdt)))
-      (is (= t/weekday-saturday (t/weekday-number->weekday (t/zdt->day-of-week zdt))))
+      (is (= t/weekday-saturday-name (get t/weekday->weekday-name (t/zdt->day-of-week zdt))))
       (is (= 1 (t/zdt->hour zdt)))))
   (testing "level 4"
     (let [zdt (t/zdt-now (t/clock-system-default-zone))]
@@ -238,7 +238,7 @@
                                                     t/time->microsecond
                                                     t/time->nanosecond]
                                                    [
-                                                    (-> (t/datetime-from {:year 1 :month 1 :day-of-month 1})
+                                                    (-> (t/datetime-from {:year 1 :month t/month-january :day-of-month 1})
                                                         ;(t/with 10 t/hours-property)
                                                         )
                                                     t/datetime->hour

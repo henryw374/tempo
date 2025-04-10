@@ -197,11 +197,11 @@ Timezone identifiers in `tempo` are just strings.
 (t/zdt-parse "2020-02-02...") ;iso strings only
 
 ; build from parts
-(t/date-from {:year 2020 :month 2 :day 2})
+(t/date-from {:year 2020 :month 2 :day-of-month 2})
 ; the -from functions accept a map of components which is sufficient to build the entity
 (t/datetime-from {:date (t/date-parse "2020-02-02") :time (t/time-now clock)})
 ; or equivalently
-(t/datetime-from {:year 2020 :month 2 :day 2 :time (t/time-now clock)})
+(t/datetime-from {:year 2020 :month 2 :day-of-month 2 :time (t/time-now clock)})
 ; with -from, you can use smaller or larger components. 
 ; larger ones take precedence. below, the :year is ignored, because the :date took precedence (being larger) 
 (t/datetime-from {:year 2021 :date (t/date-parse "2020-02-02") :time (t/time-now clock)})

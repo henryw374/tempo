@@ -104,7 +104,7 @@
               :xform-fn '(-> (.getDayOfWeek) (.getValue))
               }
    :cljs     {:accessor '-dayOfWeek
-              ;:xform-fn '(-> (.-dayOfWeek) weekday-number->weekday)
+              ;:xform-fn '(-> (.-dayOfWeek) weekday->weekday-name)
               }})
 
 (def graph

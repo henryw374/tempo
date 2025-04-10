@@ -394,31 +394,65 @@
    #?(:cljay (.minus ^Temporal temporal amount ^TemporalUnit (unit temporal-property))
       :cljs (.subtract ^js temporal (js-obj (str temporal-property "s") amount)))))
 
-(def weekday-monday "MONDAY")
-(def weekday-tuesday "TUESDAY")
-(def weekday-wednesday "WEDNESDAY")
-(def weekday-thursday "THURSDAY")
-(def weekday-friday "FRIDAY")
-(def weekday-saturday "SATURDAY")
-(def weekday-sunday "SUNDAY")
+(def weekday-monday 1)
+(def weekday-tuesday 2)
+(def weekday-wednesday 3)
+(def weekday-thursday 4)
+(def weekday-friday 5)
+(def weekday-saturday 6)
+(def weekday-sunday 7)
 
-(def weekday-number->weekday
-  {1 weekday-monday
-   2 weekday-tuesday
-   3 weekday-wednesday
-   4 weekday-thursday
-   5 weekday-friday
-   6 weekday-saturday
-   7 weekday-sunday})
+(def weekday-monday-name "monday")
+(def weekday-tuesday-name "tuesday")
+(def weekday-wednesday-name "wednesday")
+(def weekday-thursday-name "thursday")
+(def weekday-friday-name "friday")
+(def weekday-saturday-name "saturday")
+(def weekday-sunday-name "sunday")
 
-(def weekday->weekday-number 
-  {weekday-monday    1 
-   weekday-tuesday   2 
-   weekday-wednesday 3 
-   weekday-thursday  4 
-   weekday-friday    5 
-   weekday-saturday  6 
-   weekday-sunday    7   })
+(def weekday->weekday-name
+  {weekday-monday weekday-monday-name
+   weekday-tuesday weekday-tuesday-name
+   weekday-wednesday weekday-wednesday-name
+   weekday-thursday weekday-thursday-name
+   weekday-friday weekday-friday-name
+   weekday-saturday weekday-saturday-name
+   weekday-sunday weekday-sunday-name})
+
+(def weekday-name->weekday 
+  {weekday-monday-name weekday-monday     
+   weekday-tuesday-name weekday-tuesday    
+   weekday-wednesday-name weekday-wednesday  
+   weekday-thursday-name weekday-thursday   
+   weekday-friday-name weekday-friday     
+   weekday-saturday-name weekday-saturday   
+   weekday-sunday-name weekday-sunday       })
+
+(def month-january 1)
+(def month-february 2)
+(def month-march 3)
+(def month-april 4)
+(def month-may 5)
+(def month-june 6)
+(def month-july 7)
+(def month-august 8)
+(def month-september 9)
+(def month-october 10)
+(def month-november 11)
+(def month-december 12)
+
+(def month-january-name "january") 
+(def month-february-name "february") 
+(def month-march-name "march") 
+(def month-april-name "april") 
+(def month-may-name "may") 
+(def month-june-name "june") 
+(def month-july-name "july") 
+(def month-august-name "august") 
+(def month-september-name "september") 
+(def month-october-name "october")  
+(def month-november-name "november")  
+(def month-december-name "december")  
 
 #?(:clj (defprotocol JavaTruncateable
           (-truncate [_ unit])))

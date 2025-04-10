@@ -415,8 +415,9 @@
 
 (defn zdt? [v] (instance? ZonedDateTime v))
 
-(defn
- clock
+(defn-
+ java-time-clock
+ "returns a partial implementation of java.time.Clock sufficient for all the java.time 'now' methods"
  [instant-fn timezone_id-fn]
  (proxy
   [java.time.Clock]
@@ -450,6 +451,11 @@
  (Clock/offset a-clock (Duration/ofMillis offset-millis)))
 
 (defn
+ clock
+ [instant-fn timezone_id-fn]
+ (java-time-clock instant-fn timezone_id-fn))
+
+(defn
  clock-zdt-atom
  "create a clock which will dereference the zdt-atom.\n  \n  The caller must first construct the atom and by keeping a reference to it,\n   may change its value and therefore the value of the clock.\n  "
  [zdt-atom]
@@ -466,7 +472,7 @@
  [instant]
  (ZonedDateTime/ofInstant instant (ZoneId/of "UTC")))
 
-(defn greater [x y] (if (neg? (compare x y)) y x))
+(defn- greater [x y] (if (neg? (compare x y)) y x))
 
 (defn
  max
@@ -474,11 +480,11 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__47832# p2__47833#] (greater p1__47832# p2__47833#))
+  (fn* [p1__31260# p2__31261#] (greater p1__31260# p2__31261#))
   arg
   args))
 
-(defn lesser [x y] (if (neg? (compare x y)) x y))
+(defn- lesser [x y] (if (neg? (compare x y)) x y))
 
 (defn
  min
@@ -486,7 +492,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__47834# p2__47835#] (lesser p1__47834# p2__47835#))
+  (fn* [p1__31262# p2__31263#] (lesser p1__31262# p2__31263#))
   arg
   args))
 
@@ -731,6 +737,7 @@
 
 (defn
  with
+ "from temporal arg, derive a new temporal object with property field set to value\n  (t/with date 3 t/days-property) "
  [temporal value property]
  (throw-if-set-months-or-years temporal property)
  (.with
@@ -743,6 +750,7 @@
 
 (defn
  >>
+ "move a temporal forward by an amount"
  ([temporal temporal-amount]
   (throw-if-months-or-years-in-amount temporal temporal-amount)
   (.plus ^Temporal temporal ^TemporalAmount temporal-amount))
@@ -756,6 +764,7 @@
 
 (defn
  <<
+ "move a temporal backward by an amount"
  ([temporal temporal-amount]
   (throw-if-months-or-years-in-amount temporal temporal-amount)
   (.minus ^Temporal temporal ^TemporalAmount temporal-amount))
@@ -767,39 +776,101 @@
    ^{:tag TemporalUnit}
    (unit temporal-property))))
 
-(def weekday-monday "MONDAY")
+(def weekday-monday 1)
 
-(def weekday-tuesday "TUESDAY")
+(def weekday-tuesday 2)
 
-(def weekday-wednesday "WEDNESDAY")
+(def weekday-wednesday 3)
 
-(def weekday-thursday "THURSDAY")
+(def weekday-thursday 4)
 
-(def weekday-friday "FRIDAY")
+(def weekday-friday 5)
 
-(def weekday-saturday "SATURDAY")
+(def weekday-saturday 6)
 
-(def weekday-sunday "SUNDAY")
+(def weekday-sunday 7)
+
+(def weekday-monday-name "monday")
+
+(def weekday-tuesday-name "tuesday")
+
+(def weekday-wednesday-name "wednesday")
+
+(def weekday-thursday-name "thursday")
+
+(def weekday-friday-name "friday")
+
+(def weekday-saturday-name "saturday")
+
+(def weekday-sunday-name "sunday")
 
 (def
- weekday-number->weekday
- {1 weekday-monday,
-  2 weekday-tuesday,
-  3 weekday-wednesday,
-  4 weekday-thursday,
-  5 weekday-friday,
-  6 weekday-saturday,
-  7 weekday-sunday})
+ weekday->weekday-name
+ {weekday-monday weekday-monday-name,
+  weekday-tuesday weekday-tuesday-name,
+  weekday-wednesday weekday-wednesday-name,
+  weekday-thursday weekday-thursday-name,
+  weekday-friday weekday-friday-name,
+  weekday-saturday weekday-saturday-name,
+  weekday-sunday weekday-sunday-name})
 
 (def
- weekday->weekday-number
- {weekday-monday 1,
-  weekday-tuesday 2,
-  weekday-wednesday 3,
-  weekday-thursday 4,
-  weekday-friday 5,
-  weekday-saturday 6,
-  weekday-sunday 7})
+ weekday-name->weekday
+ {weekday-monday-name weekday-monday,
+  weekday-tuesday-name weekday-tuesday,
+  weekday-wednesday-name weekday-wednesday,
+  weekday-thursday-name weekday-thursday,
+  weekday-friday-name weekday-friday,
+  weekday-saturday-name weekday-saturday,
+  weekday-sunday-name weekday-sunday})
+
+(def month-january 1)
+
+(def month-february 2)
+
+(def month-march 3)
+
+(def month-april 4)
+
+(def month-may 5)
+
+(def month-june 6)
+
+(def month-july 7)
+
+(def month-august 8)
+
+(def month-september 9)
+
+(def month-october 10)
+
+(def month-november 11)
+
+(def month-december 12)
+
+(def month-january-name "january")
+
+(def month-february-name "february")
+
+(def month-march-name "march")
+
+(def month-april-name "april")
+
+(def month-may-name "may")
+
+(def month-june-name "june")
+
+(def month-july-name "july")
+
+(def month-august-name "august")
+
+(def month-september-name "september")
+
+(def month-october-name "october")
+
+(def month-november-name "november")
+
+(def month-december-name "december")
 
 (defprotocol JavaTruncateable (-truncate [_ unit]))
 
@@ -814,36 +885,52 @@
  Instant
  (-truncate [zdt unit] (.truncatedTo zdt unit)))
 
-(defn truncate [temporal property] (-truncate temporal (unit property)))
+(defn
+ truncate
+ "zero property field and below of temporal"
+ [temporal property]
+ (-truncate temporal (unit property)))
 
 (defn
  get-field
  [temporal property]
  (.get ^TemporalAccessor temporal (field property)))
 
-(defn yearmonth+day-at-end-of-month [ym] (.atEndOfMonth ^YearMonth ym))
+(defn
+ yearmonth+day-at-end-of-month
+ "create a date having last day of month"
+ [ym]
+ (.atEndOfMonth ^YearMonth ym))
 
 (defn
  monthday+year
+ "create a date"
  [monthday year]
  (.atYear ^MonthDay monthday ^int year))
 
 (defn
  yearmonth+day
+ "create a date"
  [yearmonth day]
  (.atDay ^YearMonth yearmonth ^int day))
 
-(defn date+time [date time] (.atTime ^LocalDate date ^LocalTime time))
+(defn
+ date+time
+ "create a datetime"
+ [date time]
+ (.atTime ^LocalDate date ^LocalTime time))
 
-(defn time+date [time date] (date+time date time))
+(defn time+date "create a datetime" [time date] (date+time date time))
 
 (defn
  datetime+timezone_id
+ "create a zdt"
  [datetime timezone_id]
  (.atZone ^LocalDateTime datetime (ZoneId/of timezone_id)))
 
 (defn
  instant+timezone_id
+ "create a zdt"
  [instant timezone_id]
  (.atZone ^Instant instant (ZoneId/of timezone_id)))
 
