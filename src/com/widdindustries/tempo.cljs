@@ -5,7 +5,7 @@
   [com.widdindustries.tempo.cljs-protocols :as cljs-protocols]
   [com.widdindustries.tempo.js-temporal-entities :as entities]
   [com.widdindustries.tempo.js-temporal-methods :as methods]
-  [com.widdindustries.tempo.clock :as clock]
+  [com.widdindustries.tempo.tempo-clock :as tempo-clock]
   [goog.object]))
 
 ^{:line 31, :column 11} (comment "accessors")
@@ -295,19 +295,27 @@
 
 ^{:line 35, :column 11} (comment "nowers")
 
-(defn zdt-now ([^java.time.Clock clock] (clock/zdt clock)))
+(defn zdt-now ([^java.time.Clock clock] (tempo-clock/zdt clock)))
 
-(defn datetime-now ([^java.time.Clock clock] (clock/datetime clock)))
+(defn
+ datetime-now
+ ([^java.time.Clock clock] (tempo-clock/datetime clock)))
 
-(defn date-now ([^java.time.Clock clock] (clock/date clock)))
+(defn date-now ([^java.time.Clock clock] (tempo-clock/date clock)))
 
-(defn monthday-now ([^java.time.Clock clock] (clock/monthday clock)))
+(defn
+ monthday-now
+ ([^java.time.Clock clock] (tempo-clock/monthday clock)))
 
-(defn time-now ([^java.time.Clock clock] (clock/time clock)))
+(defn time-now ([^java.time.Clock clock] (tempo-clock/time clock)))
 
-(defn instant-now ([^java.time.Clock clock] (clock/instant clock)))
+(defn
+ instant-now
+ ([^java.time.Clock clock] (tempo-clock/instant clock)))
 
-(defn yearmonth-now ([^java.time.Clock clock] (clock/yearmonth clock)))
+(defn
+ yearmonth-now
+ ([^java.time.Clock clock] (tempo-clock/yearmonth clock)))
 
 ^{:line 37, :column 11} (comment "constructors")
 
@@ -435,32 +443,32 @@
  clock-fixed
  "create a stopped clock"
  ([^ZonedDateTime zdt]
-  (clock/clock
+  (tempo-clock/clock
    (constantly (.toInstant zdt))
    (constantly (.-timeZoneId zdt))))
  ([^Instant instant ^String zone-str]
-  (clock/clock (constantly instant) (constantly zone-str))))
+  (tempo-clock/clock (constantly instant) (constantly zone-str))))
 
 (defn
  clock-with-timezone_id
  "ticking clock in given timezone_id"
  [^String timezone_id]
- (clock/clock js/Temporal.Now.instant (constantly timezone_id)))
+ (tempo-clock/clock js/Temporal.Now.instant (constantly timezone_id)))
 
 (defn
  clock-offset-millis
  "offset an existing clock by offset-millis"
  [a-clock offset-millis]
- (clock/clock
+ (tempo-clock/clock
   (fn
    []
    (.add (.instant ^js a-clock) (js-obj "milliseconds" offset-millis)))
-  (constantly (clock/timezone_id a-clock))))
+  (constantly (tempo-clock/timezone_id a-clock))))
 
 (defn
  clock
  [instant-fn timezone_id-fn]
- (clock/clock instant-fn timezone_id-fn))
+ (tempo-clock/clock instant-fn timezone_id-fn))
 
 (defn
  clock-zdt-atom
@@ -470,7 +478,7 @@
   (fn get-instant [] (zdt->instant @zdt-atom))
   (fn get-zone [] (zdt->timezone_id @zdt-atom))))
 
-(defn timezone_id-now ([clock] (clock/timezone_id clock)))
+(defn timezone_id-now ([clock] (tempo-clock/timezone_id clock)))
 
 (defn legacydate->instant [d] (.toTemporalInstant ^js d))
 
@@ -487,7 +495,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__31264# p2__31265#] (greater p1__31264# p2__31265#))
+  (fn* [p1__73409# p2__73410#] (greater p1__73409# p2__73410#))
   arg
   args))
 
@@ -499,7 +507,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__31266# p2__31267#] (lesser p1__31266# p2__31267#))
+  (fn* [p1__73411# p2__73412#] (lesser p1__73411# p2__73412#))
   arg
   args))
 

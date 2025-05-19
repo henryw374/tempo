@@ -1,4 +1,4 @@
-(ns com.widdindustries.tempo.clock
+(ns com.widdindustries.tempo.tempo-clock
   (:refer-clojure :exclude [time])
   (:require [com.widdindustries.tempo.js-temporal-methods :as tm]))
 

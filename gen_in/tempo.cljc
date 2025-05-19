@@ -10,7 +10,7 @@
      :cljs (:require [com.widdindustries.tempo.cljs-protocols :as cljs-protocols]
              [com.widdindustries.tempo.js-temporal-entities :as entities]
              [com.widdindustries.tempo.js-temporal-methods :as methods]
-             [com.widdindustries.tempo.clock :as clock]
+             [com.widdindustries.tempo.tempo-clock :as tempo-clock]
              [goog.object])))
 
 #?(:cljay (set! *warn-on-reflection* true))
@@ -87,28 +87,28 @@
   "create a stopped clock"
   ([^ZonedDateTime zdt]
    #?(:cljay (Clock/fixed (.toInstant zdt)   (.getZone zdt))
-      :cljs (clock/clock (constantly (.toInstant zdt)) (constantly (.-timeZoneId zdt)))))
+      :cljs (tempo-clock/clock (constantly (.toInstant zdt)) (constantly (.-timeZoneId zdt)))))
   ([^Instant instant ^String zone-str]
    #?(:cljay (Clock/fixed instant (ZoneId/of zone-str))
-      :cljs (clock/clock (constantly instant) (constantly zone-str)))))
+      :cljs (tempo-clock/clock (constantly instant) (constantly zone-str)))))
 
 (defn clock-with-timezone_id 
   "ticking clock in given timezone_id" 
   [^String timezone_id]
   #?(:cljay (Clock/system (ZoneId/of timezone_id))
-     :cljs (clock/clock js/Temporal.Now.instant (constantly timezone_id))))
+     :cljs (tempo-clock/clock js/Temporal.Now.instant (constantly timezone_id))))
 
 (defn clock-offset-millis 
   "offset an existing clock by offset-millis"
   [a-clock offset-millis]
   #?(:cljay (Clock/offset a-clock (Duration/ofMillis offset-millis))
-     :cljs (clock/clock
+     :cljs (tempo-clock/clock
              (fn [] (.add (.instant ^js a-clock) (js-obj "milliseconds" offset-millis)))
-             (constantly (clock/timezone_id a-clock)))))
+             (constantly (tempo-clock/timezone_id a-clock)))))
 
 (defn clock [instant-fn timezone_id-fn]
   #?(:cljay (java-time-clock instant-fn timezone_id-fn)
-     :cljs (clock/clock instant-fn timezone_id-fn)))
+     :cljs (tempo-clock/clock instant-fn timezone_id-fn)))
 
 (defn clock-zdt-atom
   "create a clock which will dereference the zdt-atom.
@@ -125,7 +125,7 @@
 
 (defn timezone_id-now
   ([clock] #?(:cljay (str (.getZone ^Clock clock))
-              :cljs (clock/timezone_id clock))))
+              :cljs (tempo-clock/timezone_id clock))))
 
 (defn legacydate->instant [d]
   #?(:cljay (.toInstant ^java.util.Date d)

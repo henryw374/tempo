@@ -196,7 +196,7 @@
     (let [fn-name (str (:tempo subject) "-now")
           nower (case feature
                   :cljay (str (get kw->class (:tempo subject)) "/" (or (-> subject feature :parse) "now"))
-                  :cljs (str "clock/" (:tempo subject)))]
+                  :cljs (str "tempo-clock/" (:tempo subject)))]
       (backtick/template
         (defn ~(symbol fn-name)
           ([~(with-meta 'clock {:tag java.time.Clock})]
