@@ -487,7 +487,7 @@
   #?(:cljay (.atYear ^MonthDay monthday ^int year)
      :cljs (.toPlainDate ^js monthday (js-obj "year" year))))
 
-(defn yearmonth+day
+(defn yearmonth+day-of-month
   "create a date"
   [yearmonth day]
   #?(:cljay (.atDay ^YearMonth yearmonth ^int day)

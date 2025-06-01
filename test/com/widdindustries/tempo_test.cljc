@@ -345,7 +345,7 @@
               (t/zdt->monthday))))
     (is (= year-month
           (-> year-month
-              (t/yearmonth+day 1)
+              (t/yearmonth+day-of-month 1)
               (t/date+time (t/time-now clock))
               (t/datetime+timezone_id "Pacific/Honolulu")
               (t/zdt->yearmonth))))))

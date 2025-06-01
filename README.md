@@ -6,6 +6,8 @@
 
 Zero-dependency Clojure(Script) API to java.time on the JVM and Temporal on JS runtimes
 
+Learn Tempo [live in a browser REPL](https://widdindustries.com/tempo-docs/public/)
+
 ## About
 
 ### java.time vs Temporal
@@ -108,12 +110,14 @@ As of March 2025
 ```
 
 
-### Setup
+### Require and use
 
 ```clojure
 (ns my.cljc.namespace
   (:require [com.widdindustries.tempo :as t]
             [time-literals.read-write]))
+
+(t/date-parse "2020-02-02")
 
 ; optionally, print objects as data-literals
 (time-literals.read-write/print-time-literals-clj!)
@@ -124,215 +128,7 @@ As of March 2025
 
 ```
 
-### Naming
-
-The naming of entities (ie the in the  graph further up) should be self-explanatory. The java.time `Local` prefix and the Temporal `Plain` prefix have been removed, so e.g. PlainDate/LocalDate is just date.
-
-ZonedDateTime is called `zdt` to keep it short. js/Date and java.util.Date are called `legacydate`
-
-
-### Clocks
-
-A Clock is required to be able to get the current time/date/timezone etc
-
-In both java.time and Temporal it is possible to use the ambient Clock, for example
-`(java.time.Instant/now)`, but this is not good functional programming practice and so has no equivalent in Tempo.
-
-```clojure
-
-;  ticking clock in ambient place
-(t/clock-system-default-zone)
-
-; ticking clock in specified place
-(t/clock-with-timezone_id "Pacific/Honolulu")
-
-; clock fixed in time and place
-(t/clock-fixed (t/instant-parse "2020-02-02T00:00:00Z") "Europe/Paris")
-
-; offset existing clock by specified millis
-(t/clock-offset clock -5)
-
-; mutable, non-ticking clock - simply change the value in the atom as required
-(def zdt-atom (atom (t/zdt-parse "2024-02-22T00:00:00Z[Europe/London]")))
-(def clock-zdt-atom (t/clock-zdt-atom zdt-atom))
-
-; if you have other requirements for a clock, it is easy to create your own
-(t/clock
-  (fn get-instant [] do-whatever)
-  (fn get-zone [] do-whatever))
-
-```
-
-a clock is passed as arg to all `now` functions, for example:
-
-```clojure
-(t/date-now clock)
-```
-
-### Time zones & Offsets
-
-```clojure
-
-(t/timezone_id-now clock)
-```
-
-Timezone identifiers in `tempo` are just strings.
-
-```clojure
-(t/zdt->timezone_id zdt)
-(t/zdt-from {:datetime datetime :timezone_id timezone_id})
-```
-
-### Temporal Construction & Access
-
-```clojure
-
-; naming of construction and access functions is based on mnemonics
-
-; the first word in the function is the entity name of the subject of the operation
-
-(t/date-now clock)
-(t/date-parse "2020-02-02") ;iso strings only
-(t/zdt-now clock)
-(t/zdt-parse "2020-02-02...") ;iso strings only
-
-; build from parts
-(t/date-from {:year 2020 :month 2 :day-of-month 2})
-; the -from functions accept a map of components which is sufficient to build the entity
-(t/datetime-from {:date (t/date-parse "2020-02-02") :time (t/time-now clock)})
-; or equivalently
-(t/datetime-from {:year 2020 :month 2 :day-of-month 2 :time (t/time-now clock)})
-; with -from, you can use smaller or larger components. 
-; larger ones take precedence. below, the :year is ignored, because the :date took precedence (being larger) 
-(t/datetime-from {:year 2021 :date (t/date-parse "2020-02-02") :time (t/time-now clock)})
-
-; 'add' a field to an object to create a different type
-(t/yearmonth+day a-yearmonth 1) ; => a date
-(t/yearmonth+day-at-end-of-month a-yearmonth) ; => a date
-(t/datetime+timezone_id a-datetime "Pacific/Honolulu") ; => a zdt
-
-; to get parts of an entity, the function name will start with the type of the entity, then add -> then put the target type. For example:
-(t/date->yearmonth a-date)
-(t/date->month a-date)
-(t/zdt->nanosecond a-zdt)
-(t/instant->epochmillisecond an-instant)
-(t/epochmilli->instant 123)
-(t/legacydate->instant d)
-; & etc
-
-```
-
-#### Properties
-
-Vars such as `t/hours-property` exist in Tempo. These combine the concept of `units` and `fields`, so for example
-
-```clojure
-(t/until x y t/days-property) ; how much time in unit days
-(t/with x 11 t/days-property) ; set the day of month field to 11
-```
-
-Combining the concept of unit and field is a simplification. In some cases it may be an over-simplification, for example `t/days-property` corresponds to the `day of month` field, so if `day of year` was required a new property would have to be created in user space. 
-
-However, as per the stated aim of Tempo to just cover everyday use cases, hopefully the property concept has sufficient benefit to outweigh the cost. 
-
-#### Manipulation
-
-aka construction a new temporal from one of the same type
-
-```clojure
-
-;; move date forward 3 days
-(t/>> a-date 3 t/days-property)
-;; move forward by some amount
-(t/>> a-date a-temporal-amount)
-
-(t/date-next-or-same-weekday a-date 2) ; move date to next-or-same tuesday
-(t/date-prev-or-same-weekday a-date 7) ; move date to prev-or-same sunday
-
-;; set a particular field
-(t/with a-yearmonth 3030 t/years-property)
-
-; set fields smaller than days (ie hours, mins etc) to zero
-(t/truncate x t/days-property)
-
-```
-
-#### Guardrails
-
-Consider the following:
-
-```clojure
-(let [start (t/date-parse "2020-01-31")]
-  (-> start 
-      (t/>> 1 t/months-property)
-      (t/<< 1 t/months-property)))
-```
-
-If you shift a date forward by an amount, then back by the same amount then one might think that the output would be equal to the
-input. In some cases that would happen, but not in the case shown above.
-
-Here's a similar example:
-
-```clojure
-(let [start (t/date-parse "2020-02-29")]
-  (-> start
-      (t/with 2021 t/years-property)
-      (t/with 2020 t/years-property)))
-```
-
-We increment the year, then decrement it, but the output is not the same as the input.
-
-Both java.time and Temporal work this way and in my experience it is a source of bugs. For this reason, shifting `>>/<<`
-and `with` do not work in Tempo if the property is years or months and the subject is not a year-month.
-
-As a safer alternative, I suggest getting the year-month from a temporal first, doing whatever with/shift operations you
-like then setting the remaining fields.
-
-If you do not wish to have this guardrail, set `t/*block-non-commutative-operations*` to false
-
-### Comparison
-
-```clojure
-
-;only entities of the same type can be compared
-
-(t/>= a b)
-
-(t/max a b c)
-
-; you must specify property
-(t/until a b t/minutes-property)
-
-```
-
-#### Predicates
-
-```clojure
-
-(t/date? x)
-```
-
-#### Temporal-amounts
-
-A temporal-amount is an entity representing a quantity of time, e.g. 3 hours and 5 seconds.
-
-Temporal-Amount entities are represented differently in java.time vs Temporal, but with some overlap.
-
-An `alpha` ns (groan!) exists which contains a few functions for working with temporal-amounts.
-
-If not sufficient, use reader conditionals in your code to construct/manipulate as appropriate.
-
-```clojure
-
-(require '[com.widdindustries.tempo.duration-alpha :as d])
-
-(d/duration-parse "PT0.001S")
-
-```
-
-### Formatting 
-
-* formatting non-iso strings is not a feature in Tempo
+Now, learn the API [live in a browser REPL](https://widdindustries.com/tempo-docs/public/)
 
 ## Dev
 
