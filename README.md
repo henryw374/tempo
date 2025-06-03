@@ -1,3 +1,9 @@
+todo
+
+timezone. drop the _id
+'now'... change name to something else. deref?
+
+
 # Tempo
 
 <!-- [![Clojars Project](https://img.shields.io/clojars/v/com.widdindustries/cljc.java-time.svg)](https://clojars.org/com.widdindustries/cljc.java-time)-->
@@ -19,7 +25,18 @@ you.
 
 ![graph of entities in Temporal](https://tc39.es/proposal-temporal/docs/object-model.svg)
 
-Tempo leverages common ground between java.time and Temporal to create an API is that should cover the vast majority of use cases and should leave users rarely needing to drop to the platform APIs. Following is some more detail:
+Tempo leverages common ground between java.time and Temporal to create an API is that should cover the vast majority of use cases and should leave users rarely needing to drop to the platform APIs. 
+
+In java.time, there are entities (classes) for 
+
+* year
+* month
+* timezone
+* day-of-week
+
+In `Temporal`, these are represented by numbers (or string, in the case of timezone). `Tempo` has chosen to keep the Temporal approach here, so anywhere that these are parameters, they are parsed to the equivalent java.time entities as required.
+
+Following is some more detail:
 
 *features of only java.time*
 

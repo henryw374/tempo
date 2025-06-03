@@ -1,6 +1,5 @@
 (ns com.widdindustries.gen.graph
   (:require [clojure.walk]
-    ;[com.widdindustries.tempo :as t]
             [medley.core :as m])
   (:import (java.time ZonedDateTime MonthDay DayOfWeek YearMonth)))
 
@@ -57,20 +56,6 @@
    :return 'int?
    :tempo 'epochnano})
 
-(def timezone_id
-  { :no-now true
-   :return 'string?
-   :cljay  {
-            ;:accessor 'getZone
-            :xform-fn '(-> (.getZone) (.getId))}
-   :cljs   {:accessor '-timeZoneId}
-   :tempo  'timezone_id})
-
-#_(def timezone 
-  {:tempo  'timezone
-   :no-now true 
-   :cljay {:parse    'of}})
-
 (def yearmonth
   {:needed-to-go-up {'day-of-month {}}
    :tempo           'yearmonth
@@ -108,7 +93,7 @@
               }})
 
 (def graph
-  { ;timezone          {:parts {}}
+  { 
    {:tempo 'instant} {:parts
                       {epochmilli  {}
                        epochnano   {}
@@ -127,7 +112,13 @@
                                   {:tempo 'hours-in-day} {}
                                   }}
                        {:parts {{:tempo 'instant} {}}}
-                       {:parts {timezone_id {}
+                       {:parts {{:tempo 'timezone
+                                 :return 'string?
+                                 :cljay  {
+                                          :parse "of"
+                                          ;:accessor 'getZone
+                                          :xform-fn '(-> (.getZone) (.getId))}
+                                 :cljs   {:accessor '-timeZoneId}} {}
                                 {:tempo 'datetime}
                                 {:parts
                                  {{:tempo 'date}
@@ -140,7 +131,7 @@
                                      {monthday {:parts {{:tempo  'month
                                                          :return 'int?
                                                          ;get month not gener
-                                                         :cljay {:accessor 'getMonthValue}
+                                                         :cljay  {:accessor 'getMonthValue}
                                                          :cljs   {:xform-fn '(-> (.-monthCode) (subs 1 3) js/parseInt)}} {}
                                                         {:tempo  'day-of-month
                                                          :return 'int?
@@ -173,10 +164,10 @@
 
 (def with-paths (paths graph))
 
-(comment 
-  (-> with-paths 
-       keys)
-  
+(comment
+  (-> with-paths
+      keys)
+
   (->> with-paths
        (m/find-first #(= {:tempo 'timezone} (select-keys (key %1) [:tempo]))))
   )

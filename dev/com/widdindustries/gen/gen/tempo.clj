@@ -69,6 +69,8 @@
   (generate-test))
 
 (defn generate-all [_]
+  (clojure.tools.namespace.repl/set-refresh-dirs "dev")
+  (clojure.tools.namespace.repl/clear)
   (clojure.tools.namespace.repl/refresh :after `gen-after)
   )
 

@@ -65,11 +65,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (str (t/timezone_id-now (t/clock-system-default-zone))))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (str (t/timezone_id-now (t/clock-system-default-zone))))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    now-clock-1
    (t/zdt-now clock-1)
    now-clock-2
@@ -86,11 +86,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (str (t/timezone_id-now (t/clock-system-default-zone))))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (str (t/timezone_id-now (t/clock-system-default-zone))))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    now-clock-1
    (t/datetime-now clock-1)
    now-clock-2
@@ -107,11 +107,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (str (t/timezone_id-now (t/clock-system-default-zone))))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (str (t/timezone_id-now (t/clock-system-default-zone))))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    now-clock-1
    (t/date-now clock-1)
    now-clock-2
@@ -128,11 +128,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (str (t/timezone_id-now (t/clock-system-default-zone))))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (str (t/timezone_id-now (t/clock-system-default-zone))))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    now-clock-1
    (t/monthday-now clock-1)
    now-clock-2
@@ -149,11 +149,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (str (t/timezone_id-now (t/clock-system-default-zone))))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (str (t/timezone_id-now (t/clock-system-default-zone))))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    now-clock-1
    (t/time-now clock-1)
    now-clock-2
@@ -170,11 +170,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (str (t/timezone_id-now (t/clock-system-default-zone))))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (str (t/timezone_id-now (t/clock-system-default-zone))))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    now-clock-1
    (t/instant-now clock-1)
    now-clock-2
@@ -191,11 +191,11 @@
   [clock-1
    (t/clock-fixed
     (t/instant-parse "1955-11-01T16:46:08.017143Z")
-    (str (t/timezone_id-now (t/clock-system-default-zone))))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    clock-2
    (t/clock-fixed
     (t/instant-parse "1955-12-02T17:46:08.017143Z")
-    (str (t/timezone_id-now (t/clock-system-default-zone))))
+    (str (t/timezone-now (t/clock-system-default-zone))))
    now-clock-1
    (t/yearmonth-now clock-1)
    now-clock-2
@@ -254,6 +254,13 @@
  (let
   [now-now (t/zdt-now (t/clock-system-default-zone))]
   (is (t/date? (t/zdt->date now-now)))
+  nil))
+
+(deftest
+ zdt->timezone
+ (let
+  [now-now (t/zdt-now (t/clock-system-default-zone))]
+  (is (string? (t/zdt->timezone now-now)))
   nil))
 
 (deftest
@@ -542,13 +549,6 @@
  (let
   [now-now (t/zdt-now (t/clock-system-default-zone))]
   (is (t/time? (t/zdt->time now-now)))
-  nil))
-
-(deftest
- zdt->timezone_id
- (let
-  [now-now (t/zdt-now (t/clock-system-default-zone))]
-  (is (string? (t/zdt->timezone_id now-now)))
   nil))
 
 (deftest

@@ -46,7 +46,7 @@
 (def kw->class
   {
    'date      'LocalDate
-   'timezone  'ZoneId
+   ;'timezone  'ZoneId
    'zdt       'ZonedDateTime
    'instant   'Instant
    'time      'LocalTime
@@ -216,8 +216,8 @@
         (deftest ~(symbol fn-name)
           (let [now-now (~(symbol (str "t/" (:tempo subject) "-now")) (t/clock-system-default-zone))]
             (is (~(symbol (str "t/" (:tempo subject) "?")) now-now)))
-          (let [clock-1 (t/clock-fixed (t/instant-parse "1955-11-01T16:46:08.017143Z") (str (t/timezone_id-now (t/clock-system-default-zone))))
-                clock-2 (t/clock-fixed (t/instant-parse "1955-12-02T17:46:08.017143Z") (str (t/timezone_id-now (t/clock-system-default-zone))))
+          (let [clock-1 (t/clock-fixed (t/instant-parse "1955-11-01T16:46:08.017143Z") (str (t/timezone-now (t/clock-system-default-zone))))
+                clock-2 (t/clock-fixed (t/instant-parse "1955-12-02T17:46:08.017143Z") (str (t/timezone-now (t/clock-system-default-zone))))
                 now-clock-1 (~(symbol (str "t/" (:tempo subject) "-now")) clock-1)
                 now-clock-2 (~(symbol (str "t/" (:tempo subject) "-now")) clock-2)
                 ]
@@ -249,7 +249,7 @@
             (is (~pred (~(symbol (str "t/" fn-name)) now-now)))
             ~(when (and 
                      (and (not= 'monthday subject) (not= 'month target-name))
-                     (not (contains? #{'day-of-week 'date 'day-of-month 'instant 'datetime 'time 'timezone_id 'legacydate
+                     (not (contains? #{'day-of-week 'date 'day-of-month 'instant 'datetime 'time 'timezone 'legacydate
                                        'yearmonth 'monthday
                                           'epochmilli 'year 'month}
                                target-name)))
@@ -286,7 +286,7 @@
       (if (= 'timezone (:tempo subject))
         (backtick/template
           (deftest ~(symbol fn-name)
-            (is (= (t/timezone_id-now (t/clock-system-default-zone)) (-> (t/timezone_id-now (t/clock-system-default-zone)) str ~(symbol (str "t/" (:tempo subject) "-parse")))))))
+            (is (= (t/timezone-now (t/clock-system-default-zone)) (-> (t/timezone-now (t/clock-system-default-zone)) str ~(symbol (str "t/" (:tempo subject) "-parse")))))))
         (backtick/template
           (deftest ~(symbol fn-name)
             (let [now-now (~(symbol (str "t/" (:tempo subject) "-now")) (t/clock-system-default-zone))]

@@ -36,39 +36,39 @@
     )
   (testing "level 1"
     (testing "setting zone on zdt"
-      (let [timezone_id "Pacific/Honolulu"
-            zdt (t/zdt-now (t/clock-with-timezone_id timezone_id))]
+      (let [timezone "Pacific/Honolulu"
+            zdt (t/zdt-now (t/clock-with-timezone timezone))]
         (testing "roundtrip same instant"
           (is (= zdt (t/zdt-from
-                       {:timezone_id timezone_id
+                       {:timezone timezone
                         :instant     (t/instant-from {:zdt zdt})}))))
         (testing "keep wall time, change zone"
           (let [zdt-2 (t/zdt-from {:zdt         zdt
-                                   :timezone_id "Europe/London"})]
+                                   :timezone "Europe/London"})]
             (is (= (t/zdt->datetime zdt) (t/zdt->datetime zdt-2)))
-            (is (not= (t/zdt->timezone_id zdt) (t/zdt->timezone_id zdt-2)))))))
+            (is (not= (t/zdt->timezone zdt) (t/zdt->timezone zdt-2)))))))
     (let [datetime (t/datetime-now (t/clock-system-default-zone))
-          timezone (str (t/timezone_id-now (t/clock-system-default-zone)))
-          zdt (t/zdt-from {:datetime datetime :timezone_id timezone})]
+          timezone (str (t/timezone-now (t/clock-system-default-zone)))
+          zdt (t/zdt-from {:datetime datetime :timezone timezone})]
       (is (t/zdt? zdt))
       (is (= datetime (t/zdt->datetime zdt)))
-      (is (= timezone (t/zdt->timezone_id zdt)))))
+      (is (= timezone (t/zdt->timezone zdt)))))
   (testing "level 2"
     (let [date (t/date-now (t/clock-system-default-zone))
           time (t/time-now (t/clock-system-default-zone))
-          timezone (str (t/timezone_id-now (t/clock-system-default-zone)))
-          zdt (t/zdt-from {:date date :time time :timezone_id timezone})]
+          timezone (str (t/timezone-now (t/clock-system-default-zone)))
+          zdt (t/zdt-from {:date date :time time :timezone timezone})]
       (is (t/zdt? zdt))
       (is (= time (t/zdt->time zdt)))
       (is (= date (t/zdt->date zdt)))
-      (is (= timezone (t/zdt->timezone_id zdt))))
+      (is (= timezone (t/zdt->timezone zdt))))
     )
   (testing "level 3"
     (let [ym (t/yearmonth-parse "2020-02")
           timezone  "Pacific/Honolulu"
           zdt (t/zdt-from {:yearmonth   ym :day-of-month 1
                            :hour        1
-                           :timezone_id timezone})]
+                           :timezone timezone})]
       (is (t/zdt? zdt))
       (is (= (t/yearmonth->year ym) (t/zdt->year zdt)))
       (is (= 1 (t/zdt->day-of-month zdt)))
@@ -91,8 +91,8 @@
       (is (= "+05:50"
             (->
               (t/zdt-from {:instant     (t/instant-now (t/clock-system-default-zone))
-                           :timezone_id "+05:50"})
-              (t/zdt->timezone_id)))))))
+                           :timezone "+05:50"})
+              (t/zdt->timezone)))))))
 
 (deftest parsing-duration
   (is (t/duration? (d/duration-parse "PT1S"))))
@@ -186,7 +186,7 @@
 ;(t/get-field (t/zdt-now (t/clock-system-default-zone)) t/days-property)
 
 (deftest clock-test
-  (let [zone (t/timezone_id-now (t/clock-system-default-zone))
+  (let [zone (t/timezone-now (t/clock-system-default-zone))
         now (t/instant-now (t/clock-system-default-zone))
         fixed (t/clock-fixed now zone)
         offset (t/clock-offset-millis fixed 1)
@@ -195,7 +195,7 @@
     (is (= now (t/instant-now fixed)))
     (is (= (t/>> now 1 t/milliseconds-property) (t/instant-now offset)))
     (is (t/>= (t/instant-now (t/clock-system-default-zone)) (t/instant-now fixed)))
-    (is (= (t/zdt->timezone_id (t/zdt-now fixed)) (t/zdt->timezone_id (t/zdt-now offset))))
+    (is (= (t/zdt->timezone (t/zdt-now fixed)) (t/zdt->timezone (t/zdt-now offset))))
     (is (= @zdt-atom (t/zdt-now clock-zdt-atom)))
     (swap! zdt-atom t/>> 1 t/hours-property)
     (is (= @zdt-atom (t/zdt-now clock-zdt-atom)))))
@@ -288,7 +288,7 @@
           (t/get-field temporal prop))))
   (let [i (t/instant-parse "2020-02-02T09:19:42.123456789Z")]
     (is (-> (t/truncate i t/hours-property) ; fyi hours is biggest
-            (t/instant+timezone_id "Europe/London")
+            (t/instant+timezone "Europe/London")
             (t/zdt->minute)
             (zero?))))
   )
@@ -341,13 +341,13 @@
           (-> month-day
               (t/monthday+year 2021)
               (t/date+time (t/time-now clock))
-              (t/datetime+timezone_id "Pacific/Honolulu")
+              (t/datetime+timezone "Pacific/Honolulu")
               (t/zdt->monthday))))
     (is (= year-month
           (-> year-month
               (t/yearmonth+day-of-month 1)
               (t/date+time (t/time-now clock))
-              (t/datetime+timezone_id "Pacific/Honolulu")
+              (t/datetime+timezone "Pacific/Honolulu")
               (t/zdt->yearmonth))))))
 
 (deftest or-same-test

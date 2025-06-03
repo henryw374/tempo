@@ -81,7 +81,7 @@
 
 (defn current-zone "Return the current zone, which can be overridden by the *clock* dynamic var" 
   ([]
-   (t/timezone_id-now *clock*)))
+   (t/timezone-now *clock*)))
 
 ;(defn zone-offset "" ([offset]) ([hours minutes]) ([hours minutes seconds]))
 
@@ -189,7 +189,7 @@
 (defn period? "true if v is a period?" ([v] (t/period? v)))
 ;(defn year? "true if v is a year?" ([v]))
 (defn year-month? "true if v is a year-month?" ([v] (t/yearmonth? v)))
-(defn zone? "true if v is a zone?" ([v] (t/timezone? v)))
+;(defn zone? "true if v is a zone?" ([v] (t/timezone? v)))
 ;(defn zone-offset? "true if v is a zone-offset?" ([v] (t/zdt? v)))
 (defn zoned-date-time? "true if v is a zoned-date-time?" ([v] (t/zdt? v)))
 
@@ -209,7 +209,7 @@
                                      (on t d)))
 
 #_(defn in "Set a date-time to be in a time-zone" ([ldt z]
-                                                 (t/zdt-from {:datetime ldt :timezone_id z})))
+                                                 (t/zdt-from {:datetime ldt :timezone z})))
 
 #_(defn offset-by "Set a date-time to be offset by an amount" ([ldt offset]
                                                              (in ldt offset)))
@@ -227,7 +227,7 @@
       (string? v) (t/date-parse v)
       (t/datetime? v) (t/datetime->date v)
       (t/zdt? v) (t/zdt->date v)
-      (t/instant? v) (-> v (t/instant+timezone_id (zone))
+      (t/instant? v) (-> v (t/instant+timezone (zone))
                          (date))
       :else (throw (ex-info "don't know how to make a date" {:from v})))))
 
@@ -266,7 +266,7 @@
 (def > ^{:doc "Same as clojure.core/>, but works on dates, rather than numbers"} t/>)
 (def ^{:doc "Same as clojure.core/>=, but works on dates, rather than numbers"} >= t/>=)
 (defn greater "the greater of x and y" ([x y]
-                                        (t/greater x y)))
+                                        (#'t/greater x y)))
 (defn coincident? "for the 2-arity ver, Does containing-interval wholly contain the given contained-interval?\n  \n  for the 3-arity, does the event lie within the span of time described by start and end" 
   ;([containing-interval contained-interval]) 
   ([start end event]
@@ -276,7 +276,7 @@
 (defn max "Find the latest of the given arguments. Callers should ensure that no\n  argument is nil." 
   ([arg & args] (apply t/max arg args)))
 (defn lesser "the lesser of x and y" ([x y]
-                                      (t/lesser x y)))
+                                      (#'t/lesser x y)))
 (defn min "Find the earliest of the given arguments. Callers should ensure that no\n  argument is nil." 
   ([arg & args] (apply t/min arg args)))
 

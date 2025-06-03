@@ -27,10 +27,6 @@
 #?(:cljay (defn -nanosecond [f]
             (-> (getFractional f) (mod 1000))))
 
-#?(:cljay
-   (defn timezone-parse [x]
-     (ZoneId/of x)))
-
 (comment "after-graph")
 
 (defn extend-all-cljs-protocols
@@ -71,9 +67,9 @@
 #?(:cljay
    (defn- java-time-clock 
      "returns a partial implementation of java.time.Clock sufficient for all the java.time 'now' methods"
-     [instant-fn timezone_id-fn]
+     [instant-fn timezone-fn]
      (proxy [java.time.Clock] []
-       (getZone [] (java.time.ZoneId/of (timezone_id-fn)))
+       (getZone [] (java.time.ZoneId/of (timezone-fn)))
        (instant [] (instant-fn)))))
 
 ;; construction of clocks
@@ -92,11 +88,11 @@
    #?(:cljay (Clock/fixed instant (ZoneId/of zone-str))
       :cljs (tempo-clock/clock (constantly instant) (constantly zone-str)))))
 
-(defn clock-with-timezone_id 
-  "ticking clock in given timezone_id" 
-  [^String timezone_id]
-  #?(:cljay (Clock/system (ZoneId/of timezone_id))
-     :cljs (tempo-clock/clock js/Temporal.Now.instant (constantly timezone_id))))
+(defn clock-with-timezone 
+  "ticking clock in given timezone" 
+  [^String timezone]
+  #?(:cljay (Clock/system (ZoneId/of timezone))
+     :cljs (tempo-clock/clock js/Temporal.Now.instant (constantly timezone))))
 
 (defn clock-offset-millis 
   "offset an existing clock by offset-millis"
@@ -104,11 +100,11 @@
   #?(:cljay (Clock/offset a-clock (Duration/ofMillis offset-millis))
      :cljs (tempo-clock/clock
              (fn [] (.add (.instant ^js a-clock) (js-obj "milliseconds" offset-millis)))
-             (constantly (tempo-clock/timezone_id a-clock)))))
+             (constantly (tempo-clock/timezone a-clock)))))
 
-(defn clock [instant-fn timezone_id-fn]
-  #?(:cljay (java-time-clock instant-fn timezone_id-fn)
-     :cljs (tempo-clock/clock instant-fn timezone_id-fn)))
+(defn clock [instant-fn timezone-fn]
+  #?(:cljay (java-time-clock instant-fn timezone-fn)
+     :cljs (tempo-clock/clock instant-fn timezone-fn)))
 
 (defn clock-zdt-atom
   "create a clock which will dereference the zdt-atom.
@@ -121,11 +117,11 @@
     (fn get-instant []
       (zdt->instant @zdt-atom))
     (fn get-zone []
-      (zdt->timezone_id @zdt-atom))))
+      (zdt->timezone @zdt-atom))))
 
-(defn timezone_id-now
+(defn timezone-now
   ([clock] #?(:cljay (str (.getZone ^Clock clock))
-              :cljs (tempo-clock/timezone_id clock))))
+              :cljs (tempo-clock/timezone clock))))
 
 (defn legacydate->instant [d]
   #?(:cljay (.toInstant ^java.util.Date d)
@@ -503,16 +499,16 @@
   "create a datetime" [time date]
   (date+time date time))
 
-(defn datetime+timezone_id
+(defn datetime+timezone
   "create a zdt"
-  [datetime timezone_id]
-  #?(:cljay (.atZone ^LocalDateTime datetime (ZoneId/of timezone_id))
-     :cljs (.toZonedDateTime ^js datetime timezone_id)))
+  [datetime timezone]
+  #?(:cljay (.atZone ^LocalDateTime datetime (ZoneId/of timezone))
+     :cljs (.toZonedDateTime ^js datetime timezone)))
 
-(defn instant+timezone_id
-  "create a zdt" [instant timezone_id]
-  #?(:cljay (.atZone ^Instant instant (ZoneId/of timezone_id))
-     :cljs (.toZonedDateTimeISO ^js instant timezone_id)))
+(defn instant+timezone
+  "create a zdt" [instant timezone]
+  #?(:cljay (.atZone ^Instant instant (ZoneId/of timezone))
+     :cljs (.toZonedDateTimeISO ^js instant timezone)))
 
 (defn epochmilli->instant [milli]
   #?(:cljay (Instant/ofEpochMilli milli)

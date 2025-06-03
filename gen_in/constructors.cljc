@@ -55,10 +55,10 @@
               (some-> (get thing :zdt) zdt->datetime)
               (get thing :datetime)
               (datetime-from thing))
-        zone   (get thing :timezone_id)]
+        zone   (get thing :timezone)]
     #?(:cljay (if instant 
-                (ZonedDateTime/ofInstant instant (timezone-parse zone))
-                (ZonedDateTime/of ^LocalDateTime ldt ^ZoneId (timezone-parse zone)))
+                (ZonedDateTime/ofInstant instant (ZoneId/of zone))
+                (ZonedDateTime/of ^LocalDateTime ldt ^ZoneId (ZoneId/of zone)))
        :cljs (if instant
                (.toZonedDateTimeISO ^js instant zone)
                (.toZonedDateTime ^js ldt zone)))))

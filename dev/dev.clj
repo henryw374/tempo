@@ -65,7 +65,7 @@
   
   (capt/capt
     '(do
-      (require '[com.widdindustries.gen.gen.tempo] :reload)
+      (require '[com.widdindustries.gen.gen.tempo] :reload-all)
       (require '[com.widdindustries.gen.gen.accessors] :reload-all)
       (gen/gen-after)))
   
