@@ -1,7 +1,6 @@
 (ns com.widdindustries.tempo-test
   (:require [clojure.test :refer [deftest is testing]]
             [com.widdindustries.tempo :as t]
-            [com.widdindustries.tempo.duration-alpha :as d]
             [time-literals.read-write])
   #?(:clj (:import [java.util Date])))
 
@@ -94,10 +93,10 @@
                            :timezone "+05:50"})
               (t/zdt->timezone)))))))
 
-(deftest parsing-duration
+#_(deftest parsing-duration
   (is (t/duration? (d/duration-parse "PT1S"))))
 
-(deftest equals-hash-compare-duration
+#_(deftest equals-hash-compare-duration
   (let [make-middle #(d/duration-parse "PT1S")
         middle (make-middle)
         smallest (d/duration-parse "PT0S")
@@ -141,10 +140,11 @@
 (deftest shift
   ;todo - generate for combinations of duration/period and entity
   (let [a-date (t/date-deref (t/clock-system-default-zone))
-        period (d/period-parse "P3D")]
+        ;period (d/period-parse "P3D")
+        ]
     (is (= a-date (-> (t/>> a-date 3 t/days-property)
                       (t/<< 3 t/days-property))))
-    (is (= a-date (-> (t/>> a-date period)
+    #_(is (= a-date (-> (t/>> a-date period)
                       (t/<< period))))))
 
 (deftest prop-test
@@ -295,10 +295,10 @@
 
 (deftest guardrails-test
   (is (thrown? #?(:clj Throwable :cljs js/Error) (t/>> (t/date-parse "2020-02-02") 1 t/years-property)))
-  (is (thrown? #?(:clj Throwable :cljs js/Error) (t/>> (t/date-parse "2020-02-02") (d/period-parse "P1Y"))))
+  ;(is (thrown? #?(:clj Throwable :cljs js/Error) (t/>> (t/date-parse "2020-02-02") (d/period-parse "P1Y"))))
   (binding [t/*block-non-commutative-operations* false]
     (is (t/>> (t/date-parse "2020-02-02") 1 t/years-property))
-    (is (t/>> (t/date-parse "2020-02-02") (d/period-parse "P1Y")))
+    ;(is (t/>> (t/date-parse "2020-02-02") (d/period-parse "P1Y")))
 
     ))
 

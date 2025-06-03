@@ -45,7 +45,7 @@
 (defn period? [v] #?(:cljs (instance? entities/duration v)
                      :cljay (instance? Period v)
                      ))
-(defn duration? [v] #?(:cljay (instance? Duration v)
+#_(defn duration? [v] #?(:cljay (instance? Duration v)
                        :cljs (instance? entities/duration v)))
 (defn instant? [v] #?(:cljay (instance? Instant v)
                       :cljs (instance? entities/instant v)))

@@ -179,7 +179,7 @@
 
 ;(defn clock? "true if v is a clock?" ([v] (t/clock? v)))
 ;(defn day-of-week? "true if v is a day-of-week?" ([v]))
-(defn duration? "true if v is a duration?" ([v] (t/duration? v)))
+;(defn duration? "true if v is a duration?" ([v] (t/duration? v)))
 (defn instant? "true if v is a instant?" ([v] (t/instant? v)))
 (defn date? "true if v is a date?" ([v] (t/date? v)))
 (defn date-time? "true if v is a date-time?" ([v] (t/datetime? v)))

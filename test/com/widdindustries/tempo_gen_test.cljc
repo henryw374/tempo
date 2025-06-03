@@ -54,7 +54,7 @@
   [now-deref (t/yearmonth-deref (t/clock-system-default-zone))]
   (is (= now-deref (-> now-deref str t/yearmonth-parse)))))
 
-^{:line 58, :column 9} (comment "nowers")
+^{:line 58, :column 9} (comment "derefs")
 
 (deftest
  zdt-deref-test
