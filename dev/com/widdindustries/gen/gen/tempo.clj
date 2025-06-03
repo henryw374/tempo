@@ -33,7 +33,7 @@
         ['(comment "parsers")]
         (accessors/parse-forms main-feature)
         ['(comment "nowers")]
-        (accessors/now-forms main-feature)
+        (accessors/deref-forms main-feature)
         ['(comment "constructors")]
         (constructors/constructor-fns main-feature)
         ['(comment "other")]
@@ -55,8 +55,8 @@
       ;(accessors/accessor-forms main-feature)
       ['(comment "parsers")]
       (accessors/parse-tests)
-      ['(comment "nowers")]
-      (accessors/now-tests )
+      ['(comment "derefs")]
+      (accessors/deref-tests )
       ['(comment "accessors")]
       (accessors/accessor-tests )
 

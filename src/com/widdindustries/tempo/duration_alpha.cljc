@@ -36,7 +36,7 @@
       (.total :unit "year"))
 
   (-> (period-parse "P1Y")
-      (.total :unit "year" :relativeTo (com.widdindustries.tempo/zdt-now)))
+      (.total :unit "year" :relativeTo (com.widdindustries.tempo/zdt-deref)))
   )
 
 ;(defn duration->as-years ([d]) ([d ref]))

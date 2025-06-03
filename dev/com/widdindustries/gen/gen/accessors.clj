@@ -191,44 +191,44 @@
        (keep (fn [thing]
                (parse-fn feature thing)))))
 
-(defn now-fn [feature subject]
-  (when (and (not (:no-now subject)) (get kw->class (:tempo subject)))
-    (let [fn-name (str (:tempo subject) "-now")
-          nower (case feature
+(defn deref-fn [feature subject]
+  (when (and (not (:no-deref subject)) (get kw->class (:tempo subject)))
+    (let [fn-name (str (:tempo subject) "-deref")
+          derefer (case feature
                   :cljay (str (get kw->class (:tempo subject)) "/" (or (-> subject feature :parse) "now"))
                   :cljs (str "tempo-clock/" (:tempo subject)))]
       (backtick/template
         (defn ~(symbol fn-name)
           ([~(with-meta 'clock {:tag java.time.Clock})]
-           (~(symbol nower) clock))))
+           (~(symbol derefer) clock))))
       )))
 
-(defn now-forms [feature]
+(defn deref-forms [feature]
   (->> (apply concat full-paths)
        distinct
        (keep (fn [thing]
-               (now-fn feature thing)))))
+               (deref-fn feature thing)))))
 
-(defn now-test [subject]
-  (when (and (not (:no-now subject)) (get kw->class (:tempo subject)))
-    (let [fn-name (str (:tempo subject) "-now-test")]
+(defn deref-test [subject]
+  (when (and (not (:no-deref subject)) (get kw->class (:tempo subject)))
+    (let [fn-name (str (:tempo subject) "-deref-test")]
       (backtick/template
         (deftest ~(symbol fn-name)
-          (let [now-now (~(symbol (str "t/" (:tempo subject) "-now")) (t/clock-system-default-zone))]
-            (is (~(symbol (str "t/" (:tempo subject) "?")) now-now)))
-          (let [clock-1 (t/clock-fixed (t/instant-parse "1955-11-01T16:46:08.017143Z") (str (t/timezone-now (t/clock-system-default-zone))))
-                clock-2 (t/clock-fixed (t/instant-parse "1955-12-02T17:46:08.017143Z") (str (t/timezone-now (t/clock-system-default-zone))))
-                now-clock-1 (~(symbol (str "t/" (:tempo subject) "-now")) clock-1)
-                now-clock-2 (~(symbol (str "t/" (:tempo subject) "-now")) clock-2)
+          (let [now-deref (~(symbol (str "t/" (:tempo subject) "-deref")) (t/clock-system-default-zone))]
+            (is (~(symbol (str "t/" (:tempo subject) "?")) now-deref)))
+          (let [clock-1 (t/clock-fixed (t/instant-parse "1955-11-01T16:46:08.017143Z") (str (t/timezone-deref (t/clock-system-default-zone))))
+                clock-2 (t/clock-fixed (t/instant-parse "1955-12-02T17:46:08.017143Z") (str (t/timezone-deref (t/clock-system-default-zone))))
+                now-clock-1 (~(symbol (str "t/" (:tempo subject) "-deref")) clock-1)
+                now-clock-2 (~(symbol (str "t/" (:tempo subject) "-deref")) clock-2)
                 ]
             (is (~(symbol (str "t/" (:tempo subject) "?")) now-clock-1))
             (is (t/> now-clock-2 now-clock-1))))))))
 
-(defn now-tests []
+(defn deref-tests []
   (->> (apply concat full-paths)
        distinct
        (keep (fn [thing]
-               (now-test thing)))))
+               (deref-test thing)))))
 
 (defn accessor-test [path]
   (let [subject (:tempo (first path))
@@ -245,15 +245,15 @@
       ;(println (get target :return))
       (backtick/template
         (deftest ~(symbol fn-name)
-          (let [now-now (~(symbol (str "t/" subject "-now")) (t/clock-system-default-zone))]
-            (is (~pred (~(symbol (str "t/" fn-name)) now-now)))
+          (let [now-deref (~(symbol (str "t/" subject "-deref")) (t/clock-system-default-zone))]
+            (is (~pred (~(symbol (str "t/" fn-name)) now-deref)))
             ~(when (and 
                      (and (not= 'monthday subject) (not= 'month target-name))
                      (not (contains? #{'day-of-week 'date 'day-of-month 'instant 'datetime 'time 'timezone 'legacydate
                                        'yearmonth 'monthday
                                           'epochmilli 'year 'month}
                                target-name)))
-               (list 'is (list '= 'now-now (list 't/with 'now-now (list (symbol (str "t/" fn-name)) 'now-now) prop))))
+               (list 'is (list '= 'now-deref (list 't/with 'now-deref (list (symbol (str "t/" fn-name)) 'now-deref) prop))))
             ))))))
 
 (defn accessor-tests []
@@ -286,11 +286,11 @@
       (if (= 'timezone (:tempo subject))
         (backtick/template
           (deftest ~(symbol fn-name)
-            (is (= (t/timezone-now (t/clock-system-default-zone)) (-> (t/timezone-now (t/clock-system-default-zone)) str ~(symbol (str "t/" (:tempo subject) "-parse")))))))
+            (is (= (t/timezone-deref (t/clock-system-default-zone)) (-> (t/timezone-deref (t/clock-system-default-zone)) str ~(symbol (str "t/" (:tempo subject) "-parse")))))))
         (backtick/template
           (deftest ~(symbol fn-name)
-            (let [now-now (~(symbol (str "t/" (:tempo subject) "-now")) (t/clock-system-default-zone))]
-              (is (= now-now (-> now-now str ~(symbol (str "t/" (:tempo subject) "-parse"))))))))))))
+            (let [now-deref (~(symbol (str "t/" (:tempo subject) "-deref")) (t/clock-system-default-zone))]
+              (is (= now-deref (-> now-deref str ~(symbol (str "t/" (:tempo subject) "-parse"))))))))))))
 
 (defn parse-tests []
   (->> (apply concat full-paths)

@@ -8,7 +8,7 @@
   
   What is there to choose between tempo.tick and tempo?
   
-  1. tempo has no zero-arg 'now' functions. Similarly, there are no functions that make implicit use of
+  1. tempo has no zero-arg 'deref' functions. Similarly, there are no functions that make implicit use of
   the 'current' or 'ambient' zone. For this reason, there is no `with-clock` macro in tempo
   
   2. tempo is sometimes more verbose - for example to get the year of an Instant for example first requires converting to a zdt by explicitly supplying a zone.
@@ -34,10 +34,10 @@
 (def ^{:dynamic true} *clock* (t/clock-system-default-zone))
 
 (defn now "same as (t/instant)" ([]
-                                 (t/instant-now *clock*)))
+                                 (t/instant-deref *clock*)))
 
 (defn today "same as (t/date)" ([]
-                                (t/date-now *clock*)))
+                                (t/date-deref *clock*)))
 
 (defn epoch "Constant for the 1970-01-01T00:00:00Z epoch instant" ([]
                                                                    #?(:clj Instant/EPOCH
@@ -48,7 +48,7 @@
 ;(defn noon "" ([]) ([date]))
 
 (defn new-time "" ([]
-                   (t/time-now *clock*)) 
+                   (t/time-deref *clock*)) 
   ([hour minute]
    (t/time-from {:hour   hour
                  :minute minute})) 
@@ -68,20 +68,20 @@
                    :nanosecond nanosecond }))))
 
 (defn new-date "" ([]
-                   (t/date-now *clock*))
+                   (t/date-deref *clock*))
   ([year month day-of-month]
    (t/date-from {:year year :month month :day-of-month day-of-month}))
   ;([year day-of-year]) ([epoch-day])
   )
 
 (defn new-year-month "" ([]
-                         (t/yearmonth-now *clock*)) 
+                         (t/yearmonth-deref *clock*)) 
   ([year month]
    (t/yearmonth-from {:year year :month month})))
 
 (defn current-zone "Return the current zone, which can be overridden by the *clock* dynamic var" 
   ([]
-   (t/timezone-now *clock*)))
+   (t/timezone-deref *clock*)))
 
 ;(defn zone-offset "" ([offset]) ([hours minutes]) ([hours minutes seconds]))
 
@@ -221,7 +221,7 @@
    ))
 
 (defn date "" ([]
-               (t/date-now *clock*)) 
+               (t/date-deref *clock*)) 
    ([v]
     (cond 
       (string? v) (t/date-parse v)
@@ -232,7 +232,7 @@
       :else (throw (ex-info "don't know how to make a date" {:from v})))))
 
 (defn inst "" ([]
-               (-> (t/instant-now *clock*) (t/instant->legacydate)))
+               (-> (t/instant-deref *clock*) (t/instant->legacydate)))
   ;todo 
   #_([v] (inst (instant v))))
 

@@ -66,7 +66,7 @@
 
 #?(:cljay
    (defn- java-time-clock 
-     "returns a partial implementation of java.time.Clock sufficient for all the java.time 'now' methods"
+     "returns a partial implementation of java.time.Clock sufficient for all the java.time 'deref' methods"
      [instant-fn timezone-fn]
      (proxy [java.time.Clock] []
        (getZone [] (java.time.ZoneId/of (timezone-fn)))
@@ -119,7 +119,7 @@
     (fn get-zone []
       (zdt->timezone @zdt-atom))))
 
-(defn timezone-now
+(defn timezone-deref
   ([clock] #?(:cljay (str (.getZone ^Clock clock))
               :cljs (tempo-clock/timezone clock))))
 

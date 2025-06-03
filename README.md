@@ -1,9 +1,3 @@
-todo
-
-timezone. drop the _id
-'now'... change name to something else. deref?
-
-
 # Tempo
 
 <!-- [![Clojars Project](https://img.shields.io/clojars/v/com.widdindustries/cljc.java-time.svg)](https://clojars.org/com.widdindustries/cljc.java-time)-->

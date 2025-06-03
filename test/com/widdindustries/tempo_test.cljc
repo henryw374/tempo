@@ -37,7 +37,7 @@
   (testing "level 1"
     (testing "setting zone on zdt"
       (let [timezone "Pacific/Honolulu"
-            zdt (t/zdt-now (t/clock-with-timezone timezone))]
+            zdt (t/zdt-deref (t/clock-with-timezone timezone))]
         (testing "roundtrip same instant"
           (is (= zdt (t/zdt-from
                        {:timezone timezone
@@ -47,16 +47,16 @@
                                    :timezone "Europe/London"})]
             (is (= (t/zdt->datetime zdt) (t/zdt->datetime zdt-2)))
             (is (not= (t/zdt->timezone zdt) (t/zdt->timezone zdt-2)))))))
-    (let [datetime (t/datetime-now (t/clock-system-default-zone))
-          timezone (str (t/timezone-now (t/clock-system-default-zone)))
+    (let [datetime (t/datetime-deref (t/clock-system-default-zone))
+          timezone (str (t/timezone-deref (t/clock-system-default-zone)))
           zdt (t/zdt-from {:datetime datetime :timezone timezone})]
       (is (t/zdt? zdt))
       (is (= datetime (t/zdt->datetime zdt)))
       (is (= timezone (t/zdt->timezone zdt)))))
   (testing "level 2"
-    (let [date (t/date-now (t/clock-system-default-zone))
-          time (t/time-now (t/clock-system-default-zone))
-          timezone (str (t/timezone-now (t/clock-system-default-zone)))
+    (let [date (t/date-deref (t/clock-system-default-zone))
+          time (t/time-deref (t/clock-system-default-zone))
+          timezone (str (t/timezone-deref (t/clock-system-default-zone)))
           zdt (t/zdt-from {:date date :time time :timezone timezone})]
       (is (t/zdt? zdt))
       (is (= time (t/zdt->time zdt)))
@@ -75,7 +75,7 @@
       (is (= t/weekday-saturday-name (get t/weekday->weekday-name (t/zdt->day-of-week zdt))))
       (is (= 1 (t/zdt->hour zdt)))))
   (testing "level 4"
-    (let [zdt (t/zdt-now (t/clock-system-default-zone))]
+    (let [zdt (t/zdt-deref (t/clock-system-default-zone))]
       (is (t/instant? (t/instant-from {:zdt zdt})))
       (let [i (t/instant-parse "2024-01-16T12:43:44.196000Z")]
         (is (= i (t/instant-from {:epochmilli (t/instant->epochmilli i)}))))
@@ -90,7 +90,7 @@
     (testing "zdt with offset"
       (is (= "+05:50"
             (->
-              (t/zdt-from {:instant     (t/instant-now (t/clock-system-default-zone))
+              (t/zdt-from {:instant     (t/instant-deref (t/clock-system-default-zone))
                            :timezone "+05:50"})
               (t/zdt->timezone)))))))
 
@@ -109,27 +109,27 @@
     (is (not= (hash smallest) (hash (make-middle))))))
 
 (deftest now-date
-  (is (t/date? (t/date-now (t/clock-system-default-zone))))
+  (is (t/date? (t/date-deref (t/clock-system-default-zone))))
   ;todo - test zone that'll return different date to the sys default?
-  (is (t/date? (t/date-now (t/clock-system-default-zone))))
+  (is (t/date? (t/date-deref (t/clock-system-default-zone))))
   (is (= "2020-02-02"
-        (str (t/date-now
+        (str (t/date-deref
                (t/clock-fixed (t/instant-parse "2020-02-02T09:19:42.128946Z") "UTC"))))))
 
 (deftest equals-hash-compare-date
-  (let [middle (t/date-now (t/clock-system-default-zone))
+  (let [middle (t/date-deref (t/clock-system-default-zone))
         earliest (t/<< middle 1 t/days-property)
         latest (t/>> middle 1 t/days-property)]
     (is (not= middle earliest))
-    (is (= middle (t/date-now (t/clock-system-default-zone))))
+    (is (= middle (t/date-deref (t/clock-system-default-zone))))
     ;(compare earliest middle)
     (is (= (sort [latest earliest middle]) [earliest middle latest]))
-    (is (= (hash middle) (hash (t/date-now (t/clock-system-default-zone)))))
-    (is (not= (hash earliest) (hash (t/date-now (t/clock-system-default-zone)))))))
+    (is (= (hash middle) (hash (t/date-deref (t/clock-system-default-zone)))))
+    (is (not= (hash earliest) (hash (t/date-deref (t/clock-system-default-zone)))))))
 
 (deftest preds
-  (is (t/date? (t/date-now (t/clock-system-default-zone))))
-  (is (not (t/period? (t/date-now (t/clock-system-default-zone))))))
+  (is (t/date? (t/date-deref (t/clock-system-default-zone))))
+  (is (not (t/period? (t/date-deref (t/clock-system-default-zone))))))
 
 (deftest parsing-test
   (is (t/date? (t/date-parse "2020-02-02"))))
@@ -140,7 +140,7 @@
 
 (deftest shift
   ;todo - generate for combinations of duration/period and entity
-  (let [a-date (t/date-now (t/clock-system-default-zone))
+  (let [a-date (t/date-deref (t/clock-system-default-zone))
         period (d/period-parse "P3D")]
     (is (= a-date (-> (t/>> a-date 3 t/days-property)
                       (t/<< 3 t/days-property))))
@@ -148,22 +148,22 @@
                       (t/<< period))))))
 
 (deftest prop-test
-  (let [combos [[t/instant-now [t/nanoseconds-property t/microseconds-property t/milliseconds-property
+  (let [combos [[t/instant-deref [t/nanoseconds-property t/microseconds-property t/milliseconds-property
                                 ; not days - mistakenly assumed to be 24hr in java.time
                                 ] ;[t/seconds-property t/hours-property]
                  ]
-                [t/zdt-now [t/nanoseconds-property t/microseconds-property t/milliseconds-property
+                [t/zdt-deref [t/nanoseconds-property t/microseconds-property t/milliseconds-property
                             t/seconds-property t/hours-property
                             t/days-property ;t/months-property t/years-property
                             ]]
-                [t/datetime-now [t/nanoseconds-property t/microseconds-property t/milliseconds-property
+                [t/datetime-deref [t/nanoseconds-property t/microseconds-property t/milliseconds-property
                                  t/seconds-property t/hours-property
                                  t/days-property ;t/months-property t/years-property
                                  ]]
-                [t/date-now [t/days-property ;t/months-property t/years-property
+                [t/date-deref [t/days-property ;t/months-property t/years-property
                              ]]
-                [t/yearmonth-now [t/months-property t/years-property]]
-                ;[t/monthday-now [t/months-property t/days-property]]
+                [t/yearmonth-deref [t/months-property t/years-property]]
+                ;[t/monthday-deref [t/months-property t/days-property]]
                 ]]
     (doseq [[now props xtras] combos
             shiftable-prop (concat props xtras)]
@@ -183,25 +183,25 @@
             (is (not= i-1 (t/with i-1 (if (= 1 current) 2 1) withable-prop)) (str i-1 " " withable-prop))))))))
 
 
-;(t/get-field (t/zdt-now (t/clock-system-default-zone)) t/days-property)
+;(t/get-field (t/zdt-deref (t/clock-system-default-zone)) t/days-property)
 
 (deftest clock-test
-  (let [zone (t/timezone-now (t/clock-system-default-zone))
-        now (t/instant-now (t/clock-system-default-zone))
+  (let [zone (t/timezone-deref (t/clock-system-default-zone))
+        now (t/instant-deref (t/clock-system-default-zone))
         fixed (t/clock-fixed now zone)
         offset (t/clock-offset-millis fixed 1)
         zdt-atom (atom (t/zdt-parse "2024-02-22T00:00:00Z[Europe/London]"))
         clock-zdt-atom (t/clock-zdt-atom zdt-atom)]
-    (is (= now (t/instant-now fixed)))
-    (is (= (t/>> now 1 t/milliseconds-property) (t/instant-now offset)))
-    (is (t/>= (t/instant-now (t/clock-system-default-zone)) (t/instant-now fixed)))
-    (is (= (t/zdt->timezone (t/zdt-now fixed)) (t/zdt->timezone (t/zdt-now offset))))
-    (is (= @zdt-atom (t/zdt-now clock-zdt-atom)))
+    (is (= now (t/instant-deref fixed)))
+    (is (= (t/>> now 1 t/milliseconds-property) (t/instant-deref offset)))
+    (is (t/>= (t/instant-deref (t/clock-system-default-zone)) (t/instant-deref fixed)))
+    (is (= (t/zdt->timezone (t/zdt-deref fixed)) (t/zdt->timezone (t/zdt-deref offset))))
+    (is (= @zdt-atom (t/zdt-deref clock-zdt-atom)))
     (swap! zdt-atom t/>> 1 t/hours-property)
-    (is (= @zdt-atom (t/zdt-now clock-zdt-atom)))))
+    (is (= @zdt-atom (t/zdt-deref clock-zdt-atom)))))
 
 (comment
-  (def now (t/instant-now (t/clock-system-default-zone)))
+  (def now (t/instant-deref (t/clock-system-default-zone)))
   (def fixed (t/clock-fixed now "Europe/London"))
   
   )
@@ -210,13 +210,13 @@
   (testing "adjusting date"
     (is (= (t/date-parse "0001-01-01")
           (binding [t/*block-non-commutative-operations* false]
-            (-> (t/date-now (t/clock-system-default-zone))
+            (-> (t/date-deref (t/clock-system-default-zone))
                 (t/with 1 t/days-property)
                 (t/with 1 t/months-property)
                 (t/with 1 t/years-property))))))
   #_(testing "adjusting instant"
       ; seems pointless and doesnt work in js as-is
-      (let [i (-> (t/instant-now (t/clock-system-default-zone))
+      (let [i (-> (t/instant-deref (t/clock-system-default-zone))
                   (t/with 123 t/milliseconds-property)
                   (t/with 456 t/microseconds-property)
                   (t/with 789 t/nanoseconds-property))]
@@ -335,18 +335,18 @@
 
 (deftest plus-test
   (let [clock (t/clock-system-default-zone)
-        month-day (t/monthday-now clock)
-        year-month (t/yearmonth-now clock)]
+        month-day (t/monthday-deref clock)
+        year-month (t/yearmonth-deref clock)]
     (is (= month-day
           (-> month-day
               (t/monthday+year 2021)
-              (t/date+time (t/time-now clock))
+              (t/date+time (t/time-deref clock))
               (t/datetime+timezone "Pacific/Honolulu")
               (t/zdt->monthday))))
     (is (= year-month
           (-> year-month
               (t/yearmonth+day-of-month 1)
-              (t/date+time (t/time-now clock))
+              (t/date+time (t/time-deref clock))
               (t/datetime+timezone "Pacific/Honolulu")
               (t/zdt->yearmonth))))))
 
