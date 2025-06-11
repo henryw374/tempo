@@ -2,11 +2,13 @@
  com.widdindustries.tempo
  (:refer-clojure :exclude [min max > < >= <= >> <<])
  (:require
-  [com.widdindustries.tempo.cljs-protocols :as cljs-protocols]
+  [com.widdindustries.tempo.temporal-comparison
+   :as
+   temporal-comparison]
   [com.widdindustries.tempo.tempo-clock :as tempo-clock]
   [goog.object]))
 
-^{:line 31, :column 11} (comment "accessors")
+^{:line 30, :column 11} (comment "accessors")
 
 (defn zdt->year [^js/Temporal.ZonedDateTime foo] (-> foo .-year))
 
@@ -254,7 +256,7 @@
   ^{:line 63, :column 33}
   (-> ^{:line 63, :column 37} (js/Temporal.PlainYearMonth.from))))
 
-^{:line 33, :column 11} (comment "parsers")
+^{:line 32, :column 11} (comment "parsers")
 
 (defn
  instant-parse
@@ -291,7 +293,7 @@
  [^java.lang.String foo]
  (js/Temporal.PlainYearMonth.from foo))
 
-^{:line 35, :column 11} (comment "nowers")
+^{:line 34, :column 11} (comment "nowers")
 
 (defn zdt-deref ([^java.time.Clock clock] (tempo-clock/zdt clock)))
 
@@ -315,7 +317,7 @@
  yearmonth-deref
  ([^java.time.Clock clock] (tempo-clock/yearmonth clock)))
 
-^{:line 37, :column 11} (comment "constructors")
+^{:line 36, :column 11} (comment "constructors")
 
 (defn
  time-from
@@ -401,15 +403,15 @@
   (when-let [d (get thing :legacydate)] (.toTemporalInstant ^js d))
   (some-> (or (get thing :zdt) (zdt-from thing)) (zdt->instant))))
 
-^{:line 39, :column 11} (comment "other")
+^{:line 38, :column 11} (comment "other")
 
 (comment "after-graph")
 
 (defn
- extend-all-cljs-protocols
+ enable-comparison-for-all-temporal-entities
  "in cljs envs, this makes `=`, `compare` and `hash` work on the value of Temporal entities.\n  It is optional, so that if this behaviour is not required, the resulting build size can be reduced. \n  "
  []
- (cljs-protocols/extend-all))
+ (temporal-comparison/enable-for-all))
 
 (defn legacydate? [v] (instance? js/Date v))
 
@@ -489,7 +491,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__50288# p2__50289#] (greater p1__50288# p2__50289#))
+  (fn* [p1__59871# p2__59872#] (greater p1__59871# p2__59872#))
   arg
   args))
 
@@ -501,7 +503,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__50290# p2__50291#] (lesser p1__50290# p2__50291#))
+  (fn* [p1__59873# p2__59874#] (lesser p1__59873# p2__59874#))
   arg
   args))
 

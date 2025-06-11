@@ -2,7 +2,6 @@
   (:require [com.widdindustries.gen.gen.accessors :as accessors]
             [com.widdindustries.gen.gen.constructors :as constructors]
             [com.widdindustries.gen.gen :as gen]
-            [com.widdindustries.gen.cljs-protocols :as cljs-protocols]
             [clojure.string :as string]
             [clojure.tools.namespace.repl]
             [clojure.java.io :as io]
@@ -64,7 +63,6 @@
 (defn gen-after []
   (gen-tempo :cljay)
   (gen-tempo :cljs)
-  (cljs-protocols/gen-protocols)
   (generate-test))
 
 (defn generate-all [_]

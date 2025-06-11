@@ -4,7 +4,7 @@
     )
   )
 
-;(t/extend-all-cljs-protocols)
+;(t/enable-comparison-for-all-temporal-entities)
 ;(cljs-protocols/instant)
 ;(cljs-protocols/zdt)
 

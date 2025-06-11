@@ -7,7 +7,7 @@
        [java.time Clock MonthDay ZoneId ZoneOffset Instant Duration Period DayOfWeek Month ZonedDateTime LocalTime LocalDateTime LocalDate Year YearMonth ZoneId OffsetDateTime OffsetTime]
        [java.time.temporal Temporal TemporalAmount TemporalUnit TemporalAccessor ChronoUnit ChronoField ValueRange]
        [java.util Date])
-     :cljs (:require [com.widdindustries.tempo.cljs-protocols :as cljs-protocols]
+     :cljs (:require [com.widdindustries.tempo.temporal-comparison :as temporal-comparison]
              [com.widdindustries.tempo.tempo-clock :as tempo-clock]
              [goog.object])))
 
@@ -27,13 +27,13 @@
 
 (comment "after-graph")
 
-(defn extend-all-cljs-protocols
+(defn enable-comparison-for-all-temporal-entities
   "in cljs envs, this makes `=`, `compare` and `hash` work on the value of Temporal entities.
   It is optional, so that if this behaviour is not required, the resulting build size can be reduced. 
   "
   []
   #?(:cljs
-     (cljs-protocols/extend-all)))
+     (temporal-comparison/enable-for-all)))
 
 (defn legacydate? [v]
   #?(:cljs (instance? js/Date v)

@@ -151,7 +151,7 @@ As of March 2025
   (time-literals.read-write/print-time-literals-cljs!)
 
   ;optional - make comparison, e.g. =,sort,compare etc work for all js/Temporal entities
-  (t/extend-all-cljs-protocols))
+  (t/enable-comparison-for-all-temporal-entities))
 
 
 ```

@@ -44,7 +44,7 @@
 
 (defn -nanosecond [f] (-> (getFractional f) (mod 1000)))
 
-^{:line 31, :column 11} (comment "accessors")
+^{:line 30, :column 11} (comment "accessors")
 
 (defn zdt->year [^ZonedDateTime foo] (-> foo .getYear))
 
@@ -260,7 +260,7 @@
   ^{:line 65, :column 33}
   (-> ^{:line 65, :column 37} (YearMonth/from))))
 
-^{:line 33, :column 11} (comment "parsers")
+^{:line 32, :column 11} (comment "parsers")
 
 (defn instant-parse [^java.lang.String foo] (Instant/parse foo))
 
@@ -276,7 +276,7 @@
 
 (defn yearmonth-parse [^java.lang.String foo] (YearMonth/parse foo))
 
-^{:line 35, :column 11} (comment "nowers")
+^{:line 34, :column 11} (comment "nowers")
 
 (defn zdt-deref ([^java.time.Clock clock] (ZonedDateTime/now clock)))
 
@@ -294,7 +294,7 @@
 
 (defn yearmonth-deref ([^java.time.Clock clock] (YearMonth/now clock)))
 
-^{:line 37, :column 11} (comment "constructors")
+^{:line 36, :column 11} (comment "constructors")
 
 (defn
  time-from
@@ -386,12 +386,12 @@
   (when-let [d (get thing :legacydate)] (.toInstant ^Date d))
   (some-> (or (get thing :zdt) (zdt-from thing)) (zdt->instant))))
 
-^{:line 39, :column 11} (comment "other")
+^{:line 38, :column 11} (comment "other")
 
 (comment "after-graph")
 
 (defn
- extend-all-cljs-protocols
+ enable-comparison-for-all-temporal-entities
  "in cljs envs, this makes `=`, `compare` and `hash` work on the value of Temporal entities.\n  It is optional, so that if this behaviour is not required, the resulting build size can be reduced. \n  "
  [])
 
@@ -476,7 +476,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__50284# p2__50285#] (greater p1__50284# p2__50285#))
+  (fn* [p1__59867# p2__59868#] (greater p1__59867# p2__59868#))
   arg
   args))
 
@@ -488,7 +488,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__50286# p2__50287#] (lesser p1__50286# p2__50287#))
+  (fn* [p1__59869# p2__59870#] (lesser p1__59869# p2__59870#))
   arg
   args))
 

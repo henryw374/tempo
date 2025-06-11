@@ -6,7 +6,7 @@
 
 
 (defn ^:export initialise []
-  (t/extend-all-cljs-protocols)
+  (t/enable-comparison-for-all-temporal-entities)
   (time-literals.read-write/print-time-literals-clj!)
   (time-literals.read-write/print-time-literals-cljs!))
 
