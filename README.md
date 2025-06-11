@@ -114,10 +114,25 @@ As of March 2025
 
 ```html
     <script>
-        if(!window.Temporal){
-          document.write('<script src="https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.0-beta.1/global.min.js"><\/script>');         
-                  }
-    </script>
+    if(!window.Temporal){
+      console.log('Temporal polyfill required');
+      var head = document.getElementsByTagName('head')[0];
+      var js = document.createElement("script");
+      js.type = "text/javascript";
+      js.id = "temporal-polyfill"
+      js.src = "https://cdn.jsdelivr.net/npm/@js-temporal/polyfill@0.5.0/dist/index.umd.js"
+      head.appendChild(js);
+      js.addEventListener('load',function(){
+        console.log('loaded' + window.temporal)
+        window.Temporal = window.temporal.Temporal;
+        window.Intl = window.temporal.Intl;
+        Date.prototype.toTemporalInstant = window.temporal.toTemporalInstant;      
+      });
+    }
+    else {      
+        console.log('Temporal polyfill not required');
+    }
+</script>
 ```
 
 
@@ -130,12 +145,14 @@ As of March 2025
 
 (t/date-parse "2020-02-02")
 
-; optionally, print objects as data-literals
-(time-literals.read-write/print-time-literals-clj!)
-(time-literals.read-write/print-time-literals-cljs!)
+(defn initialise []
+  ; optional, print objects as data-literals
+  (time-literals.read-write/print-time-literals-clj!)
+  (time-literals.read-write/print-time-literals-cljs!)
 
-;optional - make clojure.core fns =,sort,compare etc work for all js/Temporal entities
-(t/extend-all-cljs-protocols)
+  ;optional - make comparison, e.g. =,sort,compare etc work for all js/Temporal entities
+  (t/extend-all-cljs-protocols))
+
 
 ```
 

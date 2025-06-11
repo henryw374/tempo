@@ -6,11 +6,9 @@
   [clojure.test :refer [deftest is testing]]
   [com.widdindustries.tempo :as t]))
 
-^{:line 51, :column 9} (t/extend-all-cljs-protocols)
+^{:line 53, :column 9} (comment "accessors")
 
-^{:line 54, :column 9} (comment "accessors")
-
-^{:line 56, :column 9} (comment "parsers")
+^{:line 55, :column 9} (comment "parsers")
 
 (deftest
  zdt-parse-test
@@ -54,7 +52,7 @@
   [now-deref (t/yearmonth-deref (t/clock-system-default-zone))]
   (is (= now-deref (-> now-deref str t/yearmonth-parse)))))
 
-^{:line 58, :column 9} (comment "derefs")
+^{:line 57, :column 9} (comment "derefs")
 
 (deftest
  zdt-deref-test
@@ -203,7 +201,7 @@
   (is (t/yearmonth? now-clock-1))
   (is (t/> now-clock-2 now-clock-1))))
 
-^{:line 60, :column 9} (comment "accessors")
+^{:line 59, :column 9} (comment "accessors")
 
 (deftest
  zdt->year

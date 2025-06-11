@@ -397,8 +397,6 @@
 
 (defn legacydate? [v] (instance? java.util.Date v))
 
-(defn period? [v] (instance? Period v))
-
 (defn instant? [v] (instance? Instant v))
 
 (defn date? [v] (instance? LocalDate v))
@@ -478,7 +476,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__37090# p2__37091#] (greater p1__37090# p2__37091#))
+  (fn* [p1__50284# p2__50285#] (greater p1__50284# p2__50285#))
   arg
   args))
 
@@ -490,7 +488,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__37092# p2__37093#] (lesser p1__37092# p2__37093#))
+  (fn* [p1__50286# p2__50287#] (lesser p1__50286# p2__50287#))
   arg
   args))
 

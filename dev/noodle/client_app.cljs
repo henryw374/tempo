@@ -4,8 +4,7 @@
     )
   )
 
-(t/extend-all-cljs-protocols)
-(cljs-protocols/duration)
+;(t/extend-all-cljs-protocols)
 ;(cljs-protocols/instant)
 ;(cljs-protocols/zdt)
 

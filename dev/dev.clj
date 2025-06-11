@@ -28,19 +28,33 @@
     <meta charset=\"utf-8\">
     </head>
     <body>
-    <script src=\"https://cdn.jsdelivr.net/npm/@js-temporal/polyfill@0.5.0/dist/index.umd.js\"></script>   
+    <script src=\"/browser-test/js/test.js\"></script>
+       
     <script>
-        if(!window.Temporal){
-          window.Temporal = window.temporal.Temporal;
+    if(!window.Temporal){
+      console.log('Temporal polyfill required');
+      var head = document.getElementsByTagName('head')[0];
+      var js = document.createElement(\"script\");
+      js.type = \"text/javascript\";
+      js.id = \"temporal-polyfill\"
+      js.src = \"https://cdn.jsdelivr.net/npm/@js-temporal/polyfill@0.5.0/dist/index.umd.js\"
+      head.appendChild(js);
+      js.addEventListener('load',function(){
+        console.log('loaded' + window.temporal)
+        window.Temporal = window.temporal.Temporal;
           window.Intl = window.temporal.Intl;
           Date.prototype.toTemporalInstant = window.temporal.toTemporalInstant;
-          //document.write('<script src=\"https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.0-beta.1/global.min.js\"><\\/script>');                   
-        }
-    </script>
-
+          com.widdindustries.tempo_test.initialise();
+      });
+      }
+      else {
+        com.widdindustries.tempo_test.initialise();
+        console.log('Temporal polyfill not required');
+      }
+</script>
    
-    <script src=\"/browser-test/js/test.js\">
-    </script>
+    
+    
     <script>kaocha.cljs2.shadow_runner.init();</script></body></html>"
     ))
 

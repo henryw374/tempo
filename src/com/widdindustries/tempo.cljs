@@ -3,8 +3,6 @@
  (:refer-clojure :exclude [min max > < >= <= >> <<])
  (:require
   [com.widdindustries.tempo.cljs-protocols :as cljs-protocols]
-  [com.widdindustries.tempo.js-temporal-entities :as entities]
-  [com.widdindustries.tempo.js-temporal-methods :as methods]
   [com.widdindustries.tempo.tempo-clock :as tempo-clock]
   [goog.object]))
 
@@ -415,21 +413,19 @@
 
 (defn legacydate? [v] (instance? js/Date v))
 
-(defn period? [v] (instance? entities/duration v))
+(defn instant? [v] (instance? js/Temporal.Instant v))
 
-(defn instant? [v] (instance? entities/instant v))
+(defn date? [v] (instance? js/Temporal.PlainDate v))
 
-(defn date? [v] (instance? entities/date v))
+(defn datetime? [v] (instance? js/Temporal.PlainDateTime v))
 
-(defn datetime? [v] (instance? entities/datetime v))
+(defn time? [v] (instance? js/Temporal.PlainTime v))
 
-(defn time? [v] (instance? entities/time v))
+(defn monthday? [v] (instance? js/Temporal.PlainMonthDay v))
 
-(defn monthday? [v] (instance? entities/monthday v))
+(defn yearmonth? [v] (instance? js/Temporal.PlainYearMonth v))
 
-(defn yearmonth? [v] (instance? entities/yearmonth v))
-
-(defn zdt? [v] (instance? entities/zdt v))
+(defn zdt? [v] (instance? js/Temporal.ZonedDateTime v))
 
 (defn
  clock-system-default-zone
@@ -493,7 +489,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__37094# p2__37095#] (greater p1__37094# p2__37095#))
+  (fn* [p1__50288# p2__50289#] (greater p1__50288# p2__50289#))
   arg
   args))
 
@@ -505,7 +501,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__37096# p2__37097#] (lesser p1__37096# p2__37097#))
+  (fn* [p1__50290# p2__50291#] (lesser p1__50290# p2__50291#))
   arg
   args))
 

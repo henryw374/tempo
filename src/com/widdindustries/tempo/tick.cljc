@@ -186,7 +186,7 @@
 (defn time? "true if v is a time?" ([v] (t/time? v)))
 ;(defn month? "true if v is a month?" ([v] ))
 ;(defn offset-date-time? "true if v is a offset-date-time?" ([v]))
-(defn period? "true if v is a period?" ([v] (t/period? v)))
+;(defn period? "true if v is a period?" ([v] (t/period? v)))
 ;(defn year? "true if v is a year?" ([v]))
 (defn year-month? "true if v is a year-month?" ([v] (t/yearmonth? v)))
 ;(defn zone? "true if v is a zone?" ([v] (t/timezone? v)))

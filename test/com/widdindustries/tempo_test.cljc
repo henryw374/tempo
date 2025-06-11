@@ -4,8 +4,11 @@
             [time-literals.read-write])
   #?(:clj (:import [java.util Date])))
 
-(time-literals.read-write/print-time-literals-clj!)
-(time-literals.read-write/print-time-literals-cljs!)
+
+(defn ^:export initialise []
+  (t/extend-all-cljs-protocols)
+  (time-literals.read-write/print-time-literals-clj!)
+  (time-literals.read-write/print-time-literals-cljs!))
 
 (comment
   (remove-ns (.name *ns*))
@@ -16,8 +19,8 @@
 
   )
 
-(t/extend-all-cljs-protocols) ;
-;
+ 
+
 (deftest construction-from-parts-test ;
 
   (testing ""
@@ -128,7 +131,7 @@
 
 (deftest preds
   (is (t/date? (t/date-deref (t/clock-system-default-zone))))
-  (is (not (t/period? (t/date-deref (t/clock-system-default-zone))))))
+  (is (not (t/zdt? (t/date-deref (t/clock-system-default-zone))))))
 
 (deftest parsing-test
   (is (t/date? (t/date-parse "2020-02-02"))))

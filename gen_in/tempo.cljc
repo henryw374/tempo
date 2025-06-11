@@ -8,8 +8,6 @@
        [java.time.temporal Temporal TemporalAmount TemporalUnit TemporalAccessor ChronoUnit ChronoField ValueRange]
        [java.util Date])
      :cljs (:require [com.widdindustries.tempo.cljs-protocols :as cljs-protocols]
-             [com.widdindustries.tempo.js-temporal-entities :as entities]
-             [com.widdindustries.tempo.js-temporal-methods :as methods]
              [com.widdindustries.tempo.tempo-clock :as tempo-clock]
              [goog.object])))
 
@@ -42,27 +40,20 @@
      :cljay (instance? java.util.Date v)
      ))
 
-(defn period? [v] #?(:cljs (instance? entities/duration v)
-                     :cljay (instance? Period v)
-                     ))
-#_(defn duration? [v] #?(:cljay (instance? Duration v)
-                       :cljs (instance? entities/duration v)))
 (defn instant? [v] #?(:cljay (instance? Instant v)
-                      :cljs (instance? entities/instant v)))
+                      :cljs (instance? js/Temporal.Instant v)))
 (defn date? [v] #?(:cljay (instance? LocalDate v)
-                   :cljs (instance? entities/date v)))
+                   :cljs (instance? js/Temporal.PlainDate v)))
 (defn datetime? [v] #?(:cljay (instance? LocalDateTime v)
-                       :cljs (instance? entities/datetime v)))
+                       :cljs (instance? js/Temporal.PlainDateTime v)))
 (defn time? [v] #?(:cljay (instance? LocalTime v)
-                   :cljs (instance? entities/time v)))
+                   :cljs (instance? js/Temporal.PlainTime v)))
 (defn monthday? [v] #?(:cljay (instance? MonthDay v)
-                       :cljs (instance? entities/monthday v)))
+                       :cljs (instance? js/Temporal.PlainMonthDay v)))
 (defn yearmonth? [v] #?(:cljay (instance? YearMonth v)
-                        :cljs (instance? entities/yearmonth v)))
-#_(defn timezone? [v] #?(:cljay (instance? ZoneId v)
-                       :cljs (instance? entities/timezone v)))
+                        :cljs (instance? js/Temporal.PlainYearMonth v)))
 (defn zdt? [v] #?(:cljay (instance? ZonedDateTime v)
-                  :cljs (instance? entities/zdt v)))
+                  :cljs (instance? js/Temporal.ZonedDateTime v)))
 
 #?(:cljay
    (defn- java-time-clock 
