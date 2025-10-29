@@ -4,7 +4,7 @@
 [![Tests build](https://github.com/henryw374/chronos/actions/workflows/tests.yaml/badge.svg)](https://github.com/henryw374/chronos/actions/workflows/tests.yaml)
 <!-- [![bb compatible](https://raw.githubusercontent.com/babashka/babashka/master/logo/badge.svg)](https://babashka.org)-->
 
-Zero-dependency Clojure(Script) API to java.time on the JVM and Temporal on JS runtimes
+Clojure(Script) API to `java.time` on the JVM and `Temporal` on JS runtimes
 
 Learn Chronos [live in a browser REPL](https://widdindustries.com/chronos-docs/public/)
 
