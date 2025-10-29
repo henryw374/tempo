@@ -9,8 +9,8 @@
 
  :tasks
  {:requires ([clojure.test :as c.test]
-             [com.widdindustries.tempo-test]
-             [com.widdindustries.tempo-gen-test])
+             [com.widdindustries.chronos-test]
+             [com.widdindustries.chronos-gen-test])
   test      {:doc "Run all tests"
              :task (do (println "Running tests")
                      (c.test/run-all-tests))}}}

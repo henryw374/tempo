@@ -1,26 +1,26 @@
-(ns com.widdindustries.tempo.tick
-  "A partial port of tick.core, but now backed by Temporal on js runtime.
+(ns com.widdindustries.chronos.tick
+  "A partial port of tick.core, but now backed by Chronosral on js runtime.
   
   If a function from tick is implemented in this ns then it works the same as the tick equivalent.
   
   The reason that tick has been ported is that it is a popular date/time library. As well as having a different basis on JS runtimes,
-  there are some philosophical differences between tick and tempo. 
+  there are some philosophical differences between tick and chronos. 
   
-  What is there to choose between tempo.tick and tempo?
+  What is there to choose between chronos.tick and chronos?
   
-  1. tempo has no zero-arg 'deref' functions. Similarly, there are no functions that make implicit use of
-  the 'current' or 'ambient' zone. For this reason, there is no `with-clock` macro in tempo
+  1. chronos has no zero-arg 'deref' functions. Similarly, there are no functions that make implicit use of
+  the 'current' or 'ambient' zone. For this reason, there is no `with-clock` macro in chronos
   
-  2. tempo is sometimes more verbose - for example to get the year of an Instant for example first requires converting to a zdt by explicitly supplying a zone.
+  2. chronos is sometimes more verbose - for example to get the year of an Instant for example first requires converting to a zdt by explicitly supplying a zone.
   
   3. in tick the same function is used for parsing strings and accessing properties. For example in tick `(t/date x)` will parse x if it is a string,
   or access the date from x if it is e.g. a zdt.
   
-  4. tempo blocks non-commutative operations by default (e.g. 'adding' a month to a date)          
+  4. chronos blocks non-commutative operations by default (e.g. 'adding' a month to a date)          
   
   Other differences:
   
-  * Unlike tick, no entity for year or month exists in tempo - where needed, numbers are used to repsesent those
+  * Unlike tick, no entity for year or month exists in chronos - where needed, numbers are used to repsesent those
   * Entities for temporal-amounts are alpha - so not included here yet
   * No parsing or formatting of non-ISO strings - since this is not in Temporal
   * Although there is a timezone entity, functions that would accept or return a timezone instead accept or return a string
@@ -28,7 +28,7 @@
   
   "
   (:refer-clojure :exclude [min-key max-key format + - inc dec max min range time int long = < <= > >= next >> << atom swap! swap-vals! compare-and-set! reset! reset-vals! second divide])
-  (:require [com.widdindustries.tempo :as t])
+  (:require [com.widdindustries.chronos :as t])
   #?(:clj (:import (java.time Instant))))
 
 (def ^{:dynamic true} *clock* (t/clock-system-default-zone))

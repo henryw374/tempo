@@ -1,5 +1,5 @@
 (ns
- com.widdindustries.tempo
+ com.widdindustries.chronos
  (:refer-clojure :exclude [min max > < >= <= >> <<])
  (:import
   [java.time
@@ -476,7 +476,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__59867# p2__59868#] (greater p1__59867# p2__59868#))
+  (fn* [p1__36322# p2__36323#] (greater p1__36322# p2__36323#))
   arg
   args))
 
@@ -488,7 +488,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__59869# p2__59870#] (lesser p1__59869# p2__59870#))
+  (fn* [p1__36324# p2__36325#] (lesser p1__36324# p2__36325#))
   arg
   args))
 
@@ -711,7 +711,7 @@
    (not (or (monthday? temporal) (yearmonth? temporal))))
   (throw
    (ex-info
-    "see guardrails section at https://github.com/henryw374/tempo?tab=readme-ov-file#guardrails"
+    "see guardrails section at https://github.com/henryw374/chronos?tab=readme-ov-file#guardrails"
     {}))))
 
 (defn
@@ -728,7 +728,7 @@
      (not (zero? (.getMonths ^Period temporal-amount))))))
   (throw
    (ex-info
-    "see guardrails section at https://github.com/henryw374/tempo?tab=readme-ov-file#guardrails"
+    "see guardrails section at https://github.com/henryw374/chronos?tab=readme-ov-file#guardrails"
     {}))))
 
 (defn
@@ -883,7 +883,7 @@
 
 (defn
  truncate
- "zero property field and below of temporal"
+ "zero property field (and smaller fields) of temporal"
  [temporal property]
  (-truncate temporal (unit property)))
 

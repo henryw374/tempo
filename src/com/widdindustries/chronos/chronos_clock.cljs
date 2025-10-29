@@ -1,4 +1,4 @@
-(ns com.widdindustries.tempo.tempo-clock
+(ns com.widdindustries.chronos.chronos-clock
   (:refer-clojure :exclude [time]))
 
 (defn from [^js x thing]

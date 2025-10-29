@@ -11,7 +11,7 @@
   (refresh/refresh-all))
 
 (defn run-clj-tests* []
-  (kaocha/run 'com.widdindustries.tempo-test))
+  (kaocha/run 'com.widdindustries.chronos-test))
 
 (defn run-clj-tests [_]
   (refresh/refresh-all :after 'dev/run-clj-tests*))
@@ -44,11 +44,11 @@
         window.Temporal = window.temporal.Temporal;
           window.Intl = window.temporal.Intl;
           Date.prototype.toTemporalInstant = window.temporal.toTemporalInstant;
-          com.widdindustries.tempo_test.initialise();
+          com.widdindustries.chronos_test.initialise();
       });
       }
       else {
-        com.widdindustries.tempo_test.initialise();
+        com.widdindustries.chronos_test.initialise();
         console.log('Temporal polyfill not required');
       }
 </script>
@@ -99,7 +99,7 @@
   )
 
 (defn app-config 
-  "investigate dead code elimination with a pretend client ns that uses tempo"
+  "investigate dead code elimination with a pretend client ns that uses chronos"
   []
   (->
     (util/browser-app-config)

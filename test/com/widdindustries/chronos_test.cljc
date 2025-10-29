@@ -1,6 +1,6 @@
-(ns com.widdindustries.tempo-test
+(ns com.widdindustries.chronos-test
   (:require [clojure.test :refer [deftest is testing]]
-            [com.widdindustries.tempo :as t]
+            [com.widdindustries.chronos :as t]
             [time-literals.read-write])
   #?(:clj (:import [java.util Date])))
 
@@ -12,8 +12,8 @@
 
 (comment
   (remove-ns (.name *ns*))
-  (remove-ns 'com.widdindustries.tempo)
-  (require '[com.widdindustries.tempo] :reload-all)
+  (remove-ns 'com.widdindustries.chronos)
+  (require '[com.widdindustries.chronos] :reload-all)
   (require '[time-literals.read-write])
   #time/date "2020-02-02"
 

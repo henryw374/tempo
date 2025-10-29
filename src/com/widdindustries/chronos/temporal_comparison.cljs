@@ -1,5 +1,5 @@
 (ns
- com.widdindustries.tempo.temporal-comparison
+ com.widdindustries.chronos.temporal-comparison
  "functions to make clojure's comparison functions work for Temporal entities"
  (:refer-clojure :exclude [time]))
 

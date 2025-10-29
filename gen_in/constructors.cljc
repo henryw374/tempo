@@ -1,7 +1,7 @@
 (ns com.widdindustries.gen.gen-in.constructors
   #?(:cljay (:import (java.time LocalDateTime ZonedDateTime)))
-  (:require [com.widdindustries.tempo :as t]
-            [com.widdindustries.tempo :as t]))
+  (:require [com.widdindustries.chronos :as t]
+            [com.widdindustries.chronos :as t]))
 
 (defn time-from [thing]
   (let [hour (get thing :hour 0)

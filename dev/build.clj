@@ -3,7 +3,7 @@
             [deps-deploy.deps-deploy :as dd]
             [clojure.java.shell :as sh]
             [clojure.string :as string]))
-(def lib 'com.widdindustries/tempo)
+(def lib 'com.widdindustries/chronos)
 (def version (some-> (sh/sh "git" "describe" "--tags" "--abbrev=0")
                      :out
                      (string/trim-newline)))
@@ -40,7 +40,7 @@
               :version    version
               :jar-file   jar-file
               :class-dir  class-dir})
-  (println (str "clj -Sdeps '{:deps {com.widdindustries/tempo {:mvn/version \"" version "\"}}}'"))
+  (println (str "clj -Sdeps '{:deps {com.widdindustries/chronos {:mvn/version \"" version "\"}}}'"))
   )
 
 (defn deploy [_]

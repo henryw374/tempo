@@ -1,12 +1,12 @@
-# Tempo
+# Chronos
 
-<!-- [![Clojars Project](https://img.shields.io/clojars/v/com.widdindustries/cljc.java-time.svg)](https://clojars.org/com.widdindustries/cljc.java-time)-->
-[![Tests build](https://github.com/henryw374/tempo/actions/workflows/tests.yaml/badge.svg)](https://github.com/henryw374/tempo/actions/workflows/tests.yaml)
+
+[![Tests build](https://github.com/henryw374/chronos/actions/workflows/tests.yaml/badge.svg)](https://github.com/henryw374/chronos/actions/workflows/tests.yaml)
 <!-- [![bb compatible](https://raw.githubusercontent.com/babashka/babashka/master/logo/badge.svg)](https://babashka.org)-->
 
 Zero-dependency Clojure(Script) API to java.time on the JVM and Temporal on JS runtimes
 
-Learn Tempo [live in a browser REPL](https://widdindustries.com/tempo-docs/public/)
+Learn Chronos [live in a browser REPL](https://widdindustries.com/chronos-docs/public/)
 
 ## About
 
@@ -19,7 +19,7 @@ you.
 
 ![graph of entities in Temporal](https://tc39.es/proposal-temporal/docs/object-model.svg)
 
-Tempo leverages common ground between java.time and Temporal to create an API is that should cover the vast majority of use cases and should leave users rarely needing to drop to the platform APIs. 
+Chronos leverages common ground between java.time and Temporal to create an API is that should cover the vast majority of use cases and should leave users rarely needing to drop to the platform APIs. 
 
 In java.time, there are entities (classes) for 
 
@@ -28,7 +28,7 @@ In java.time, there are entities (classes) for
 * timezone
 * day-of-week
 
-In `Temporal`, these are represented by numbers (or string, in the case of timezone). `Tempo` has chosen to keep the Temporal approach here, so anywhere that these are parameters, they are parsed to the equivalent java.time entities as required.
+In `Temporal`, these are represented by numbers (or string, in the case of timezone). `Chronos` has chosen to keep the Temporal approach here, so anywhere that these are parameters, they are parsed to the equivalent java.time entities as required.
 
 Following is some more detail:
 
@@ -38,14 +38,14 @@ Following is some more detail:
   strings ([Temporal may have this in the future](https://github.com/js-temporal/proposal-temporal-v2/issues/2))
 * 2 types to represent temporal-amounts: `Duration` and `Period`
 * OffsetDateTime, OffsetTime, Month, Year and DayOfWeek entities
-    * Tempo adds a cljs version of DayOfWeek, so there is e.g. `t/weekday-saturday`
-    * OffsetDateTime & OffsetTime are not in Tempo
-    * Month and Year are just represented by integers in Tempo
+    * Chronos adds a cljs version of DayOfWeek, so there is e.g. `t/weekday-saturday`
+    * OffsetDateTime & OffsetTime are not in Chronos
+    * Month and Year are just represented by integers in Chronos
 
 *features of only temporal*
 
 * Duration type matching ISO spec
-* user-controllable rounding and conflict resolution - Tempo doesn't expose this and chooses same behaviour as java.time
+* user-controllable rounding and conflict resolution - Chronos doesn't expose this and chooses same behaviour as java.time
 * first-class support for non-ISO calendars
 
 ## Rationale
@@ -90,21 +90,21 @@ Even when Temporal is widely available, I would imagine many Clojure developers 
   Javascript [does not degrade application performance](https://widdindustries.com/blog/clojurescript-datetime-lib-comparison.html)
 * Switching away from it will require significant time investment
 
-Since `tick` is based on `java.time`, in its entirety it is incompatible with Temporal. Having said that a `tempo.tick`
+Since `tick` is based on `java.time`, in its entirety it is incompatible with Temporal. Having said that a `chronos.tick`
 namespace exists which contains a subset of the functions from `tick.core` which are compatible. This is WIP.
 
 ## Usage
 
 ### Depend
 
-[![Clojars Project](https://img.shields.io/clojars/v/com.widdindustries/tempo.svg)](https://clojars.org/com.widdindustries/tempo)
+[![Clojars Project](https://img.shields.io/clojars/v/com.widdindustries/chronos.svg)](https://clojars.org/com.widdindustries/chronos)
 
         ; to get data-literals for java.time and Temporal, also add...
 
 
-[![Clojars Project](https://img.shields.io/clojars/v/com.widdindustries/time-literals-tempo.svg)](https://clojars.org/com.widdindustries/time-literals-tempo)
+[![Clojars Project](https://img.shields.io/clojars/v/com.widdindustries/time-literals-temporal.svg)](https://clojars.org/com.widdindustries/time-literals-temporal)
 
-As of March 2025
+As of October 2025
 
 * [Temporal](https://github.com/tc39/proposal-temporal) has semi-stabilized at
   `ecma stage 3`, meaning implementors
@@ -140,7 +140,7 @@ As of March 2025
 
 ```clojure
 (ns my.cljc.namespace
-  (:require [com.widdindustries.tempo :as t]
+  (:require [com.widdindustries.chronos :as t]
             [time-literals.read-write]))
 
 (t/date-parse "2020-02-02")
@@ -156,7 +156,7 @@ As of March 2025
 
 ```
 
-Now, learn the API [live in a browser REPL](https://widdindustries.com/tempo-docs/public/)
+Now, learn the API [live in a browser REPL](https://widdindustries.com/chronos-docs/public/)
 
 ## Dev
 

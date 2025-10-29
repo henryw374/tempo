@@ -1,10 +1,10 @@
 ^{:line 47, :column 15}
 (ns
- com.widdindustries.tempo-gen-test
+ com.widdindustries.chronos-gen-test
  ^{:line 48, :column 17}
  (:require
   [clojure.test :refer [deftest is testing]]
-  [com.widdindustries.tempo :as t]))
+  [com.widdindustries.chronos :as t]))
 
 ^{:line 52, :column 9} (comment "accessors")
 

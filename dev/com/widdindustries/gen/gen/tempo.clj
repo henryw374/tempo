@@ -23,7 +23,7 @@
 
 (defn gen-tempo [  main-feature]
   (let [[pre-graph post-graph] (non-graph main-feature)]
-    (gen/gen (str "src/com/widdindustries/tempo"
+    (gen/gen (str "src/com/widdindustries/chronos"
                (feature->ext main-feature))
       (concat
         pre-graph
@@ -42,11 +42,11 @@
   )
 
 (defn generate-test []
-  (gen/gen (str  "test/com/widdindustries/tempo_gen_test.cljc"
+  (gen/gen (str  "test/com/widdindustries/chronos_gen_test.cljc"
              )
-    (concat ['(ns com.widdindustries.tempo-gen-test
+    (concat ['(ns com.widdindustries.chronos-gen-test
                 (:require [clojure.test :refer [deftest is testing]]
-                          [com.widdindustries.tempo :as t]))]
+                          [com.widdindustries.chronos :as t]))]
       ;['(comment "constructors")]
       ;(constructors/constructor-tests features)
       ['(comment "accessors")]

@@ -1,11 +1,11 @@
 (ns
- com.widdindustries.tempo
+ com.widdindustries.chronos
  (:refer-clojure :exclude [min max > < >= <= >> <<])
  (:require
-  [com.widdindustries.tempo.temporal-comparison
+  [com.widdindustries.chronos.temporal-comparison
    :as
    temporal-comparison]
-  [com.widdindustries.tempo.tempo-clock :as tempo-clock]
+  [com.widdindustries.chronos.chronos-clock :as chronos-clock]
   [goog.object]))
 
 ^{:line 30, :column 11} (comment "accessors")
@@ -295,27 +295,27 @@
 
 ^{:line 34, :column 11} (comment "nowers")
 
-(defn zdt-deref ([^java.time.Clock clock] (tempo-clock/zdt clock)))
+(defn zdt-deref ([^java.time.Clock clock] (chronos-clock/zdt clock)))
 
 (defn
  datetime-deref
- ([^java.time.Clock clock] (tempo-clock/datetime clock)))
+ ([^java.time.Clock clock] (chronos-clock/datetime clock)))
 
-(defn date-deref ([^java.time.Clock clock] (tempo-clock/date clock)))
+(defn date-deref ([^java.time.Clock clock] (chronos-clock/date clock)))
 
 (defn
  monthday-deref
- ([^java.time.Clock clock] (tempo-clock/monthday clock)))
+ ([^java.time.Clock clock] (chronos-clock/monthday clock)))
 
-(defn time-deref ([^java.time.Clock clock] (tempo-clock/time clock)))
+(defn time-deref ([^java.time.Clock clock] (chronos-clock/time clock)))
 
 (defn
  instant-deref
- ([^java.time.Clock clock] (tempo-clock/instant clock)))
+ ([^java.time.Clock clock] (chronos-clock/instant clock)))
 
 (defn
  yearmonth-deref
- ([^java.time.Clock clock] (tempo-clock/yearmonth clock)))
+ ([^java.time.Clock clock] (chronos-clock/yearmonth clock)))
 
 ^{:line 36, :column 11} (comment "constructors")
 
@@ -439,32 +439,32 @@
  clock-fixed
  "create a stopped clock"
  ([^ZonedDateTime zdt]
-  (tempo-clock/clock
+  (chronos-clock/clock
    (constantly (.toInstant zdt))
    (constantly (.-timeZoneId zdt))))
  ([^Instant instant ^String zone-str]
-  (tempo-clock/clock (constantly instant) (constantly zone-str))))
+  (chronos-clock/clock (constantly instant) (constantly zone-str))))
 
 (defn
  clock-with-timezone
  "ticking clock in given timezone"
  [^String timezone]
- (tempo-clock/clock js/Temporal.Now.instant (constantly timezone)))
+ (chronos-clock/clock js/Temporal.Now.instant (constantly timezone)))
 
 (defn
  clock-offset-millis
  "offset an existing clock by offset-millis"
  [a-clock offset-millis]
- (tempo-clock/clock
+ (chronos-clock/clock
   (fn
    []
    (.add (.instant ^js a-clock) (js-obj "milliseconds" offset-millis)))
-  (constantly (tempo-clock/timezone a-clock))))
+  (constantly (chronos-clock/timezone a-clock))))
 
 (defn
  clock
  [instant-fn timezone-fn]
- (tempo-clock/clock instant-fn timezone-fn))
+ (chronos-clock/clock instant-fn timezone-fn))
 
 (defn
  clock-zdt-atom
@@ -474,7 +474,7 @@
   (fn get-instant [] (zdt->instant @zdt-atom))
   (fn get-zone [] (zdt->timezone @zdt-atom))))
 
-(defn timezone-deref ([clock] (tempo-clock/timezone clock)))
+(defn timezone-deref ([clock] (chronos-clock/timezone clock)))
 
 (defn legacydate->instant [d] (.toTemporalInstant ^js d))
 
@@ -491,7 +491,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__59871# p2__59872#] (greater p1__59871# p2__59872#))
+  (fn* [p1__36326# p2__36327#] (greater p1__36326# p2__36327#))
   arg
   args))
 
@@ -503,7 +503,7 @@
  [arg & args]
  (assert (every? some? (cons arg args)))
  (reduce
-  (fn* [p1__59873# p2__59874#] (lesser p1__59873# p2__59874#))
+  (fn* [p1__36328# p2__36329#] (lesser p1__36328# p2__36329#))
   arg
   args))
 
@@ -594,7 +594,7 @@
    (not (or (monthday? temporal) (yearmonth? temporal))))
   (throw
    (ex-info
-    "see guardrails section at https://github.com/henryw374/tempo?tab=readme-ov-file#guardrails"
+    "see guardrails section at https://github.com/henryw374/chronos?tab=readme-ov-file#guardrails"
     {}))))
 
 (defn
@@ -609,7 +609,7 @@
     (not (zero? (.-months ^js temporal-amount)))))
   (throw
    (ex-info
-    "see guardrails section at https://github.com/henryw374/tempo?tab=readme-ov-file#guardrails"
+    "see guardrails section at https://github.com/henryw374/chronos?tab=readme-ov-file#guardrails"
     {}))))
 
 (defn
@@ -752,7 +752,7 @@
 
 (defn
  truncate
- "zero property field and below of temporal"
+ "zero property field (and smaller fields) of temporal"
  [temporal property]
  (.round
   ^js temporal

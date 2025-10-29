@@ -1,14 +1,14 @@
 (ns com.widdindustries.gen.gen-in.tempo)
 
-(ns com.widdindustries.tempo
+(ns com.widdindustries.chronos
   (:refer-clojure :exclude [min max > < >= <= >> <<])
   #?(:cljay
      (:import
        [java.time Clock MonthDay ZoneId ZoneOffset Instant Duration Period DayOfWeek Month ZonedDateTime LocalTime LocalDateTime LocalDate Year YearMonth ZoneId OffsetDateTime OffsetTime]
        [java.time.temporal Temporal TemporalAmount TemporalUnit TemporalAccessor ChronoUnit ChronoField ValueRange]
        [java.util Date])
-     :cljs (:require [com.widdindustries.tempo.temporal-comparison :as temporal-comparison]
-             [com.widdindustries.tempo.tempo-clock :as tempo-clock]
+     :cljs (:require [com.widdindustries.chronos.temporal-comparison :as temporal-comparison]
+             [com.widdindustries.chronos.chronos-clock :as chronos-clock]
              [goog.object])))
 
 #?(:cljay (set! *warn-on-reflection* true))
@@ -74,28 +74,28 @@
   "create a stopped clock"
   ([^ZonedDateTime zdt]
    #?(:cljay (Clock/fixed (.toInstant zdt)   (.getZone zdt))
-      :cljs (tempo-clock/clock (constantly (.toInstant zdt)) (constantly (.-timeZoneId zdt)))))
+      :cljs (chronos-clock/clock (constantly (.toInstant zdt)) (constantly (.-timeZoneId zdt)))))
   ([^Instant instant ^String zone-str]
    #?(:cljay (Clock/fixed instant (ZoneId/of zone-str))
-      :cljs (tempo-clock/clock (constantly instant) (constantly zone-str)))))
+      :cljs (chronos-clock/clock (constantly instant) (constantly zone-str)))))
 
 (defn clock-with-timezone 
   "ticking clock in given timezone" 
   [^String timezone]
   #?(:cljay (Clock/system (ZoneId/of timezone))
-     :cljs (tempo-clock/clock js/Temporal.Now.instant (constantly timezone))))
+     :cljs (chronos-clock/clock js/Temporal.Now.instant (constantly timezone))))
 
 (defn clock-offset-millis 
   "offset an existing clock by offset-millis"
   [a-clock offset-millis]
   #?(:cljay (Clock/offset a-clock (Duration/ofMillis offset-millis))
-     :cljs (tempo-clock/clock
+     :cljs (chronos-clock/clock
              (fn [] (.add (.instant ^js a-clock) (js-obj "milliseconds" offset-millis)))
-             (constantly (tempo-clock/timezone a-clock)))))
+             (constantly (chronos-clock/timezone a-clock)))))
 
 (defn clock [instant-fn timezone-fn]
   #?(:cljay (java-time-clock instant-fn timezone-fn)
-     :cljs (tempo-clock/clock instant-fn timezone-fn)))
+     :cljs (chronos-clock/clock instant-fn timezone-fn)))
 
 (defn clock-zdt-atom
   "create a clock which will dereference the zdt-atom.
@@ -112,7 +112,7 @@
 
 (defn timezone-deref
   ([clock] #?(:cljay (str (.getZone ^Clock clock))
-              :cljs (tempo-clock/timezone clock))))
+              :cljs (chronos-clock/timezone clock))))
 
 (defn legacydate->instant [d]
   #?(:cljay (.toInstant ^java.util.Date d)
@@ -325,7 +325,7 @@
       (contains? #{years-property months-property} temporal-property)
          (not (or (monthday? temporal) (yearmonth? temporal))))
     (throw (ex-info
-             "see guardrails section at https://github.com/henryw374/tempo?tab=readme-ov-file#guardrails"
+             "see guardrails section at https://github.com/henryw374/chronos?tab=readme-ov-file#guardrails"
              {}))))
 
 (defn throw-if-months-or-years-in-amount [temporal temporal-amount]
@@ -340,7 +340,7 @@
                  (not (zero? (.-years ^js temporal-amount)))
                  (not (zero? (.-months ^js temporal-amount))))))
     (throw (ex-info
-             "see guardrails section at https://github.com/henryw374/tempo?tab=readme-ov-file#guardrails"
+             "see guardrails section at https://github.com/henryw374/chronos?tab=readme-ov-file#guardrails"
              {}))))
 
 (defn with 
@@ -452,7 +452,7 @@
      Instant (-truncate [zdt unit] (.truncatedTo zdt unit))))
 
 (defn truncate 
-  "zero property field and below of temporal"
+  "zero property field (and smaller fields) of temporal"
   [temporal property]
   #?(:cljay (-truncate temporal (unit property))
      :cljs (.round ^js temporal 

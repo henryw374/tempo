@@ -1,6 +1,6 @@
 (ns noodle.client-app
   (:require
-    [com.widdindustries.tempo :as t]
+    [com.widdindustries.chronos :as t]
     )
   )
 
