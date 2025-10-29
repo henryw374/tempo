@@ -12,10 +12,9 @@ Learn Chronos [live in a browser REPL](https://widdindustries.com/chronos-docs/p
 
 ### java.time vs Temporal
 
-java.time and Temporal have some overlap with respect to concepts and naming. [See here for a brief introduction and overview](https://widdindustries.com/blog/ecma-temporal-vs-java-time.html)
+java.time and Temporal have some overlap with respect to concepts and naming. [See here for a comparison](https://widdindustries.com/blog/ecma-temporal-vs-java-time.html)
 
-The below graph shows the entities in Temporal. If you know java.time and you squint a bit, it will look familiar to
-you.
+The below graph shows the entities in Temporal. If you know java.time and you squint a bit, it will look familiar to you.
 
 ![graph of entities in Temporal](https://tc39.es/proposal-temporal/docs/object-model.svg)
 
@@ -38,7 +37,7 @@ Following is some more detail:
   strings ([Temporal may have this in the future](https://github.com/js-temporal/proposal-temporal-v2/issues/2))
 * 2 types to represent temporal-amounts: `Duration` and `Period`
 * OffsetDateTime, OffsetTime, Month, Year and DayOfWeek entities
-    * Chronos adds a cljs version of DayOfWeek, so there is e.g. `t/weekday-saturday`
+    * Chronos adds a cljs version of DayOfWeek, so there is e.g. `c/weekday-saturday`
     * OffsetDateTime & OffsetTime are not in Chronos
     * Month and Year are just represented by integers in Chronos
 
@@ -140,10 +139,10 @@ As of October 2025
 
 ```clojure
 (ns my.cljc.namespace
-  (:require [com.widdindustries.chronos :as t]
+  (:require [com.widdindustries.chronos :as c]
             [time-literals.read-write]))
 
-(t/date-parse "2020-02-02")
+(c/date-parse "2020-02-02")
 
 (defn initialise []
   ; optional, print objects as data-literals
@@ -151,7 +150,7 @@ As of October 2025
   (time-literals.read-write/print-time-literals-cljs!)
 
   ;optional - make comparison, e.g. =,sort,compare etc work for all js/Temporal entities
-  (t/enable-comparison-for-all-temporal-entities))
+  (c/enable-comparison-for-all-temporal-entities))
 
 
 ```

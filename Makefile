@@ -4,6 +4,8 @@ test-cljs:
 			clojure -Adev -X dev/tests-ci-shadow :compile-mode :release
 test-clj:
 			clojure -Adev -X dev/run-clj-tests
+test-bb:
+			bb test
 clean:
 			clj -T:build clean
 install:
